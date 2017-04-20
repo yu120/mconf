@@ -6,35 +6,49 @@
 	<artifactId>mconf</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>配置中心</name>
-	<description>配置中心</description>
+	<name>The Micro Service Conf Center</name>
+	<description>The Micro Service Conf Center</description>
 
 	<properties>
-		<commons-configuration2.version>2.1.1</commons-configuration2.version>
-		<zookeeper>3.4.6</zookeeper>
-		<curator-framework>2.8.0</curator-framework>
-		<zkclient>0.10</zkclient>
+		<micro.version>1.0.0-SNAPSHOT</micro.version>
 
-		<log4j2>2.7</log4j2>
+		<commons-beanutils.version>1.9.3</commons-beanutils.version>
+		<commons-configuration2.version>2.1.1</commons-configuration2.version>
+		<zookeeper.version>3.4.6</zookeeper.version>
+		<curator-framework.version>2.8.0</curator-framework.version>
+		<zkclient.version>0.10</zkclient.version>
+
+		<log4j2.version>2.7</log4j2.version>
+
+		<junit.version>4.12</junit.version>
+		<easymock.version>3.4</easymock.version>
 	</properties>
 
 	<dependencies>
+		<!-- The Micro Core -->
+		<dependency>
+			<groupId>cn.ms</groupId>
+			<artifactId>micro</artifactId>
+			<version>${micro.version}</version>
+		</dependency>
+
+
+		<!-- Third Party Dependence -->
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>${commons-beanutils.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-configuration2</artifactId>
 			<version>${commons-configuration2.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.3</version>
-		</dependency>
-
-		<!-- 第三方依赖 -->
+		<!-- Zookeeper -->
 		<dependency>
 			<groupId>org.apache.zookeeper</groupId>
 			<artifactId>zookeeper</artifactId>
-			<version>${zookeeper}</version>
+			<version>${zookeeper.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -54,26 +68,66 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
 		<!-- Netflix curator -->
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-framework</artifactId>
-			<version>${curator-framework}</version>
+			<version>${curator-framework.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-recipes</artifactId>
-			<version>${curator-framework}</version>
+			<version>${curator-framework.version}</version>
 		</dependency>
-
-		<!-- zkclient -->
+		<!-- Zkclient -->
 		<dependency>
 			<groupId>com.101tec</groupId>
 			<artifactId>zkclient</artifactId>
-			<version>${zkclient}</version>
+			<version>${zkclient.version}</version>
 		</dependency>
-		<!-- redis -->
+
+
+		<!-- Log4J2 -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j2.version}</version>
+		</dependency>
+
+
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>${easymock.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
