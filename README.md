@@ -2,8 +2,9 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/yu120/mconf/pulls)
-[![GitHub stars](https://img.shields.io/github/stars/yu120/mconf.svg?style=social&label=Stars)](https://github.com/yu120/mconf)
-[![GitHub forks](https://img.shields.io/github/forks/yu120/mconf.svg?style=social&label=Fork)](https://github.com/yu120/mconf)
+[![GitHub Watch](https://img.shields.io/github/forks/yu120/mconf.svg?style=social&label=Watch)](https://github.com/yu120/mconf)
+[![GitHub Star](https://img.shields.io/github/stars/yu120/mconf.svg?style=social&label=Star)](https://github.com/yu120/mconf)
+[![GitHub Fork](https://img.shields.io/github/forks/yu120/mconf.svg?style=social&label=Fork)](https://github.com/yu120/mconf)
 
 ## 开源产品介绍（微服务基础设施<font color="red">QQ交流群：191958521</font>）
 + 配置中心(mconf)
