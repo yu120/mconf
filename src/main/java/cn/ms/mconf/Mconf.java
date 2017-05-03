@@ -4,6 +4,7 @@ import java.util.List;
 
 import cn.ms.mconf.support.MconfQuery;
 import cn.ms.mconf.support.NotifyMessage;
+import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
 import cn.ms.micro.extension.Spi;
 
@@ -13,8 +14,20 @@ import cn.ms.micro.extension.Spi;
  * @author lry
  */
 @Spi(scope = Scope.SINGLETON)
-public interface Mconf extends MconfService {
+public interface Mconf {
 
+	/**
+	 * Connection configuration center
+	 */
+	void connection(URL url);
+
+	/**
+	 * View configuration center status
+	 * 
+	 * @return
+	 */
+	boolean isAvailable();
+	
 	/**
 	 * Add data<br>
 	 * <br>

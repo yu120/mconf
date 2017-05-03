@@ -47,38 +47,17 @@ public class ZookeeperMconf extends AbstractMconf {
 		return zkCrud.isAvailable();
 	}
 	
-	//$NON-NLS-CRUD$
-	@Override
-	public <T> void addConf(URL url, T data) {
-		String confPath = this.url2Path(url);
-		String jsonData = this.obj2Json(data);
-		zkCrud.addData(confPath, jsonData, CreateMode.PERSISTENT);// Persistent node data
-	}
-	
 	@Override
 	public <T> void addConf(T data) {
 		MetaData metaData = this.obj2Mconf(data);
 		String path = this.metaData2Path(metaData);
 		zkCrud.addData(path, metaData.getData(), CreateMode.PERSISTENT);// Persistent node data
 	}
-
-	@Override
-	public <T> void delConf(URL url) {
-		String confPath = this.url2Path(url);
-		zkCrud.delData(confPath);
-	}
 	
 	@Override
 	public <T> void delConf(T data) {
 		MetaData metaData = this.obj2Mconf(data);
 		zkCrud.delData(this.metaData2Path(metaData));
-	}
-
-	@Override
-	public <T> void setConf(URL url, T data) {
-		String confPath = this.url2Path(url);
-		String jsonData = this.obj2Json(data);
-		zkCrud.setData(confPath, jsonData);
 	}
 	
 	@Override
@@ -89,50 +68,12 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T getConf(URL url) {
-		String confPath = this.url2Path(url);
-		String json = zkCrud.getData(confPath);
-		return (T)json2Obj(json, null);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
 	public <T> T getConf(T data) {
 		MetaData metaData = this.obj2Mconf(data);
 		
 		String path = this.metaData2Path(metaData);
 		String json = zkCrud.getData(path);
 		return (T)json2Obj(json, data.getClass());
-	}
-	
-	@Override
-	public <T> List<T> getConfs(URL url) {
-		List<T> list = new ArrayList<T>();
-		url.removeParameter(MconfParamType.DATAID_KEY);
-		String confPath = this.url2Path(url);
-		
-		//Query all dataId lists
-		List<String> childNodeList= zkCrud.getChildNodes(confPath);
-		if(childNodeList!=null){
-			for (String childNode:childNodeList) {
-				String dataId = decode(childNode);
-				if(StringUtils.isBlank(dataId)){
-					throw new RuntimeException("Invalid data, dataId=="+dataId);
-				}
-				
-				url.addParameter(MconfParamType.DATAID_KEY, dataId);
-				String path = this.url2Path(url);
-				String json = zkCrud.getData(path);
-				
-				@SuppressWarnings("unchecked")
-				T t = (T)json2Obj(json, null);
-				if(t!=null){
-					list.add(t);
-				}
-			}
-		}
-				
-		return list;
 	}
 	
 	/**
@@ -170,32 +111,6 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void subscribe(URL url, final NotifyMessage<List<T>> notifyMessage) {
-		String confPath = this.url2Path(url);
-		zkCrud.subscribeChildNodeData(confPath, new NotifyMessage<Map<String, Object>>() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void notify(Map<String, Object> dataMap) {
-				List<T> objs = new ArrayList<T>();
-				for (Map.Entry<String, Object> entry:dataMap.entrySet()) {
-					String[] dataPathArray = entry.getKey().split("\\/");// ["", mconf, appId, confId, dataId]
-					if(dataPathArray.length!=5){
-						throw new RuntimeException("llegal PATH structure.");
-					}
-					
-					T obj = (T)json2Obj(String.valueOf(entry.getValue()), null);
-					objs.add(obj);
-				}
-				notifyMessage.notify(objs);
-			}
-		});
-
-		// Solve the first subscription without notice
-		List<T> objs = this.getConfs(url);
-		notifyMessage.notify(objs);
-	}
-
-	@Override
 	public <T> void subscribe(final T data, final NotifyMessage<List<T>> notifyMessage) {
 		MetaData metaData = this.obj2Mconf(data);
 		zkCrud.subscribeChildNodeData(this.metaData2Path(metaData), new NotifyMessage<Map<String, Object>>() {
@@ -219,12 +134,6 @@ public class ZookeeperMconf extends AbstractMconf {
 		// Solve the first subscription without notice
 		List<T> objs = this.getConfs(data);
 		notifyMessage.notify(objs);
-	}
-	
-	@Override
-	public <T> void unsubscribe(URL url) {
-		String confPath = this.url2Path(url);
-		zkCrud.unsubscribeChildNodeData(confPath);
 	}
 	
 	@Override

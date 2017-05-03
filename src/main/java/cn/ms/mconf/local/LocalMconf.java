@@ -98,39 +98,4 @@ public class LocalMconf extends AbstractMconf {
 		throw new IllegalStateException("The No Support.");
 	}
 
-	@Override
-	public <T> void addConf(URL url, T data) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> void delConf(URL url) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> void setConf(URL url, T data) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> T getConf(URL url) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> List<T> getConfs(URL url) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> void subscribe(URL url, NotifyMessage<List<T>> notifyMessage) {
-		throw new IllegalStateException("The No Support.");
-	}
-
-	@Override
-	public <T> void unsubscribe(URL url) {
-		throw new IllegalStateException("The No Support.");
-	}
-	
 }
