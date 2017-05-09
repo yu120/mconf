@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-import cn.ms.mconf.local.Conf;
 import cn.ms.mconf.support.MconfParamType;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.ExtensionLoader;
@@ -34,16 +33,6 @@ public enum MconfFactory {
 		String confName = url.getParameter(MconfParamType.confName.getName(), MconfParamType.confName.getValue());
 		this.getConf(confName);
 		this.getMconf(url);
-	}
-	
-	public Conf getConf() {
-		if(CONFS != null){
-			for (Map.Entry<String, Conf> entry:CONFS.entrySet()) {
-				return entry.getValue();
-			}
-		}
-		
-		return null;
 	}
 	
 	public Conf getConf(String confName) {

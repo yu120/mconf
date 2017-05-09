@@ -1,4 +1,4 @@
-package cn.ms.mconf.local;
+package cn.ms.mconf;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.ms.mconf.Conf;
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.MconfParamType;
 import cn.ms.mconf.support.MconfQuery;
