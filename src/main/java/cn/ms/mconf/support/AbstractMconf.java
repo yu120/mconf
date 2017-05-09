@@ -61,14 +61,26 @@ public abstract class AbstractMconf implements Mconf {
 		}
 
 		try {
+			Field[] subFields = data.getClass().getDeclaredFields();
 			Field dataIdField = null;
-			Field[] fields = data.getClass().getDeclaredFields();
-			for (Field field : fields) {
+			for (Field field : subFields) {
 				DataId dataId = field.getAnnotation(DataId.class);
 				field.setAccessible(true);
 				if (dataId != null) {
 					dataIdField = field;
 					break;
+				}
+			}
+			
+			if (dataIdField == null) {
+				Field[] superFields = data.getClass().getSuperclass().getDeclaredFields();
+				for (Field field : superFields) {
+					DataId dataId = field.getAnnotation(DataId.class);
+					field.setAccessible(true);
+					if (dataId != null) {
+						dataIdField = field;
+						break;
+					}
 				}
 			}
 

@@ -1,10 +1,8 @@
 package cn.ms.mconf;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import cn.ms.mconf.support.MconfParamType;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.ExtensionLoader;
 
@@ -16,75 +14,51 @@ import cn.ms.micro.extension.ExtensionLoader;
  * 2.读取Zookeeper中的Bean配置<br>
  * 3.读取本地资源文件中的Bean配置<br>
  * 4.先读取本地支援文件中的Bena配置,再读取Zookeeper中的配置进行内存覆盖<br>
+ * 
  * @author lry
  */
 public enum MconfFactory {
 
 	MCONF;
-	
-	public static final String confName= "confName";
-	
-	// Configuration center acquisition process lock
-	private static final ReentrantLock LOCK = new ReentrantLock();
-	private ConcurrentHashMap<String, Mconf> MCONFS = new ConcurrentHashMap<String, Mconf>();
-	private ConcurrentHashMap<String, Conf> CONFS = new ConcurrentHashMap<String, Conf>();
 
-	public void connection(URL url) {
-		String confName = url.getParameter(MconfParamType.confName.getName(), MconfParamType.confName.getValue());
-		this.getConf(confName);
-		this.getMconf(url);
+	private final static Logger logger = LoggerFactory
+			.getLogger(MconfFactory.class);
+
+	public static final String MCONF_URL_KEY = "mconf.url";
+
+	private Conf conf;
+	private Mconf mconf;
+
+	public Conf getConf() {
+		return conf;
 	}
-	
-	public Conf getConf(String confName) {
-		LOCK.lock();
-		
-		try {
-			Conf conf = CONFS.get(confName);
-			if (conf != null) {
-				return conf;
-			}
-			
-			conf = new Conf();
-			conf.connection(confName);
-			
-			CONFS.put(confName, conf);
-			return conf;
-		} finally {
-			LOCK.unlock();// Release lock
-		}
-	}
-	
+
 	public Mconf getMconf() {
-		if(MCONFS != null){
-			for (Map.Entry<String, Mconf> entry:MCONFS.entrySet()) {
-				return entry.getValue();
-			}
-		}
-		
-		return null;
+		return mconf;
 	}
-	
-	public Mconf getMconf(URL url) {
-		String key = url.getHost();
-		// Lock configuration center to obtain the process, to ensure a single instance of the configuration center
-		LOCK.lock();
-		
-		try {
-			Mconf mconf = MCONFS.get(key);
-			if (mconf != null) {
-				return mconf;
+
+	public void start(String confName) {
+		logger.info("Is loading conf and mconf center...");
+
+		conf = new Conf();
+		if (!conf.connection(confName)) {
+			throw new IllegalStateException("No conf(" + confName + ") connection fail.");
+		} else {
+			logger.info("The conf connection successed, data is: {}", conf.getPropertys());
+
+			Object mconfURL = conf.getProperty(MCONF_URL_KEY);
+			if (mconfURL == null || String.valueOf(mconfURL).length() == 0) {
+				throw new IllegalStateException("The conf(" + confName + ") KEY '" + MCONF_URL_KEY + "'='" + mconfURL + "'.");
+			} else {
+				URL url = URL.valueOf(String.valueOf(mconfURL));
+				mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
+				mconf.connection(url);
+				if (!mconf.isAvailable()) {
+					throw new IllegalStateException("No mconf center available: " + url);
+				} else {
+					logger.info("The mconf center started successed!");
+				}
 			}
-			
-			mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
-			mconf.connection(url);
-			if (!mconf.isAvailable()) {
-				throw new IllegalStateException("No mconf center available: " + url);
-			}
-			
-			MCONFS.put(key, mconf);
-			return mconf;
-		} finally {
-			LOCK.unlock();// Release lock
 		}
 	}
 

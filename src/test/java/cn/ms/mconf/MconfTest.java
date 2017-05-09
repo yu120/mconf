@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import cn.ms.mconf.support.NotifyMessage;
-import cn.ms.micro.common.URL;
 
 /**
  * 微服务配置中心 - 功能单元测试<br>
@@ -21,8 +20,8 @@ public class MconfTest {
 	Mconf mconf;
 
 	public MconfTest() {
-		URL url = URL.valueOf("zookeeper://127.0.0.1:2181?zkType=curator&timeout=15000&session=60000");
-		mconf = MconfFactory.MCONF.getMconf(url);
+		MconfFactory.MCONF.start("mconf-test.properties");
+		mconf = MconfFactory.MCONF.getMconf();
 	}
 
 	/**
