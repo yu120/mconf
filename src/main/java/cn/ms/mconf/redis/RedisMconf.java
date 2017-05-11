@@ -1,6 +1,7 @@
 package cn.ms.mconf.redis;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
+import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.SpiMeta;
 import cn.ms.micro.threadpool.NamedThreadFactory;
@@ -43,6 +45,7 @@ public class RedisMconf extends AbstractMconf {
 	
 	private String group;
 	private JedisPool jedisPool;
+	private long retryPeriod = 5000;
 	private boolean isSubscribe = true;
 	
 	@SuppressWarnings("unused")
@@ -56,12 +59,13 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public void connect(URL url) {
 		this.group = url.getParameter("group", "mconf");
+		this.retryPeriod = url.getParameter("retryPeriod", retryPeriod);
 
 		JedisPoolConfig config = new JedisPoolConfig();
 		try {
 			BeanUtils.copyProperties(config, url.getParameters());
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("The copy properties exception.", e);
 		}
 
 		jedisPool = new JedisPool(config, url.getHost(), url.getPort());
@@ -132,8 +136,6 @@ public class RedisMconf extends AbstractMconf {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> List<T> pulls(T data) {
-		this.pushSubscribe();
-		
 		Jedis jedis = null;
 		MetaData metaData = this.obj2Mconf(data);
 		
@@ -157,11 +159,12 @@ public class RedisMconf extends AbstractMconf {
 		return null;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public <T> void push(T data, NotifyConf<T> notifyConf) {
 		if(isSubscribe){
-			isSubscribe = false;
 			this.pushSubscribe();
+			isSubscribe = false;
 		}
 		
 		Jedis jedis = null;
@@ -174,8 +177,22 @@ public class RedisMconf extends AbstractMconf {
 				pushClassMap.put(key, data.getClass());
 			}
 			
+			Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
+			if(notifyConfs == null){
+				pushNotifyConfMap.put(key, notifyConfs = new ConcurrentHashSet<NotifyConf>());
+			}
+			notifyConfs.add(notifyConf);
+			
 			//第一次拉取式通知
-			List<T> list = pulls(data);
+			Map<String, String> dataMap = jedis.hgetAll(key);
+			if(dataMap==null){
+				dataMap = new HashMap<String, String>();
+			}
+			List<T> list = new ArrayList<T>();
+			for (Map.Entry<String, String> entry:dataMap.entrySet()) {
+				list.add((T)JSON.parseObject(entry.getValue(), data.getClass()));
+			}
+			pushValueMap.put(key, dataMap);
 			notifyConf.notify(list);
 		} catch (Exception e) {
 			logger.error("The push conf exception.", e);
@@ -224,7 +241,6 @@ public class RedisMconf extends AbstractMconf {
     		return;
     	}
     	
-    	long retryPeriod = 5000;
     	this.retryFuture = retryExecutor.scheduleWithFixedDelay(new Runnable() {
             @SuppressWarnings({ "unchecked", "rawtypes" })
 			public void run() {
@@ -238,17 +254,25 @@ public class RedisMconf extends AbstractMconf {
                 		try {
                 			jedis = jedisPool.getResource();
                 			Map<String, String> newMap = jedis.hgetAll(entry.getKey());
+                			if(newMap == null){
+                				newMap = new HashMap<String, String>();
+                			}
                 			Map<String, String> oldMap = pushValueMap.get(entry.getKey());
-                			if(!oldMap.equals(newMap)){//已变更
+                			if(!newMap.equals(oldMap)){//已变更
                 				Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(entry.getKey());
-                				for (NotifyConf notifyConf:notifyConfs) {
-                					List list = new ArrayList();
-                					for (Map.Entry<String, String> tempEntry:newMap.entrySet()) {
-                						list.add(JSON.parseObject(tempEntry.getValue(), entry.getValue()));
-                					}
-                					
-                					notifyConf.notify(list);
-								}
+                				if(notifyConfs == null){
+                					continue;
+                				} else {
+                					pushValueMap.put(entry.getKey(), newMap);
+	                				for (NotifyConf notifyConf:notifyConfs) {
+	                					List list = new ArrayList();
+	                					for (Map.Entry<String, String> tempEntry:newMap.entrySet()) {
+	                						list.add(JSON.parseObject(tempEntry.getValue(), entry.getValue()));
+	                					}
+	                					
+	                					notifyConf.notify(list);
+									}
+                				}
                 			}
                 		} catch (Exception e) {
                 			logger.error("The push conf exception.", e);
