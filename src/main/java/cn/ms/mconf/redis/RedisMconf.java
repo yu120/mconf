@@ -1,5 +1,6 @@
 package cn.ms.mconf.redis;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -121,8 +122,13 @@ public class RedisMconf extends AbstractMconf {
 			jedis = jedisPool.getResource();
 			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
 			Map<String, String> dataMap = jedis.hgetAll(key);
-			String jsonArray = JSON.toJSONString(dataMap.values());
-			return (List<T>)JSON.parseArray(jsonArray, data.getClass());
+			
+			List<T> list = new ArrayList<T>();
+			for (Map.Entry<String, String> entry:dataMap.entrySet()) {
+				list.add((T)JSON.parseObject(entry.getValue(), data.getClass()));
+			}
+			
+			return list;
 		} catch (Exception e) {
 			logger.error("The pulls conf exception.", e);
 		} finally {
