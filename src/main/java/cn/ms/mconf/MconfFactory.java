@@ -40,7 +40,7 @@ public enum MconfFactory {
 	public void start(String confName) {
 		logger.info("Is loading conf and mconf center...");
 
-		conf = new Conf();
+		conf = Conf.INSTANCE;
 		if (!conf.connection(confName)) {
 			throw new IllegalStateException("No conf(" + confName + ") connection fail.");
 		} else {

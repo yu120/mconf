@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author lry
  */
-public class Conf {
+public enum Conf {
 
+	INSTANCE;
+	
 	private static final Logger logger = LoggerFactory.getLogger(Conf.class);
 	
 	private static String DEFAULT_CONF_NAME = "mconf.properties";
