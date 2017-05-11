@@ -22,6 +22,7 @@
 
 		<junit.version>4.12</junit.version>
 		<easymock.version>3.4</easymock.version>
+		<jedis.version>2.9.0</jedis.version>
 	</properties>
 
 	<dependencies>
@@ -32,6 +33,11 @@
 			<version>${micro.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis.version}</version>
+		</dependency>
 
 		<!-- Third Party Dependence -->
 		<dependency>
@@ -44,6 +50,7 @@
 			<artifactId>commons-configuration2</artifactId>
 			<version>${commons-configuration2.version}</version>
 		</dependency>
+
 		<!-- Zookeeper -->
 		<dependency>
 			<groupId>org.apache.zookeeper</groupId>
@@ -79,13 +86,6 @@
 			<artifactId>curator-recipes</artifactId>
 			<version>${curator-framework.version}</version>
 		</dependency>
-		<!-- Zkclient -->
-		<dependency>
-			<groupId>com.101tec</groupId>
-			<artifactId>zkclient</artifactId>
-			<version>${zkclient.version}</version>
-		</dependency>
-
 
 		<!-- Log4J2 -->
 		<dependency>
@@ -98,7 +98,6 @@
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>${log4j2.version}</version>
 		</dependency>
-
 
 		<!-- Test -->
 		<dependency>
