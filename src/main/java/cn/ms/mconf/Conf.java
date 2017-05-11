@@ -120,6 +120,10 @@ public enum Conf {
 		List<T> list = new ArrayList<T>();
 		Configuration subset = conf.subset(appId + SEG + confId);
 		List<String> dataIds = this.getDataIds(appId, confId);
+		if(dataIds==null){
+			return list;
+		}
+		
 		for (String dataId : dataIds) {
 			Configuration idSubset = subset.subset(dataId);
 			Iterator<String> idSubkeys = idSubset.getKeys();
