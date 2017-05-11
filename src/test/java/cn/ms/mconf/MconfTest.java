@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 import org.junit.Test;
 
-import cn.ms.mconf.support.NotifyMessage;
+import cn.ms.mconf.support.NotifyConf;
 
 /**
  * 微服务配置中心 - 功能单元测试<br>
@@ -32,11 +32,11 @@ public class MconfTest {
 		User user = new User(1000l, "zhangsan", 22);
 
 		mconf.addConf(user);// 新增
-		User getAddUser = mconf.getConf(user);// 查看新增结果
+		User getAddUser = mconf.pull(user);// 查看新增结果
 		Assert.assertEquals(user, getAddUser);
 
 		mconf.delConf(user);// 删除
-		User getDelUser = mconf.getConf(user);// 查看删除结果
+		User getDelUser = mconf.pull(user);// 查看删除结果
 		Assert.assertNull(getDelUser);
 	}
 	
@@ -49,12 +49,12 @@ public class MconfTest {
 		mconf.addConf(new User(1002l, "zhangsan", 222));
 		mconf.addConf(new User(1003l, "zhangsan", 333));
 		
-		List<User> list = mconf.getConfs(new User());
+		List<User> list = mconf.pulls(new User());
 		Assert.assertNotNull(list);
 		Assert.assertEquals(3, list.size());
 		for (User user:list) {
 			mconf.delConf(user);
-			User tempUser = mconf.getConf(user);
+			User tempUser = mconf.pull(user);
 			Assert.assertNull(tempUser);
 		}
 	}
@@ -65,7 +65,7 @@ public class MconfTest {
 	@Test
 	public void testSubscribeChildNodeConfData() throws Exception {
 		final CountDownLatch cd = new CountDownLatch(3);
-		mconf.subscribe(new User(), new NotifyMessage<List<User>>() {
+		mconf.push(new User(), new NotifyConf<User>() {
 			@Override
 			public void notify(List<User> message) {
 				System.out.println("监听通知："+message.toString());
@@ -92,7 +92,7 @@ public class MconfTest {
 	@Test
 	public void testSubscribe() throws Exception {
 		final CountDownLatch cd = new CountDownLatch(3);
-		mconf.subscribe(new User(), new NotifyMessage<List<User>>() {
+		mconf.push(new User(), new NotifyConf<User>() {
 			@Override
 			public void notify(List<User> messages) {
 				System.out.println(messages.size()+"监听通知："+messages.toString());
@@ -123,7 +123,7 @@ public class MconfTest {
 	
 	@Test
 	public void testSubscribeFirst() throws Exception {
-		mconf.subscribe(new User(), new NotifyMessage<List<User>>() {
+		mconf.push(new User(), new NotifyConf<User>() {
 			@Override
 			public void notify(List<User> messages) {
 				System.out.println(messages.size()+"监听通知："+messages.toString());

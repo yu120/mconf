@@ -52,8 +52,8 @@ public enum MconfFactory {
 			} else {
 				URL url = URL.valueOf(String.valueOf(mconfURL));
 				mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
-				mconf.connection(url);
-				if (!mconf.isAvailable()) {
+				mconf.connect(url);
+				if (!mconf.available()) {
 					throw new IllegalStateException("No mconf center available: " + url);
 				} else {
 					logger.info("The mconf center started successed!");

@@ -2,31 +2,32 @@ package cn.ms.mconf;
 
 import java.util.List;
 
-import cn.ms.mconf.support.MconfQuery;
-import cn.ms.mconf.support.NotifyMessage;
+import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
 import cn.ms.micro.extension.Spi;
 
 /**
- * The Micro Service Configuration Center.
- * 
+ * The Micro Service Configuration Center.<br>
+ * <br>
+ * /[mconf]/[envId]/[appId]/[confId]/[dataId]{JSON}
+ * <br>
  * @author lry
  */
 @Spi(scope = Scope.SINGLETON)
 public interface Mconf {
 
 	/**
-	 * Connection configuration center
+	 * Connect configuration center
 	 */
-	void connection(URL url);
+	void connect(URL url);
 
 	/**
 	 * View configuration center status
 	 * 
 	 * @return
 	 */
-	boolean isAvailable();
+	boolean available();
 	
 	/**
 	 * Add data<br>
@@ -57,7 +58,7 @@ public interface Mconf {
 	 * @param data Must enter：appId/confId/dataId
 	 * @return
 	 */
-	<T> T getConf(T data);
+	<T> T pull(T data);
 
 	/**
 	 * Get list
@@ -65,30 +66,26 @@ public interface Mconf {
 	 * @param data Must enter：appId/confId
 	 * @return
 	 */
-	<T> List<T> getConfs(T data);
+	<T> List<T> pulls(T data);
 
 	/**
-	 * subscribe to child node data <br>
+	 * Push to child node data <br>
 	 * <br>
-	 * Note: you can only notify the PATH and DATA of the direct child nodes, and indirect sub nodes use the cyclic PATH to subscribe to <br>
+	 * Note: you can only notify the PATH and DATA of the direct child nodes, and indirect sub nodes use the cyclic PATH to push to <br>
+	 * @param <K>
 	 *
-	 * @param data subscription configuration needs to be set: appId/confId, subscription data needs to be set: appId/confId/dataId
-	 * @param notifyMessage
+	 * @param data push configuration needs to be set: appId/confId, push data needs to be set: appId/confId/dataId
+	 * @param notifyConf
 	 */
-	<T> void subscribe(T data, NotifyMessage<List<T>> notifyMessage);
+	<T> void push(T data, NotifyConf<T> notifyConf);
 
 	/**
-	 * Unsubscribe child node data
+	 * Unpush child node data
 	 * 
-	 * @param data Unsubscribe configuration needs to be set：appId/confId, Unsubscribe data needs to be set：appId/confId/dataId
+	 * @param data unpush configuration needs to be set：appId/confId, unpush data needs to be set：appId/confId/dataId
 	 */
-	<T> void unsubscribe(T data);
-
-	/**
-	 * Query configuration center data
-	 * 
-	 * @return
-	 */
-	MconfQuery query();
+	<T> void unpush(T data);
 	
+	<T> void unpush(T data, NotifyConf<T> notifyConf);
+
 }

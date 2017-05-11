@@ -15,12 +15,12 @@ public class LocalMconfTest {
 	Mconf mconf = null;
 	public LocalMconfTest() {
 		mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
-		mconf.connection(url);
+		mconf.connect(url);
 	}
 
 	@Test
 	public void testGetConfs() {
-		List<GatewayRouter> list = mconf.getConfs(new GatewayRouter());
+		List<GatewayRouter> list = mconf.pulls(new GatewayRouter());
 		Assert.assertEquals(2, list.size());
 	}
 
@@ -28,7 +28,7 @@ public class LocalMconfTest {
 	public void testGetConf() {
 		GatewayRouter queryGatewayRouter = new GatewayRouter();
 		queryGatewayRouter.setId("RR01");
-		GatewayRouter gatewayRouter = mconf.getConf(queryGatewayRouter);
+		GatewayRouter gatewayRouter = mconf.pull(queryGatewayRouter);
 		Assert.assertEquals("(beijing),(weixin0[1-5])", gatewayRouter.getRule());
 	}
 
