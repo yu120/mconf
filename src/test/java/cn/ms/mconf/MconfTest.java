@@ -20,7 +20,7 @@ public class MconfTest {
 	Mconf mconf;
 
 	public MconfTest() {
-		MconfFactory.MCONF.start("mconf-test.properties");
+		MconfFactory.MCONF.start("mconf.properties");
 		mconf = MconfFactory.MCONF.getMconf();
 	}
 
