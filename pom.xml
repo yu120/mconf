@@ -14,15 +14,12 @@
 
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<commons-configuration2.version>2.1.1</commons-configuration2.version>
-		<zookeeper.version>3.4.6</zookeeper.version>
-		<curator-framework.version>2.8.0</curator-framework.version>
-		<zkclient.version>0.10</zkclient.version>
-
 		<log4j2.version>2.7</log4j2.version>
 
-		<junit.version>4.12</junit.version>
-		<easymock.version>3.4</easymock.version>
+		<curator.version>2.8.0</curator.version>
 		<jedis.version>2.9.0</jedis.version>
+
+		<junit.version>4.12</junit.version>
 	</properties>
 
 	<dependencies>
@@ -31,12 +28,6 @@
 			<groupId>cn.ms</groupId>
 			<artifactId>micro</artifactId>
 			<version>${micro.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>${jedis.version}</version>
 		</dependency>
 
 		<!-- Third Party Dependence -->
@@ -51,42 +42,6 @@
 			<version>${commons-configuration2.version}</version>
 		</dependency>
 
-		<!-- Zookeeper -->
-		<dependency>
-			<groupId>org.apache.zookeeper</groupId>
-			<artifactId>zookeeper</artifactId>
-			<version>${zookeeper.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>jline</groupId>
-					<artifactId>jline</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<!-- Netflix curator -->
-		<dependency>
-			<groupId>org.apache.curator</groupId>
-			<artifactId>curator-framework</artifactId>
-			<version>${curator-framework.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.curator</groupId>
-			<artifactId>curator-recipes</artifactId>
-			<version>${curator-framework.version}</version>
-		</dependency>
-
 		<!-- Log4J2 -->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -99,17 +54,30 @@
 			<version>${log4j2.version}</version>
 		</dependency>
 
+		<!-- Redis -->
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis.version}</version>
+		</dependency>
+		<!-- Curator -->
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<version>${curator.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
 		<!-- Test -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.easymock</groupId>
-			<artifactId>easymock</artifactId>
-			<version>${easymock.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
