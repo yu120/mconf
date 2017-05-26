@@ -111,7 +111,7 @@ public class ZookeeperMconf extends AbstractMconf {
 		
 		byte[] dataByte = null;
 		try {
-			dataByte = metaData.getData().getBytes(Charset.forName("UTF-8"));
+			dataByte = String.valueOf(metaData.getBody()).getBytes(Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new IllegalStateException("Serialized data exception", e);
 		}
@@ -144,7 +144,7 @@ public class ZookeeperMconf extends AbstractMconf {
 		
 		byte[] dataByte = null;
 		try {
-			dataByte = metaData.getData().getBytes(Charset.forName("UTF-8"));
+			dataByte = String.valueOf(metaData.getBody()).getBytes(Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new IllegalStateException("Serialized data exception", e);
 		}
@@ -378,13 +378,13 @@ public class ZookeeperMconf extends AbstractMconf {
 		StringBuffer stringBuffer = new StringBuffer();
 		stringBuffer.append("/").append(this.encode(group) + "-" + this.encode(metaData.getNode()));// 1
 		
-		if (!StringUtils.isBlank(metaData.getApp())) {
+		if (StringUtils.isNotBlank(metaData.getApp())) {
 			stringBuffer.append("/").append(this.encode(metaData.getApp()));// 2
 		}
-		if (!StringUtils.isBlank(metaData.getConf())) {
+		if (StringUtils.isNotBlank(metaData.getConf())) {
 			stringBuffer.append("/").append(this.encode(metaData.getConf()));// 3
 		}
-		if (!StringUtils.isBlank(metaData.getData())) {// 4
+		if (StringUtils.isNotBlank(metaData.getData())) {// 4
 			stringBuffer.append("/").append(this.encode(metaData.toBuildDataId()));
 		}
 
