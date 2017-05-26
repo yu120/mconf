@@ -1,6 +1,10 @@
 package cn.ms.mconf.support;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
+
+import cn.ms.micro.common.URL;
 
 /**
  * The Configuration Data Model.<br>
@@ -91,6 +95,16 @@ public class MetaData {
 		}
 
 		return sb.toString();
+	}
+	
+	public void buildWrapper(String dataId) {
+		if(dataId.indexOf("?") > 0){
+			this.setData(dataId.substring(0, dataId.indexOf("?")));
+			Map<String, String> map = new URL(null, null, 0).addParameterString(dataId).getParameters();
+			this.setEnv(map.get("env"));
+			this.setGroup(map.get("group"));
+			this.setVersion(map.get("version"));
+		}
 	}
 
 	public String getData() {

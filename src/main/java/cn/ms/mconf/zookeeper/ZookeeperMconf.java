@@ -188,12 +188,13 @@ public class ZookeeperMconf extends AbstractMconf {
 	public <T> List<T> pulls(T data) {
 		MetaData metaData = this.obj2Mconf(data);
 		List<T> list = new ArrayList<T>();
-		metaData.setData(null);// Force setting dataId to Nulls
+		metaData.setBody(null);// Force setting dataId to Nulls
 		
 		//Query all dataId lists
 		List<String> childNodeList= null;
 		try {
-			childNodeList = client.getChildren().forPath(this.buildPath(metaData));
+			String path = this.buildPath(metaData);
+			childNodeList = client.getChildren().forPath(path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
 			throw new IllegalStateException("Gets all child node exceptions", e);
@@ -205,13 +206,16 @@ public class ZookeeperMconf extends AbstractMconf {
 				if(StringUtils.isBlank(dataId)){
 					throw new RuntimeException("Invalid data, dataId=="+dataId);
 				}
-				metaData.setData(dataId);
+				if(dataId.indexOf("?") > 0){
+					metaData.setData(dataId.substring(0, dataId.indexOf("?")));
+				}
 				
 				String path = this.buildPath(metaData);
 				String json;
 				byte[] dataByte = null;
 
 				try {
+					String pt = decode(path);
 					dataByte = client.getData().forPath(path);
 				} catch (NoNodeException e) {
 				} catch (Exception e) {

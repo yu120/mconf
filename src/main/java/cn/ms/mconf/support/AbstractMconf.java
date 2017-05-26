@@ -43,7 +43,10 @@ public abstract class AbstractMconf implements Mconf {
 			throw new RuntimeException("Field '"+ID_KEY+"' is null.");
 		}
 		try {
-			metaData.setData(String.valueOf(dataIdField.get(data)));
+			Object dataObj = dataIdField.get(data);
+			if(dataObj != null){
+				metaData.setData(String.valueOf(dataObj));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
