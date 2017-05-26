@@ -2,15 +2,13 @@ package cn.ms.mconf;
 
 import java.io.Serializable;
 
-import cn.ms.mconf.annotation.DataId;
 import cn.ms.mconf.annotation.MconfEntity;
 
-@MconfEntity(appId = "gateway", confId = "user")
+@MconfEntity(node = "node01", app = "gateway", conf = "user")
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@DataId
 	private Long id;
 	private String name;
 	private int age;

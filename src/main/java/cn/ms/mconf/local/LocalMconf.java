@@ -61,7 +61,7 @@ public class LocalMconf extends AbstractMconf {
 	@Override
 	public <T> T pull(T data) {
 		MetaData metaData = this.obj2Mconf(data);
-		Object obj = conf.getConf(metaData.getAppId(), metaData.getConfId(), metaData.getDataId(), data.getClass());
+		Object obj = conf.getConf(metaData.getApp(), metaData.getConf(), metaData.getData(), data.getClass());
 		if(obj == null){
 			return null;
 		}
@@ -73,7 +73,7 @@ public class LocalMconf extends AbstractMconf {
 	@Override
 	public <T> List<T> pulls(T data) {
 		MetaData metaData = this.obj2Mconf(data);
-		return (List<T>) conf.getConfs(metaData.getAppId(), metaData.getConfId(), data.getClass());
+		return (List<T>) conf.getConfs(metaData.getApp(), metaData.getConf(), data.getClass());
 	}
 
 	@Override

@@ -12,27 +12,27 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MconfEntity {
+public @interface DataEntity {
 
 	/**
-	 * The Node.
+	 * The Environment.
 	 * 
 	 * @return
 	 */
-	String node();
+	String env() default "";
 
 	/**
-	 * The Application.
+	 * The Group.
 	 * 
 	 * @return
 	 */
-	String app();
+	String group() default "";
 
 	/**
-	 * The Configure.
+	 * The Version.
 	 * 
 	 * @return
 	 */
-	String conf() default "$";
+	String version() default "";
 
 }

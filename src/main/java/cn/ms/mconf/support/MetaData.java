@@ -1,96 +1,70 @@
 package cn.ms.mconf.support;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
- * Configuration data model<br>
+ * The Configuration Data Model.<br>
  * <br>
- * The data structure：/[rootPath]/[appId]/[confId]/[dataId]{data}<br>
+ * The data structure：<br>
+ * <b>Zookeeper：</b><br>
+ * Path -->
+ * /mconf-[node]/[app]/[conf]/[data]?env=[env]&group=[group]&version=[version]<br>
+ * Data --> {body}<br>
+ * <br>
+ * <br>
+ * <b>Redis：</b><br>
+ * Key -->mconf-[node]/[app]/[conf] <br>
+ * Value -->Map<[data]?env=[env]&group=[group]&version=[version], {body}>><br>
  * <br>
  * 
  * @author lry
  */
-public class MetaData {
+public class MetaData extends MconfData {
 
 	/**
-	 * Application ID
-	 */
-	private String appId;
-
-	/**
-	 * Configure ID
-	 */
-	private String confId;
-
-	/**
-	 * Data ID
-	 */
-	private String dataId;
-
-	/**
-	 * Data Body
+	 * The Serialize Data.
 	 */
 	private String data;
 
 	/**
-	 * Subsidiary parameter
+	 * The Data Body.
 	 */
-	private Object obj;
+	private Object body;
+
+	/**
+	 * The Configure Attachment.
+	 */
+	private Object attachment;
 
 	public MetaData() {
 	}
 
-	public MetaData(String appId) {
-		this.appId = appId;
-	}
+	public String toBuildDataId() {
+		StringBuffer sb = new StringBuffer(data);
+		boolean isEnv = StringUtils.isNotBlank(env);
+		boolean isGroup = StringUtils.isNotBlank(group);
+		boolean isVersion = StringUtils.isNotBlank(version);
+		if (isEnv || isGroup || isVersion) {
+			sb.append("?");
+		}
 
-	public MetaData(String appId, String confId) {
-		this.appId = appId;
-		this.confId = confId;
-	}
+		if (isEnv) {
+			sb.append("env=").append(env);
+			if (isGroup || isVersion) {
+				sb.append("&");
+			}
+		}
+		if (isGroup) {
+			sb.append("group=").append(group);
+			if (isVersion) {
+				sb.append("&");
+			}
+		}
+		if (isVersion) {
+			sb.append("version=").append(version);
+		}
 
-	public MetaData(String appId, String confId, String dataId) {
-		this.appId = appId;
-		this.confId = confId;
-		this.dataId = dataId;
-	}
-
-	public MetaData(String appId, String confId, String dataId, String data) {
-		this.appId = appId;
-		this.confId = confId;
-		this.dataId = dataId;
-		this.data = data;
-	}
-
-	public MetaData(String appId, String confId, String dataId, String data,
-			Object obj) {
-		this.appId = appId;
-		this.confId = confId;
-		this.dataId = dataId;
-		this.data = data;
-		this.obj = obj;
-	}
-
-	public String getAppId() {
-		return appId;
-	}
-
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
-
-	public String getConfId() {
-		return confId;
-	}
-
-	public void setConfId(String confId) {
-		this.confId = confId;
-	}
-
-	public String getDataId() {
-		return dataId;
-	}
-
-	public void setDataId(String dataId) {
-		this.dataId = dataId;
+		return sb.toString();
 	}
 
 	public String getData() {
@@ -101,18 +75,28 @@ public class MetaData {
 		this.data = data;
 	}
 
-	public Object getObj() {
-		return obj;
+	public Object getBody() {
+		return body;
 	}
 
-	public void setObj(Object obj) {
-		this.obj = obj;
+	public void setBody(Object body) {
+		this.body = body;
+	}
+
+	public Object getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(Object attachment) {
+		this.attachment = attachment;
 	}
 
 	@Override
 	public String toString() {
-		return "MetaData [appId=" + appId + ", confId=" + confId + ", dataId="
-				+ dataId + ", data=" + data + ", obj=" + obj + "]";
+		return "MetaData [data=" + data + ", body=" + body + ", attachment="
+				+ attachment + ", node=" + node + ", app=" + app + ", conf="
+				+ conf + ", env=" + env + ", group=" + group + ", version="
+				+ version + "]";
 	}
 
 }

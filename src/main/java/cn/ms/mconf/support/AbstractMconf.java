@@ -2,16 +2,15 @@ package cn.ms.mconf.support;
 
 import java.lang.reflect.Field;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.alibaba.fastjson.JSON;
-
 import cn.ms.mconf.Mconf;
-import cn.ms.mconf.annotation.DataId;
+import cn.ms.mconf.annotation.DataEntity;
 import cn.ms.mconf.annotation.MconfEntity;
-import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.MetaData;
+
+import com.alibaba.fastjson.JSON;
 
 public abstract class AbstractMconf implements Mconf {
 
@@ -26,58 +25,40 @@ public abstract class AbstractMconf implements Mconf {
 		}
 
 		MetaData metaData = new MetaData();
-		metaData.setData(this.obj2Json(data));
-
-		//$NON-NLS-Get application ID and configuration name$
+		
+		//$NON-NLS-@MconfEntity$
 		MconfEntity mconfEntity = data.getClass().getAnnotation(MconfEntity.class);
 		if (mconfEntity == null) {
-			throw new RuntimeException("Configuration entity[" +
-					data.getClass() + "] Must contain @MconfEntity annotations.");
+			throw new RuntimeException("Configuration entity[" + data.getClass() + "] Must contain @MconfEntity annotations.");
 		}
-
-		metaData.setAppId(mconfEntity.appId());
-		metaData.setConfId(mconfEntity.confId());
-		if ("$".equals(metaData.getConfId())) {// If it is the default value, use the SimpleName
-			metaData.setConfId(data.getClass().getSimpleName());
+		metaData.setNode(mconfEntity.node());
+		metaData.setApp(mconfEntity.app());
+		metaData.setConf(mconfEntity.conf());
+		if ("$".equals(metaData.getConf())) {// If it is the default value, use the SimpleName
+			metaData.setConf(data.getClass().getSimpleName());
 		}
-
+		
+		Field dataIdField = FieldUtils.getField(data.getClass(), ID_KEY, true);
+		if(dataIdField == null){
+			throw new RuntimeException("Field '"+ID_KEY+"' is null.");
+		}
 		try {
-			Field[] subFields = data.getClass().getDeclaredFields();
-			Field dataIdField = null;
-			for (Field field : subFields) {
-				DataId dataId = field.getAnnotation(DataId.class);
-				field.setAccessible(true);
-				if (dataId != null) {
-					dataIdField = field;
-					break;
-				}
-			}
-			
-			if (dataIdField == null) {
-				Field[] superFields = data.getClass().getSuperclass().getDeclaredFields();
-				for (Field field : superFields) {
-					DataId dataId = field.getAnnotation(DataId.class);
-					field.setAccessible(true);
-					if (dataId != null) {
-						dataIdField = field;
-						break;
-					}
-				}
-			}
-
-			if (null == dataIdField) {
-				throw new RuntimeException("Configuration entity[" + 
-						data.getClass() + "] The member variable must contain a @DataId comment field (Field)");
-			}
-
-			Object object = dataIdField.get(data);
-			if (object != null) {
-				metaData.setDataId(String.valueOf(object));
-			}
+			metaData.setData(String.valueOf(dataIdField.get(data)));
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
-
+		
+		//$NON-NLS-@DataEntity$
+		DataEntity dataEntity = data.getClass().getAnnotation(DataEntity.class);
+		if (dataEntity != null) {
+			metaData.setEnv(dataEntity.env());
+			metaData.setGroup(dataEntity.group());
+			metaData.setVersion(dataEntity.version());
+		}
+		
+		//$NON-NLS-JSON Body$
+		metaData.setBody(this.obj2Json(data));
+		
 		return metaData;
 	}
 	

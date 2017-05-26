@@ -75,6 +75,10 @@ public class RedisMconf extends AbstractMconf {
 	public boolean available() {
 		return (jedisPool == null) ? false : (!jedisPool.isClosed());
 	}
+	
+	public String toBuildKey(MetaData metaData) {
+		return group + "-" + metaData.getNode() + SEQ + metaData.getApp() + SEQ + metaData.getConf();
+	}
 
 	@Override
 	public <T> void addConf(T data) {
@@ -83,8 +87,8 @@ public class RedisMconf extends AbstractMconf {
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
-			jedis.hset(key, metaData.getDataId(), metaData.getData());
+			String key = toBuildKey(metaData);
+			jedis.hset(key, metaData.toBuildDataId(), String.valueOf(metaData.getBody()));
 		} catch (Exception e) {
 			logger.error("The add conf exception.", e);
 		} finally {
@@ -99,8 +103,8 @@ public class RedisMconf extends AbstractMconf {
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
-			jedis.hdel(key, metaData.getDataId());
+			String key = toBuildKey(metaData);
+			jedis.hdel(key, metaData.toBuildDataId());
 		} catch (Exception e) {
 			logger.error("The delete conf exception.", e);
 		} finally {
@@ -121,8 +125,8 @@ public class RedisMconf extends AbstractMconf {
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
-			String json = jedis.hget(key, metaData.getDataId());
+			String key = toBuildKey(metaData);
+			String json = jedis.hget(key, metaData.toBuildDataId());
 			return (T)json2Obj(json, data.getClass());
 		} catch (Exception e) {
 			logger.error("The pull conf exception.", e);
@@ -141,7 +145,7 @@ public class RedisMconf extends AbstractMconf {
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
+			String key = toBuildKey(metaData);
 			Map<String, String> dataMap = jedis.hgetAll(key);
 			
 			List<T> list = new ArrayList<T>();
@@ -172,7 +176,7 @@ public class RedisMconf extends AbstractMconf {
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
+			String key = toBuildKey(metaData);
 			if(!pushClassMap.containsKey(key)){
 				pushClassMap.put(key, data.getClass());
 			}
@@ -204,7 +208,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> void unpush(T data) {
 		MetaData metaData = this.obj2Mconf(data);
-		String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
+		String key = toBuildKey(metaData);
 		
 		if(pushClassMap.containsKey(key)){
 			pushClassMap.remove(key);
@@ -223,7 +227,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
 		MetaData metaData = this.obj2Mconf(data);
-		String key = group + SEQ + metaData.getAppId() + SEQ + metaData.getConfId();
+		String key = toBuildKey(metaData);
 		
 		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
 		notifyConfs.remove(notifyConf);

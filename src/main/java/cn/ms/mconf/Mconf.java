@@ -16,7 +16,10 @@ import cn.ms.micro.extension.Spi;
  */
 @Spi(scope = Scope.SINGLETON)
 public interface Mconf {
-
+	
+	public static final String ID_KEY = "id";
+	public static final String NODE_KEY = "node";
+	
 	/**
 	 * Connect configuration center
 	 */

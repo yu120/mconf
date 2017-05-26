@@ -188,7 +188,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	public <T> List<T> pulls(T data) {
 		MetaData metaData = this.obj2Mconf(data);
 		List<T> list = new ArrayList<T>();
-		metaData.setDataId(null);// Force setting dataId to Nulls
+		metaData.setData(null);// Force setting dataId to Nulls
 		
 		//Query all dataId lists
 		List<String> childNodeList= null;
@@ -205,7 +205,7 @@ public class ZookeeperMconf extends AbstractMconf {
 				if(StringUtils.isBlank(dataId)){
 					throw new RuntimeException("Invalid data, dataId=="+dataId);
 				}
-				metaData.setDataId(dataId);
+				metaData.setData(dataId);
 				
 				String path = this.buildPath(metaData);
 				String json;
@@ -376,21 +376,21 @@ public class ZookeeperMconf extends AbstractMconf {
 	 */
 	private String buildPath(MetaData metaData) {
 		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer.append("/").append(this.encode(group));// Primary node
+		stringBuffer.append("/").append(this.encode(group) + "-" + this.encode(metaData.getNode()));// 1
 		
-		if (!StringUtils.isBlank(metaData.getAppId())) {
-			stringBuffer.append("/").append(this.encode(metaData.getAppId()));// Two node
+		if (!StringUtils.isBlank(metaData.getApp())) {
+			stringBuffer.append("/").append(this.encode(metaData.getApp()));// 2
 		}
-		if (!StringUtils.isBlank(metaData.getConfId())) {
-			stringBuffer.append("/").append(this.encode(metaData.getConfId()));// Three node
+		if (!StringUtils.isBlank(metaData.getConf())) {
+			stringBuffer.append("/").append(this.encode(metaData.getConf()));// 3
 		}
-		if (!StringUtils.isBlank(metaData.getDataId())) {// Four node
-			stringBuffer.append("/").append(this.encode(metaData.getDataId()));
+		if (!StringUtils.isBlank(metaData.getData())) {// 4
+			stringBuffer.append("/").append(this.encode(metaData.toBuildDataId()));
 		}
 
 		return stringBuffer.toString();
 	}
-
+	
 	/**
 	 * Data encoding
 	 * 

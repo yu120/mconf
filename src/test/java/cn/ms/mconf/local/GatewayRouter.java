@@ -1,12 +1,10 @@
 package cn.ms.mconf.local;
 
-import cn.ms.mconf.annotation.DataId;
 import cn.ms.mconf.annotation.MconfEntity;
 
-@MconfEntity(appId = "gateway", confId = "router")
+@MconfEntity(node = "node01", app = "gateway", conf = "router")
 public class GatewayRouter {
 
-	@DataId
 	private String id;
 	private String rule;
 	private String address;
