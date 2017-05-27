@@ -5,7 +5,7 @@ package cn.ms.mconf.support;
  * 
  * @author lry
  */
-public enum MconfParamType {
+public enum MParamType {
 
 	/** Configuration space, defaults to mconf **/
 	GROUP("group", "mconf"),
@@ -31,24 +31,24 @@ public enum MconfParamType {
 	private int intValue;
 	private boolean boolValue;
 
-	private MconfParamType(String name, String value) {
+	private MParamType(String name, String value) {
 		this.name = name;
 		this.value = value;
 	}
 
-	private MconfParamType(String name, long longValue) {
+	private MParamType(String name, long longValue) {
 		this.name = name;
 		this.value = String.valueOf(longValue);
 		this.longValue = longValue;
 	}
 
-	private MconfParamType(String name, int intValue) {
+	private MParamType(String name, int intValue) {
 		this.name = name;
 		this.value = String.valueOf(intValue);
 		this.intValue = intValue;
 	}
 
-	private MconfParamType(String name, boolean boolValue) {
+	private MParamType(String name, boolean boolValue) {
 		this.name = name;
 		this.value = String.valueOf(boolValue);
 		this.boolValue = boolValue;

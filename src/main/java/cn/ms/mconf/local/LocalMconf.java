@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.Conf;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.MconfParamType;
+import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.URL;
@@ -28,7 +28,7 @@ public class LocalMconf extends AbstractMconf {
 	
 	@Override
 	public void connect(URL url) {
-		String confName = url.getParameter(MconfParamType.confName.getName(), MconfParamType.confName.getValue());
+		String confName = url.getParameter(MParamType.confName.getName(), MParamType.confName.getValue());
 		
 		try {
 			available = conf.connection(confName);

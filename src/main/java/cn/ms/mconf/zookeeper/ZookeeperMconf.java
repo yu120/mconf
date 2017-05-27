@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.MconfParamType;
+import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.ConcurrentHashSet;
@@ -67,11 +67,11 @@ public class ZookeeperMconf extends AbstractMconf {
 	
 	@Override
 	public void connect(URL url) {
-		this.group = url.getParameter("group", "mconf");
+		this.group = url.getParameter(MParamType.GROUP.getName(), MParamType.GROUP.getValue());
 		
 		String connAddrs = url.getBackupAddress();
-		int timeout = url.getParameter(MconfParamType.TIMEOUT.getName(), MconfParamType.TIMEOUT.getIntValue());
-		int session = url.getParameter(MconfParamType.SESSION.getName(), MconfParamType.SESSION.getIntValue());
+		int timeout = url.getParameter(MParamType.TIMEOUT.getName(), MParamType.TIMEOUT.getIntValue());
+		int session = url.getParameter(MParamType.SESSION.getName(), MParamType.SESSION.getIntValue());
 		
 		Builder builder = CuratorFrameworkFactory.builder().connectString(connAddrs)
 				.retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000)).connectionTimeoutMs(timeout).sessionTimeoutMs(session);
@@ -416,7 +416,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	 */
 	private String decode(String data) {
 		try {
-			return URLDecoder.decode(data, MconfParamType.DEFAULT_CHARTSET);
+			return URLDecoder.decode(data, MParamType.DEFAULT_CHARTSET);
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("Decoding exception", e);
 		}
