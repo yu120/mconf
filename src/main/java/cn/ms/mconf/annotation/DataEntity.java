@@ -15,6 +15,13 @@ import java.lang.annotation.Target;
 public @interface DataEntity {
 
 	/**
+	 * The Node.
+	 * 
+	 * @return
+	 */
+	String node();
+	
+	/**
 	 * The Environment.
 	 * 
 	 * @return

@@ -31,7 +31,7 @@ public abstract class AbstractMconf implements Mconf {
 		if (mconfEntity == null) {
 			throw new RuntimeException("Configuration entity[" + data.getClass() + "] Must contain @MconfEntity annotations.");
 		}
-		metaData.setNode(mconfEntity.node());
+		
 		metaData.setApp(mconfEntity.app());
 		metaData.setConf(mconfEntity.conf());
 		if ("$".equals(metaData.getConf())) {// If it is the default value, use the SimpleName
@@ -54,6 +54,7 @@ public abstract class AbstractMconf implements Mconf {
 		//$NON-NLS-@DataEntity$
 		DataEntity dataEntity = data.getClass().getAnnotation(DataEntity.class);
 		if (dataEntity != null) {
+			metaData.setNode(dataEntity.node());
 			metaData.setEnv(dataEntity.env());
 			metaData.setGroup(dataEntity.group());
 			metaData.setVersion(dataEntity.version());

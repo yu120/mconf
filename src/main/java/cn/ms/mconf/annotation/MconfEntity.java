@@ -15,13 +15,6 @@ import java.lang.annotation.Target;
 public @interface MconfEntity {
 
 	/**
-	 * The Node.
-	 * 
-	 * @return
-	 */
-	String node();
-
-	/**
 	 * The Application.
 	 * 
 	 * @return

@@ -2,7 +2,7 @@ package cn.ms.mconf.local;
 
 import cn.ms.mconf.annotation.MconfEntity;
 
-@MconfEntity(node = "node01", app = "gateway", conf = "router")
+@MconfEntity(app = "gateway", conf = "router")
 public class GatewayRouter {
 
 	private String id;

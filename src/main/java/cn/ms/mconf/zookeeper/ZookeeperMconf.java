@@ -215,7 +215,6 @@ public class ZookeeperMconf extends AbstractMconf {
 				byte[] dataByte = null;
 
 				try {
-					String pt = decode(path);
 					dataByte = client.getData().forPath(path);
 				} catch (NoNodeException e) {
 				} catch (Exception e) {
