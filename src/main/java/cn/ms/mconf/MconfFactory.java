@@ -21,8 +21,7 @@ public enum MconfFactory {
 
 	MCONF;
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(MconfFactory.class);
+	private final static Logger logger = LoggerFactory.getLogger(MconfFactory.class);
 
 	public static final String MCONF_URL_KEY = "mconf.url";
 
