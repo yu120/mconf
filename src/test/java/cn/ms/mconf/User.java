@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import cn.ms.mconf.annotation.MconfEntity;
 
-@MconfEntity(app = "gateway", conf = "user")
+@MconfEntity("user")
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -2,6 +2,7 @@ package cn.ms.mconf;
 
 import java.util.List;
 
+import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
@@ -37,6 +38,7 @@ public interface Mconf {
 	 * @param data Must enter：appId/confId/dataId/data
 	 */
 	<T> void addConf(T data);
+	<T> void addConf(Category category, T data);
 
 	/**
 	 * Delete data
@@ -44,6 +46,7 @@ public interface Mconf {
 	 * @param data Must enter：appId/confId/dataId
 	 */
 	<T> void delConf(T data);
+	<T> void delConf(Category category, T data);
 
 	/**
 	 * Set  data
@@ -51,6 +54,7 @@ public interface Mconf {
 	 * @param data Must enter：appId/confId/dataId/data
 	 */
 	<T> void setConf(T data);
+	<T> void setConf(Category category, T data);
 
 	/**
 	 * Get data
@@ -59,6 +63,7 @@ public interface Mconf {
 	 * @return
 	 */
 	<T> T pull(T data);
+	<T> T pull(Category category, T data);
 
 	/**
 	 * Get list
@@ -67,6 +72,7 @@ public interface Mconf {
 	 * @return
 	 */
 	<T> List<T> pulls(T data);
+	<T> List<T> pulls(Category category, T data);
 
 	/**
 	 * Push to child node data <br>
@@ -78,6 +84,7 @@ public interface Mconf {
 	 * @param notifyConf
 	 */
 	<T> void push(T data, NotifyConf<T> notifyConf);
+	<T> void push(Category category, T data, NotifyConf<T> notifyConf);
 
 	/**
 	 * Unpush child node data
@@ -85,7 +92,9 @@ public interface Mconf {
 	 * @param data unpush configuration needs to be set：appId/confId, unpush data needs to be set：appId/confId/dataId
 	 */
 	<T> void unpush(T data);
+	<T> void unpush(Category category, T data);
 	
 	<T> void unpush(T data, NotifyConf<T> notifyConf);
+	<T> void unpush(Category category, T data, NotifyConf<T> notifyConf);
 
 }

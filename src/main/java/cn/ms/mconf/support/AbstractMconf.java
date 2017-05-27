@@ -2,13 +2,14 @@ package cn.ms.mconf.support;
 
 import java.lang.reflect.Field;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.Mconf;
-import cn.ms.mconf.annotation.DataEntity;
 import cn.ms.mconf.annotation.MconfEntity;
+import cn.ms.micro.common.URL;
 
 import com.alibaba.fastjson.JSON;
 
@@ -18,12 +19,25 @@ public abstract class AbstractMconf implements Mconf {
 	
 	public static final String ID_KEY = "id";
 	
+	protected Category category = new Category();
+	
+	@Override
+	public void connect(URL url) {
+		try {
+			BeanUtils.copyProperties(category, url.getParameters());
+		} catch (Exception e) {
+			logger.error("The copyProperties exception.", e);
+		}
+	}
+	
 	public <T> MetaData obj2Mconf(T data) {
 		if (data == null) {
 			throw new RuntimeException("data[" + data + "] cannot be empty");
 		}
 		if (data instanceof MetaData) {
-			return (MetaData) data;
+			MetaData metaData = (MetaData) data;
+			metaData.setBody(this.obj2Json(data));
+			return metaData;
 		}
 
 		MetaData metaData = new MetaData();
@@ -34,8 +48,7 @@ public abstract class AbstractMconf implements Mconf {
 			throw new RuntimeException("Configuration entity[" + data.getClass() + "] Must contain @MconfEntity annotations.");
 		}
 		
-		metaData.setApp(mconfEntity.app());
-		metaData.setConf(mconfEntity.conf());
+		metaData.setConf(mconfEntity.value());
 		if ("$".equals(metaData.getConf())) {// If it is the default value, use the SimpleName
 			metaData.setConf(data.getClass().getSimpleName());
 		}
@@ -51,15 +64,6 @@ public abstract class AbstractMconf implements Mconf {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
-		//$NON-NLS-@DataEntity$
-		DataEntity dataEntity = data.getClass().getAnnotation(DataEntity.class);
-		if (dataEntity != null) {
-			metaData.setNode(dataEntity.node());
-			metaData.setEnv(dataEntity.env());
-			metaData.setGroup(dataEntity.group());
-			metaData.setVersion(dataEntity.version());
 		}
 		
 		//$NON-NLS-JSON Body$

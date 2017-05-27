@@ -20,6 +20,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
+import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.ConcurrentHashSet;
@@ -58,6 +59,7 @@ public class RedisMconf extends AbstractMconf {
     
 	@Override
 	public void connect(URL url) {
+		super.connect(url);
 		this.group = url.getParameter("group", "mconf");
 		this.retryPeriod = url.getParameter("retryPeriod", retryPeriod);
 
@@ -82,8 +84,13 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> void addConf(T data) {
+		this.addConf(category, data);
+	}
+	
+	@Override
+	public <T> void addConf(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data);
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -98,8 +105,13 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> void delConf(T data) {
+		this.delConf(category, data);
+	}
+	
+	@Override
+	public <T> void delConf(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data);
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -111,17 +123,27 @@ public class RedisMconf extends AbstractMconf {
 			jedis.close();
 		}
 	}
-
+	
 	@Override
 	public <T> void setConf(T data) {
+		this.setConf(category, data);
+	}
+
+	@Override
+	public <T> void setConf(Category category, T data) {
 		this.addConf(data);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T pull(T data) {
+		return this.pull(category, data);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T pull(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data);
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -136,12 +158,17 @@ public class RedisMconf extends AbstractMconf {
 
 		return null;
 	}
+	
+	@Override
+	public <T> List<T> pulls(T data) {
+		return this.pulls(category, data);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> List<T> pulls(T data) {
+	public <T> List<T> pulls(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data);
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -163,16 +190,21 @@ public class RedisMconf extends AbstractMconf {
 		return null;
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public <T> void push(T data, NotifyConf<T> notifyConf) {
+		this.push(category, data, notifyConf);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public <T> void push(Category category, T data, NotifyConf<T> notifyConf) {
 		if(isSubscribe){
 			this.pushSubscribe();
 			isSubscribe = false;
 		}
 		
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data);
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -207,7 +239,12 @@ public class RedisMconf extends AbstractMconf {
 	
 	@Override
 	public <T> void unpush(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.unpush(category, data);
+	}
+	
+	@Override
+	public <T> void unpush(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String key = toBuildKey(metaData);
 		
 		if(pushClassMap.containsKey(key)){
@@ -223,10 +260,15 @@ public class RedisMconf extends AbstractMconf {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
 	@Override
 	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.unpush(category, data, notifyConf);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	@Override
+	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String key = toBuildKey(metaData);
 		
 		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);

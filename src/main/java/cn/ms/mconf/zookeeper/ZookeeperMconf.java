@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
+import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
@@ -67,6 +68,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	
 	@Override
 	public void connect(URL url) {
+		super.connect(url);
 		this.group = url.getParameter(MParamType.GROUP.getName(), MParamType.GROUP.getValue());
 		
 		String connAddrs = url.getBackupAddress();
@@ -106,9 +108,13 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void addConf(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.addConf(category, data);
+	}
+	
+	@Override
+	public <T> void addConf(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
-		
 		byte[] dataByte = null;
 		try {
 			dataByte = String.valueOf(metaData.getBody()).getBytes(Charset.forName("UTF-8"));
@@ -126,7 +132,12 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void delConf(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.delConf(category, data);
+	}
+	
+	@Override
+	public <T> void delConf(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
 		
 		try {
@@ -139,7 +150,12 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void setConf(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.setConf(category, data);
+	}
+
+	@Override
+	public <T> void setConf(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
 		
 		byte[] dataByte = null;
@@ -156,11 +172,16 @@ public class ZookeeperMconf extends AbstractMconf {
 			throw new IllegalStateException("Modify data exception", e);
 		}
 	}
+	
+	@Override
+	public <T> T pull(T data) {
+		return this.pull(category, data);
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T pull(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+	public <T> T pull(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
 		
 		byte[] dataByte = null;
@@ -183,10 +204,15 @@ public class ZookeeperMconf extends AbstractMconf {
 			throw new IllegalStateException("UnSerialized data exception", e);
 		}
 	}
-
+	
 	@Override
 	public <T> List<T> pulls(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		return this.pulls(category, data);
+	}
+	
+	@Override
+	public <T> List<T> pulls(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		List<T> list = new ArrayList<T>();
 		metaData.setBody(null);// Force setting dataId to Nulls
 		
@@ -243,10 +269,15 @@ public class ZookeeperMconf extends AbstractMconf {
 		return list;
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T> void push(final T data, final NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.push(category, data, notifyConf);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public <T> void push(Category category, final T data, final NotifyConf<T> notifyConf) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		final String path = this.buildPath(metaData);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);
@@ -314,10 +345,15 @@ public class ZookeeperMconf extends AbstractMconf {
 			}
 		}
 	}
-
+	
 	@Override
 	public <T> void unpush(T data) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.unpush(category, data);
+	}
+	
+	@Override
+	public <T> void unpush(Category category, T data) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);
@@ -343,7 +379,12 @@ public class ZookeeperMconf extends AbstractMconf {
 	
 	@Override
 	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2Mconf(data);
+		this.unpush(category, data, notifyConf);
+	}
+	
+	@Override
+	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
+		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
 		String path = this.buildPath(metaData);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);

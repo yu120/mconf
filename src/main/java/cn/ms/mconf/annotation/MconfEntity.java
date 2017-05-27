@@ -15,17 +15,10 @@ import java.lang.annotation.Target;
 public @interface MconfEntity {
 
 	/**
-	 * The Application.
-	 * 
-	 * @return
-	 */
-	String app();
-
-	/**
 	 * The Configure.
 	 * 
 	 * @return
 	 */
-	String conf() default "$";
+	String value() default "$";
 
 }
