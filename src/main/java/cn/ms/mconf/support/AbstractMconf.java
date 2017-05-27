@@ -16,6 +16,8 @@ public abstract class AbstractMconf implements Mconf {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMconf.class);
 	
+	public static final String ID_KEY = "id";
+	
 	public <T> MetaData obj2Mconf(T data) {
 		if (data == null) {
 			throw new RuntimeException("data[" + data + "] cannot be empty");

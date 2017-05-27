@@ -26,10 +26,6 @@ import cn.ms.micro.common.URL;
 public class MetaData {
 
 	/**
-	 * The Node.
-	 */
-	protected String node = "default-node";
-	/**
 	 * The Application.
 	 */
 	protected String app;
@@ -38,6 +34,10 @@ public class MetaData {
 	 */
 	protected String conf;
 
+	/**
+	 * The Node.
+	 */
+	protected String node = "default-node";
 	/**
 	 * The Environment.
 	 */
@@ -55,12 +55,10 @@ public class MetaData {
 	 * The Serialize Data.
 	 */
 	private String data;
-
 	/**
 	 * The Data Body.
 	 */
 	private Object body;
-
 	/**
 	 * The Configure Attachment.
 	 */
