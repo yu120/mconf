@@ -90,7 +90,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> void addConf(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -111,7 +111,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> void delConf(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -143,7 +143,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> T pull(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -168,7 +168,7 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public <T> List<T> pulls(Category category, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -204,7 +204,7 @@ public class RedisMconf extends AbstractMconf {
 		}
 		
 		Jedis jedis = null;
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		
 		try {
 			jedis = jedisPool.getResource();
@@ -244,7 +244,7 @@ public class RedisMconf extends AbstractMconf {
 	
 	@Override
 	public <T> void unpush(Category category, T data) {
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		String key = toBuildKey(metaData);
 		
 		if(pushClassMap.containsKey(key)){
@@ -268,7 +268,7 @@ public class RedisMconf extends AbstractMconf {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		String key = toBuildKey(metaData);
 		
 		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);

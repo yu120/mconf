@@ -30,44 +30,43 @@ public abstract class AbstractMconf implements Mconf {
 		}
 	}
 	
-	public <T> MetaData obj2Mconf(T data) {
+	public <T> MetaData obj2MetaData(T data, Category category) {
 		if (data == null) {
 			throw new RuntimeException("data[" + data + "] cannot be empty");
 		}
-		if (data instanceof MetaData) {
-			MetaData metaData = (MetaData) data;
-			metaData.setBody(this.obj2Json(data));
-			return metaData;
-		}
-
+		
 		MetaData metaData = new MetaData();
-		
-		//$NON-NLS-@MconfEntity$
-		MconfEntity mconfEntity = data.getClass().getAnnotation(MconfEntity.class);
-		if (mconfEntity == null) {
-			throw new RuntimeException("Configuration entity[" + data.getClass() + "] Must contain @MconfEntity annotations.");
-		}
-		
-		metaData.setConf(mconfEntity.value());
-		if ("$".equals(metaData.getConf())) {// If it is the default value, use the SimpleName
-			metaData.setConf(data.getClass().getSimpleName());
-		}
-		
-		Field dataIdField = FieldUtils.getField(data.getClass(), ID_KEY, true);
-		if(dataIdField == null){
-			throw new RuntimeException("Field '"+ID_KEY+"' is null.");
-		}
-		try {
-			Object dataObj = dataIdField.get(data);
-			if(dataObj != null){
-				metaData.setData(String.valueOf(dataObj));
+		if (data instanceof MetaData) {
+			metaData = (MetaData) data;
+			//$NON-NLS-JSON$
+			metaData.setBody(this.obj2Json(data));
+		} else {
+			//$NON-NLS-@MconfEntity$
+			MconfEntity mconfEntity = data.getClass().getAnnotation(MconfEntity.class);
+			metaData.setConf(mconfEntity == null ? data.getClass().getSimpleName() : mconfEntity.value());
+			Field dataIdField = FieldUtils.getField(data.getClass(), ID_KEY, true);
+			if(dataIdField == null){
+				throw new RuntimeException("Field '"+ID_KEY+"' is null.");
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			try {
+				Object dataObj = dataIdField.get(data);
+				if(dataObj != null){
+					metaData.setData(String.valueOf(dataObj));
+				}
+			} catch (Exception e) {
+				logger.error("The field get is exception.", e);
+			}
+			
+			//$NON-NLS-JSON$
+			metaData.setBody(this.obj2Json(data));
 		}
 		
-		//$NON-NLS-JSON Body$
-		metaData.setBody(this.obj2Json(data));
+		//$NON-NLS-Category$
+		metaData.setNode(category.getNode());
+		metaData.setApp(category.getApp());
+		metaData.setEnv(category.getEnv());
+		metaData.setCategory(category.getCategory());
+		metaData.setVersion(category.getVersion());
 		
 		return metaData;
 	}

@@ -82,7 +82,7 @@ public class LocalMconf extends AbstractMconf {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T pull(Category category, T data) {
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		Object obj = conf.getConf(metaData.getApp(), metaData.getConf(), metaData.getData(), data.getClass());
 		if(obj == null){
 			return null;
@@ -99,7 +99,7 @@ public class LocalMconf extends AbstractMconf {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> List<T> pulls(Category category, T data) {
-		MetaData metaData = this.obj2Mconf(data).copyCategory(category);
+		MetaData metaData = this.obj2MetaData(data, category);
 		return (List<T>) conf.getConfs(metaData.getApp(), metaData.getConf(), data.getClass());
 	}
 

@@ -85,16 +85,6 @@ public class MetaData extends Category {
 		}
 	}
 
-	public MetaData copyCategory(Category category) {
-		this.setNode(category.getNode());
-		this.setApp(category.getApp());
-		this.setEnv(category.getEnv());
-		this.setCategory(category.getCategory());
-		this.setVersion(category.getVersion());
-
-		return this;
-	}
-
 	public String getConf() {
 		return conf;
 	}

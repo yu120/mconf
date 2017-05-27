@@ -19,6 +19,6 @@ public @interface MconfEntity {
 	 * 
 	 * @return
 	 */
-	String value() default "$";
+	String value();
 
 }
