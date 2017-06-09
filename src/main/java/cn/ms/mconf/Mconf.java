@@ -50,26 +50,56 @@ public interface Mconf {
 	/**
 	 * The Add Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
 	 * @param data
 	 */
 	<T> void addConf(URL url, T data);
 
+	/**
+	 * The Delete Configuration Data.<br>
+	 * <br>
+	 * Prompt：<br>
+	 * 1.Set parameter 'data'：Delete a data.<br>
+	 * 2.Not set parameter 'data'：Delete a conf.<br>
+	 * <br>
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 */
 	void delConf(URL url);
 
+	/**
+	 * The Update Configuration Data.
+	 * 
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param data
+	 */
 	<T> void upConf(URL url, T data);
 
+	/**
+	 * The Pull Configuration Data.
+	 * 
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param cls
+	 * @return
+	 */
 	<T> T pull(URL url, Class<T> cls);
 
 	/**
-	 * Format：[app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]
+	 * The Pulls Configuration Data.
 	 * 
-	 * @param url
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
 	 * @param cls
 	 * @return
 	 */
 	<T> List<T> pulls(URL url, Class<T> cls);
 
+	/**
+	 * The Push Configuration Data.
+	 * 
+	 * @param url Format：[app]://0.0.0.0:0/[conf]?[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param cls
+	 * @param notifyConf
+	 * @return
+	 */
 	<T> void push(URL url, Class<T> cls, NotifyConf<T> notifyConf);
 
 	void unpush(URL url);
