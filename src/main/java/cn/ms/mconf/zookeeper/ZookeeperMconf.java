@@ -31,7 +31,6 @@ import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.ms.mconf.Mconf;
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.NotifyConf;
@@ -371,13 +370,6 @@ public class ZookeeperMconf extends AbstractMconf {
 	
 	//$NON-NLS-The Node Governor$
 	
-	public static void main(String[] args) {
-		Mconf mconf = new ZookeeperMconf();
-		mconf.connect(URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&root=param&app=node&conf=env&data=group,version"));
-		System.out.println(mconf.structures());
-	}
-	
-	//Map< node, Map< app, Map< env, Map< conf, Map< group, Set<version>>>>> 
 	@Override
 	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
 		Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> map = new ConcurrentHashMap<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>>();
@@ -390,7 +382,10 @@ public class ZookeeperMconf extends AbstractMconf {
 					for (String appChildNode:appChildNodeList) {
 						URL rootChildNodeURL = URL.valueOf("/"+URL.decode(appChildNode));
 						// setter node 
-						String node = rootChildNodeURL.getParameter(this.node);
+						String node = rootChildNodeURL.getParameter(NODO_KEY);
+						if(StringUtils.isBlank(node)){
+							node = DEFAULT_KEY+NODO_KEY;
+						}
 						Map<String, Map<String, Map<String, Map<String, Set<String>>>>> nodeMap = map.get(node);
 						if(nodeMap == null){
 							map.put(node, nodeMap = new ConcurrentHashMap<String, Map<String,Map<String,Map<String,Set<String>>>>>());
@@ -406,7 +401,10 @@ public class ZookeeperMconf extends AbstractMconf {
 						for (String confChildNode:confChildNodeList) {
 							URL confChildNodeURL = URL.valueOf("/"+URL.decode(confChildNode));
 							// setter env
-							String env = confChildNodeURL.getParameter(this.env);
+							String env = confChildNodeURL.getParameter(ENV_KEY);
+							if(StringUtils.isBlank(env)){
+								env = DEFAULT_KEY+ENV_KEY;
+							}
 							Map<String,Map<String,Set<String>>> envMap = appMap.get(env);
 							if(envMap == null){
 								appMap.put(env, envMap = new ConcurrentHashMap<String, Map<String,Set<String>>>());
@@ -422,13 +420,19 @@ public class ZookeeperMconf extends AbstractMconf {
 							for (String dataChildNode:dataChildNodeList) {
 								URL dataChildNodeURL = URL.valueOf("/"+URL.decode(dataChildNode));
 								// setter group
-								String group = dataChildNodeURL.getParameter(this.group);
+								String group = dataChildNodeURL.getParameter(GROUP_KEY);
+								if(StringUtils.isBlank(group)){
+									group = DEFAULT_KEY+GROUP_KEY;
+								}
 								Set<String> groupMap = confMap.get(group);
 								if(groupMap == null){
 									confMap.put(group, groupMap = new ConcurrentHashSet<String>());
 								}
 								// setter version
-								String version = dataChildNodeURL.getParameter(this.version);
+								String version = dataChildNodeURL.getParameter(VERSION_KEY);
+								if(StringUtils.isBlank(version)){
+									version = DEFAULT_KEY+VERSION_KEY;
+								}
 								groupMap.add(version);
 							}
 						}

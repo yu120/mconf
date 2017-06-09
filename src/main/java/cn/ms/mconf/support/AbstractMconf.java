@@ -28,7 +28,7 @@ public abstract class AbstractMconf implements Mconf {
 	private Category category = new Category();
 	protected String path;
 	protected String root="root",app="app",conf="conf",data="data";
-	protected String node="node",env="env",group="group",version="version";
+	protected String DEFAULT_KEY="default_",NODO_KEY="node",ENV_KEY="env",GROUP_KEY="group",VERSION_KEY="version";
 	protected Map<String, String[]> structureMap = new ConcurrentHashMap<String, String[]>();
 	
 	@Override

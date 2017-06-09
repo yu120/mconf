@@ -1,6 +1,8 @@
 package cn.ms.mconf;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.URL;
@@ -31,7 +33,7 @@ import cn.ms.micro.extension.Spi;
  * @author lry
  */
 @Spi(scope = Scope.SINGLETON)
-public interface Mconf extends Node {
+public interface Mconf {
 
 	/**
 	 * Connect configuration center
@@ -73,5 +75,17 @@ public interface Mconf extends Node {
 	void unpush(URL url);
 
 	<T> void unpush(URL url, NotifyConf<T> notifyConf);
-
+	
+	
+	//$NON-NLS-The Node Governor$
+	
+	/**
+	 * Query configuration center data structure.<br>
+	 * <br>
+	 * The Data Structures: Map< node, Map< app, Map< env, Map< conf, Map< group, Set< version>>>>>>
+	 * 
+	 * @return
+	 */
+	Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures();
+	
 }
