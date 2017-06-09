@@ -2,7 +2,6 @@ package cn.ms.mconf;
 
 import java.util.List;
 
-import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
@@ -11,90 +10,67 @@ import cn.ms.micro.extension.Spi;
 /**
  * The Micro Service Configuration Center.<br>
  * <br>
- * /[mconf]/[envId]/[appId]/[confId]/[dataId]{JSON}
+ * Configuration center data structure:<br>
+ * ①--> /mconf<br>
+ * ②--> /[app]?node=[node]<br>
+ * ③--> /[conf]?env=[env]<br>
+ * ④--> /[data]?group=[group]&version=[version]<br>
+ * ⑤--> {JSON Data String}<br>
  * <br>
+ * Connect URL:<br>
+ * zookeeper://127.0.0.1:2181/mconf?app=node&conf=env&data=group,version<br>
+ * Data URL:<br>
+ * [app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]<br>
+ * <br>
+ * <br>
+ * The data structure：<br>
+ * Zookeeper< Path, Data> ——> <①+②+③+④, ⑤> ——> Push<br>
+ * Redis< Key, Value> ——> <①+②+③, Map<④, ⑤>> ——> Pull<br>
+ * 
  * @author lry
  */
 @Spi(scope = Scope.SINGLETON)
-public interface Mconf {
-	
+public interface Mconf extends Node {
+
 	/**
 	 * Connect configuration center
 	 */
 	void connect(URL url);
 
 	/**
-	 * View configuration center status
+	 * Configuration center status
 	 * 
 	 * @return
 	 */
 	boolean available();
-	
-	/**
-	 * Add data<br>
-	 * <br>
-	 * Support automatic cycle to create multi-level node<br>
-	 * 
-	 * @param data Must enter：appId/confId/dataId/data
-	 */
-	<T> void addConf(T data);
-	<T> void addConf(Category category, T data);
 
 	/**
-	 * Delete data
+	 * The Add Configuration Data.
 	 * 
-	 * @param data Must enter：appId/confId/dataId
+	 * @param url Format：[app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]
+	 * @param data
 	 */
-	<T> void delConf(T data);
-	<T> void delConf(Category category, T data);
+	<T> void addConf(URL url, T data);
+
+	void delConf(URL url);
+
+	<T> void upConf(URL url, T data);
+
+	<T> T pull(URL url, Class<T> cls);
 
 	/**
-	 * Set  data
+	 * Format：[app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]
 	 * 
-	 * @param data Must enter：appId/confId/dataId/data
-	 */
-	<T> void setConf(T data);
-	<T> void setConf(Category category, T data);
-
-	/**
-	 * Get data
-	 * 
-	 * @param data Must enter：appId/confId/dataId
+	 * @param url
+	 * @param cls
 	 * @return
 	 */
-	<T> T pull(T data);
-	<T> T pull(Category category, T data);
+	<T> List<T> pulls(URL url, Class<T> cls);
 
-	/**
-	 * Get list
-	 * 
-	 * @param data Must enter：appId/confId
-	 * @return
-	 */
-	<T> List<T> pulls(T data);
-	<T> List<T> pulls(Category category, T data);
+	<T> void push(URL url, Class<T> cls, NotifyConf<T> notifyConf);
 
-	/**
-	 * Push to child node data <br>
-	 * <br>
-	 * Note: you can only notify the PATH and DATA of the direct child nodes, and indirect sub nodes use the cyclic PATH to push to <br>
-	 * @param <K>
-	 *
-	 * @param data push configuration needs to be set: appId/confId, push data needs to be set: appId/confId/dataId
-	 * @param notifyConf
-	 */
-	<T> void push(T data, NotifyConf<T> notifyConf);
-	<T> void push(Category category, T data, NotifyConf<T> notifyConf);
+	void unpush(URL url);
 
-	/**
-	 * Unpush child node data
-	 * 
-	 * @param data unpush configuration needs to be set：appId/confId, unpush data needs to be set：appId/confId/dataId
-	 */
-	<T> void unpush(T data);
-	<T> void unpush(Category category, T data);
-	
-	<T> void unpush(T data, NotifyConf<T> notifyConf);
-	<T> void unpush(Category category, T data, NotifyConf<T> notifyConf);
+	<T> void unpush(URL url, NotifyConf<T> notifyConf);
 
 }

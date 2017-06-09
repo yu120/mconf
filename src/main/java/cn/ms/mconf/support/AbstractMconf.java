@@ -1,9 +1,14 @@
 package cn.ms.mconf.support;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.jboss.netty.util.internal.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +24,19 @@ public abstract class AbstractMconf implements Mconf {
 	
 	public static final String ID_KEY = "id";
 	
-	protected Category category = new Category();
+	private Category category = new Category();
+	protected String path;
+	protected String root="root",app="app",conf="conf",data="data";
+	protected Map<String, String[]> structureMap = new ConcurrentHashMap<String, String[]>();
 	
 	@Override
 	public void connect(URL url) {
+		this.path = url.getPath();
+		this.structureMap.put(root, url.getParameter(root, new String[]{}));
+		this.structureMap.put(app, url.getParameter(app, new String[]{}));
+		this.structureMap.put(conf, url.getParameter(conf, new String[]{}));
+		this.structureMap.put(data, url.getParameter(data, new String[]{}));
+		
 		try {
 			BeanUtils.copyProperties(category, url.getParameters());
 		} catch (Exception e) {
@@ -30,7 +44,7 @@ public abstract class AbstractMconf implements Mconf {
 		}
 	}
 	
-	public <T> MetaData obj2MetaData(T data, Category category) {
+	public <T> MetaData obj2MetaData(T data, Category... categories) {
 		if (data == null) {
 			throw new RuntimeException("data[" + data + "] cannot be empty");
 		}
@@ -61,6 +75,17 @@ public abstract class AbstractMconf implements Mconf {
 			metaData.setBody(this.obj2Json(data));
 		}
 		
+		Category category = null;
+		if (categories == null) {
+			category = this.category;
+		} else {
+			if (categories.length != 1) {
+				throw new RuntimeException("The length of the categories must be 1.");
+			} else {
+				category = categories[0];
+			}
+		}
+		
 		//$NON-NLS-Category$
 		metaData.setNode(category.getNode());
 		metaData.setApp(category.getApp());
@@ -69,6 +94,54 @@ public abstract class AbstractMconf implements Mconf {
 		metaData.setVersion(category.getVersion());
 		
 		return metaData;
+	}
+	
+	protected String wrapperPath(String keyPath, URL url) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(keyPath);
+		
+		String[] keyPathArray = structureMap.get(keyPath);
+		if(keyPathArray.length > 0){
+			sb.append("?");
+			for (String keyP:keyPathArray) {
+				sb.append(keyP).append("=").append(url.getParameter(keyP)).append("&");
+			}
+		}
+		
+		String keyAllPath = sb.toString();
+		if(keyAllPath.endsWith("&")){
+			keyAllPath = keyAllPath.substring(0, keyAllPath.length() - 1);
+		}
+		
+		return encode(keyAllPath);
+	}
+	
+	/**
+	 * Data encoding
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected String encode(String data) {
+		try {
+			return URLEncoder.encode(data, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("Encoding exception", e);
+		}
+	}
+	
+	/**
+	 * Data decoding
+	 * 
+	 * @param data
+	 * @return
+	 */
+	protected String decode(String data) {
+		try {
+			return URLDecoder.decode(data, MParamType.DEFAULT_CHARTSET);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("Decoding exception", e);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -1,9 +1,6 @@
 package cn.ms.mconf.zookeeper;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.MParamType;
-import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -55,7 +50,6 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	private static final Logger logger = LoggerFactory.getLogger(ZookeeperMconf.class);
 	
-	private String group;
 	
 	private CuratorFramework client;
 	private ConnectionState globalState = null;
@@ -69,7 +63,6 @@ public class ZookeeperMconf extends AbstractMconf {
 	@Override
 	public void connect(URL url) {
 		super.connect(url);
-		this.group = url.getParameter(MParamType.GROUP.getName(), MParamType.GROUP.getValue());
 		
 		String connAddrs = url.getBackupAddress();
 		int timeout = url.getParameter(MParamType.TIMEOUT.getName(), MParamType.TIMEOUT.getIntValue());
@@ -107,17 +100,12 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(T data) {
-		this.addConf(category, data);
-	}
-	
-	@Override
-	public <T> void addConf(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public <T> void addConf(URL url, T data) {
+		String path = this.wrapperPaths(url);
 		byte[] dataByte = null;
 		try {
-			dataByte = String.valueOf(metaData.getBody()).getBytes(Charset.forName("UTF-8"));
+			String json = this.obj2Json(data);
+			dataByte = json.getBytes(Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new IllegalStateException("Serialized data exception", e);
 		}
@@ -131,14 +119,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void delConf(T data) {
-		this.delConf(category, data);
-	}
-	
-	@Override
-	public <T> void delConf(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public void delConf(URL url) {
+		String path = this.wrapperPaths(url);
 		
 		try {
 			client.delete().forPath(path);
@@ -149,18 +131,12 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void setConf(T data) {
-		this.setConf(category, data);
-	}
-
-	@Override
-	public <T> void setConf(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public <T> void upConf(URL url, T data) {
+		String path = this.wrapperPaths(url);
 		
 		byte[] dataByte = null;
 		try {
-			dataByte = String.valueOf(metaData.getBody()).getBytes(Charset.forName("UTF-8"));
+			dataByte = this.obj2Json(data).getBytes(Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new IllegalStateException("Serialized data exception", e);
 		}
@@ -174,15 +150,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> T pull(T data) {
-		return this.pull(category, data);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T pull(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public <T> T pull(URL url, Class<T> cls) {
+		String path = this.wrapperPaths(url);
 		
 		byte[] dataByte = null;
 
@@ -199,27 +168,20 @@ public class ZookeeperMconf extends AbstractMconf {
 
 		try {
 			String json = new String(dataByte, Charset.forName("UTF-8"));
-			return (T)json2Obj(json, data.getClass());
+			return (T)json2Obj(json, cls);
 		} catch (Exception e) {
 			throw new IllegalStateException("UnSerialized data exception", e);
 		}
 	}
 	
 	@Override
-	public <T> List<T> pulls(T data) {
-		return this.pulls(category, data);
-	}
-	
-	@Override
-	public <T> List<T> pulls(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
+	public <T> List<T> pulls(URL url, Class<T> cls) {
+		String path = this.wrapperPaths(url);
 		List<T> list = new ArrayList<T>();
-		metaData.setBody(null);// Force setting dataId to Nulls
 		
 		//Query all dataId lists
 		List<String> childNodeList= null;
 		try {
-			String path = this.buildPath(metaData);
 			childNodeList = client.getChildren().forPath(path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
@@ -232,16 +194,13 @@ public class ZookeeperMconf extends AbstractMconf {
 				if(StringUtils.isBlank(dataId)){
 					throw new RuntimeException("Invalid data, dataId=="+dataId);
 				}
-				if(dataId.indexOf("?") > 0){
-					metaData.setData(dataId.substring(0, dataId.indexOf("?")));
-				}
 				
-				String path = this.buildPath(metaData);
+				String tempPath = this.wrapperPaths(url);
 				String json;
 				byte[] dataByte = null;
 
 				try {
-					dataByte = client.getData().forPath(path);
+					dataByte = client.getData().forPath(tempPath);
 				} catch (NoNodeException e) {
 				} catch (Exception e) {
 					throw new IllegalStateException("Modify data exception", e);
@@ -258,8 +217,7 @@ public class ZookeeperMconf extends AbstractMconf {
 				}
 				
 				
-				@SuppressWarnings("unchecked")
-				T t = (T)json2Obj(json, data.getClass());
+				T t = (T)json2Obj(json, cls);
 				if(t!=null){
 					list.add(t);
 				}
@@ -268,17 +226,11 @@ public class ZookeeperMconf extends AbstractMconf {
 		
 		return list;
 	}
-	
-	@Override
-	public <T> void push(final T data, final NotifyConf<T> notifyConf) {
-		this.push(category, data, notifyConf);
-	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public <T> void push(Category category, final T data, final NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		final String path = this.buildPath(metaData);
+	public <T> void push(final URL url, final Class<T> cls, final NotifyConf<T> notifyConf) {
+		final String path = this.wrapperPaths(url);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);
 		}
@@ -317,7 +269,7 @@ public class ZookeeperMconf extends AbstractMconf {
 							} else {
 								String tempPath = event.getData().getPath();
 								String tempJsonData = new String(event.getData().getData(), Charset.forName("UTF-8"));
-								T t = (T)JSON.parseObject(tempJsonData, data.getClass());
+								T t = (T)JSON.parseObject(tempJsonData, cls);
 								
 								if(PathChildrenCacheEvent.Type.CHILD_ADDED == event.getType()
 										|| PathChildrenCacheEvent.Type.CHILD_UPDATED == event.getType()){
@@ -347,14 +299,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void unpush(T data) {
-		this.unpush(category, data);
-	}
-	
-	@Override
-	public <T> void unpush(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public void unpush(URL url) {
+		String path = this.wrapperPaths(url);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);
 		}
@@ -378,14 +324,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
-		this.unpush(category, data, notifyConf);
-	}
-	
-	@Override
-	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String path = this.buildPath(metaData);
+	public <T> void unpush(URL url, NotifyConf<T> notifyConf) {
+		String path = this.wrapperPaths(url);
 		if(StringUtils.isBlank(path)){
 			throw new RuntimeException("PATH cannot be empty, path=="+path);
 		}
@@ -412,55 +352,51 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 	}
 	
-	/**
-	 * The data structure: /[group]/[appId]/[confId]/[dataId]
-	 * 
-	 * @param metaData
-	 * @return
-	 */
-	private String buildPath(MetaData metaData) {
-		StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer.append("/").append(this.encode(group) + "-" + this.encode(metaData.getNode()));// 1
+	private String wrapperPaths(URL url) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("/").append(this.wrapperPath(root, url));
+		sb.append("/").append(this.wrapperPath(app, url));
+		sb.append("/").append(this.wrapperPath(conf, url));
+		sb.append("/").append(this.wrapperPath(data, url));
 		
-		if (StringUtils.isNotBlank(metaData.getApp())) {
-			stringBuffer.append("/").append(this.encode(metaData.getApp()));// 2
-		}
-		if (StringUtils.isNotBlank(metaData.getConf())) {
-			stringBuffer.append("/").append(this.encode(metaData.getConf()));// 3
-		}
-		if (StringUtils.isNotBlank(metaData.getData())) {// 4
-			stringBuffer.append("/").append(this.encode(metaData.toBuildDataId()));
-		}
-
-		return stringBuffer.toString();
+		return sb.toString();
 	}
 	
-	/**
-	 * Data encoding
-	 * 
-	 * @param data
-	 * @return
-	 */
-	private String encode(String data) {
+	//$NON-NLS-The Node Governor$
+	
+	@Override
+	public Set<String> nodes() {
+		Set<String> set = new ConcurrentHashSet<String>();
+		
 		try {
-			return URLEncoder.encode(data, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Encoding exception", e);
+			String path = this.wrapperPaths(null);
+			List<String> childNodeList = client.getChildren().forPath(path);
+			for (String childNode:childNodeList) {
+				System.out.println(childNode);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		
+		return set;
 	}
 	
-	/**
-	 * Data decoding
-	 * 
-	 * @param data
-	 * @return
-	 */
-	private String decode(String data) {
-		try {
-			return URLDecoder.decode(data, MParamType.DEFAULT_CHARTSET);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Decoding exception", e);
-		}
+	@Override
+	public Set<String> apps(String node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<String> confs(String node, String app) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Map<String, Map<String, Set<String>>> structures() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

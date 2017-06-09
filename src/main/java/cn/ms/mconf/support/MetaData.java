@@ -12,13 +12,13 @@ import cn.ms.micro.common.URL;
  * The data structure：<br>
  * <b>Zookeeper：</b><br>
  * Path -->
- * /mconf-[node]/[app]/[conf]/[data]?env=[env]&group=[group]&version=[version]<br>
+ * /mconf/[app]?node=[node]/[conf]?env=[env]/[data]?group=[group]&version=[version]<br>
  * Data --> {body}<br>
  * <br>
  * <br>
  * <b>Redis：</b><br>
- * Key -->mconf-[node]/[app]/[conf] <br>
- * Value -->Map<[data]?env=[env]&group=[group]&version=[version], {body}>><br>
+ * Key -->mconf/[app]?node=[node]/[conf]?env=[env] <br>
+ * Value -->Map<[data]?group=[group]&version=[version], {body}>><br>
  * <br>
  * 
  * @author lry

@@ -1,13 +1,14 @@
 package cn.ms.mconf.local;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.Conf;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.Category;
 import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
@@ -45,44 +46,24 @@ public class LocalMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void addConf(T data) {
-		this.addConf(category, data);
-	}
-	
-	@Override
-	public <T> void addConf(Category category, T data) {
+	public <T> void addConf(URL url, T data) {
 		throw new IllegalStateException("The No Support addConf.");
 	}
 	
 	@Override
-	public <T> void delConf(T data) {
-		this.delConf(category, data);
-	}
-
-	@Override
-	public <T> void delConf(Category category, T data) {
+	public void delConf(URL url) {
 		throw new IllegalStateException("The No Support delConf.");
 	}
 
 	@Override
-	public <T> void setConf(T data) {
-		this.setConf(category, data);
-	}
-	
-	@Override
-	public <T> void setConf(Category category, T data) {
+	public <T> void upConf(URL url, T data) {
 		throw new IllegalStateException("The No Support setConf.");
 	}
 
-	@Override
-	public <T> T pull(T data) {
-		return this.pull(category, data);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T> T pull(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
+	public <T> T pull(URL url, Class<T> cls) {
+		MetaData metaData = this.obj2MetaData(data);
 		Object obj = conf.getConf(metaData.getApp(), metaData.getConf(), metaData.getData(), data.getClass());
 		if(obj == null){
 			return null;
@@ -92,47 +73,52 @@ public class LocalMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> List<T> pulls(T data) {
-		return this.pulls(category, data);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> pulls(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		return (List<T>) conf.getConfs(metaData.getApp(), metaData.getConf(), data.getClass());
+	public <T> List<T> pulls(URL url, Class<T> cls) {
+		MetaData metaData = this.obj2MetaData(data);
+		return (List<T>) conf.getConfs(metaData.getApp(), metaData.getConf(), cls);
 	}
 
 	@Override
-	public <T> void push(T data, NotifyConf<T> notifyConf) {
-		this.push(category, data, notifyConf);
-	}
-	
-	@Override
-	public <T> void push(Category category, T data, NotifyConf<T> notifyMessage) {
+	public <T> void push(URL url, Class<T> cls, NotifyConf<T> notifyMessage) {
 		logger.warn("The local mconf no support push.");
-		List<T> list = this.pulls(data);
+		List<T> list = this.pulls(url, cls);
 		notifyMessage.notify(list);
 	}
 
 	@Override
-	public <T> void unpush(T data) {
-		this.unpush(category, data);
-	}
-	
-	@Override
-	public <T> void unpush(Category category, T data) {
+	public void unpush(URL url) {
 		logger.warn("The local mconf no support unpush.");
 	}
 
 	@Override
-	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
-		this.unpush(category, data, notifyConf);
+	public <T> void unpush(URL url, NotifyConf<T> notifyMessage) {
+		logger.warn("The local mconf no support unpush.");
+	}
+	
+	//$NON-NLS-The Node Governor$
+	
+	@Override
+	public Set<String> nodes() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	@Override
-	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
-		logger.warn("The local mconf no support unpush.");
+	public Set<String> apps(String node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<String> confs(String node, String app) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Map<String, Map<String, Set<String>>> structures() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

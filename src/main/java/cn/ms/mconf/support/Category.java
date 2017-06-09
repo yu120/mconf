@@ -17,6 +17,7 @@ public class Category {
 	protected String app;
 
 	/**
+	 * mconf://0.0.0.0:0/data?env=[env]&category=[category]&version=[version]
 	 * The Environment.
 	 */
 	protected String env;

@@ -20,8 +20,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.Category;
-import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.NotifyConf;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -44,7 +42,6 @@ public class RedisMconf extends AbstractMconf {
 
 	public static final String SEQ = "@";
 	
-	private String group;
 	private JedisPool jedisPool;
 	private long retryPeriod = 5000;
 	private boolean isSubscribe = true;
@@ -60,7 +57,6 @@ public class RedisMconf extends AbstractMconf {
 	@Override
 	public void connect(URL url) {
 		super.connect(url);
-		this.group = url.getParameter("group", "mconf");
 		this.retryPeriod = url.getParameter("retryPeriod", retryPeriod);
 
 		JedisPoolConfig config = new JedisPoolConfig();
@@ -78,24 +74,16 @@ public class RedisMconf extends AbstractMconf {
 		return (jedisPool == null) ? false : (!jedisPool.isClosed());
 	}
 	
-	public String toBuildKey(MetaData metaData) {
-		return group + "-" + metaData.getNode() + SEQ + metaData.getApp() + SEQ + metaData.getConf();
-	}
-
 	@Override
-	public <T> void addConf(T data) {
-		this.addConf(category, data);
-	}
-	
-	@Override
-	public <T> void addConf(Category category, T data) {
+	public <T> void addConf(URL url, T data) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2MetaData(data, category);
+		String key = this.buildKey(url);
+		String field = this.wrapperPath(this.data, url);
+		String json = this.obj2Json(data);
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = toBuildKey(metaData);
-			jedis.hset(key, metaData.toBuildDataId(), String.valueOf(metaData.getBody()));
+			jedis.hset(key, field, json);
 		} catch (Exception e) {
 			logger.error("The add conf exception.", e);
 		} finally {
@@ -104,19 +92,14 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void delConf(T data) {
-		this.delConf(category, data);
-	}
-	
-	@Override
-	public <T> void delConf(Category category, T data) {
+	public void delConf(URL url) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2MetaData(data, category);
+		String key = this.buildKey(url);
+		String field = this.wrapperPath(this.data, url);
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = toBuildKey(metaData);
-			jedis.hdel(key, metaData.toBuildDataId());
+			jedis.hdel(key, field);
 		} catch (Exception e) {
 			logger.error("The delete conf exception.", e);
 		} finally {
@@ -125,31 +108,20 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void setConf(T data) {
-		this.setConf(category, data);
+	public <T> void upConf(URL url, T data) {
+		this.addConf(url, data);
 	}
 
 	@Override
-	public <T> void setConf(Category category, T data) {
-		this.addConf(data);
-	}
-
-	@Override
-	public <T> T pull(T data) {
-		return this.pull(category, data);
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T pull(Category category, T data) {
+	public <T> T pull(URL url, Class<T> cls) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2MetaData(data, category);
+		String key = this.buildKey(url);
+		String field = this.wrapperPath(this.data, url);
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = toBuildKey(metaData);
-			String json = jedis.hget(key, metaData.toBuildDataId());
-			return (T)json2Obj(json, data.getClass());
+			String json = jedis.hget(key, field);
+			return (T)json2Obj(json, cls);
 		} catch (Exception e) {
 			logger.error("The pull conf exception.", e);
 		} finally {
@@ -160,24 +132,17 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> List<T> pulls(T data) {
-		return this.pulls(category, data);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> pulls(Category category, T data) {
+	public <T> List<T> pulls(URL url, Class<T> cls) {
 		Jedis jedis = null;
-		MetaData metaData = this.obj2MetaData(data, category);
+		String key = this.buildKey(url);
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = toBuildKey(metaData);
 			Map<String, String> dataMap = jedis.hgetAll(key);
 			
 			List<T> list = new ArrayList<T>();
 			for (Map.Entry<String, String> entry:dataMap.entrySet()) {
-				list.add((T)JSON.parseObject(entry.getValue(), data.getClass()));
+				list.add((T)JSON.parseObject(entry.getValue(), cls));
 			}
 			
 			return list;
@@ -190,27 +155,21 @@ public class RedisMconf extends AbstractMconf {
 		return null;
 	}
 	
-	@Override
-	public <T> void push(T data, NotifyConf<T> notifyConf) {
-		this.push(category, data, notifyConf);
-	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public <T> void push(Category category, T data, NotifyConf<T> notifyConf) {
+	public <T> void push(URL url, Class<T> cls, NotifyConf<T> notifyConf) {
 		if(isSubscribe){
 			this.pushSubscribe();
 			isSubscribe = false;
 		}
 		
 		Jedis jedis = null;
-		MetaData metaData = this.obj2MetaData(data, category);
+		String key = this.buildKey(url);
 		
 		try {
 			jedis = jedisPool.getResource();
-			String key = toBuildKey(metaData);
 			if(!pushClassMap.containsKey(key)){
-				pushClassMap.put(key, data.getClass());
+				pushClassMap.put(key, cls);
 			}
 			
 			Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
@@ -238,14 +197,8 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public <T> void unpush(T data) {
-		this.unpush(category, data);
-	}
-	
-	@Override
-	public <T> void unpush(Category category, T data) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String key = toBuildKey(metaData);
+	public void unpush(URL url) {
+		String key = this.buildKey(url);
 		
 		if(pushClassMap.containsKey(key)){
 			pushClassMap.remove(key);
@@ -260,16 +213,10 @@ public class RedisMconf extends AbstractMconf {
 		}
 	}
 	
-	@Override
-	public <T> void unpush(T data, NotifyConf<T> notifyConf) {
-		this.unpush(category, data, notifyConf);
-	}
-	
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void unpush(Category category, T data, NotifyConf<T> notifyConf) {
-		MetaData metaData = this.obj2MetaData(data, category);
-		String key = toBuildKey(metaData);
+	public <T> void unpush(URL url, NotifyConf<T> notifyConf) {
+		String key = this.buildKey(url);
 		
 		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
 		notifyConfs.remove(notifyConf);
@@ -331,6 +278,41 @@ public class RedisMconf extends AbstractMconf {
                 }
             }
         }, retryPeriod, retryPeriod, TimeUnit.MILLISECONDS);
+	}
+	
+	private String buildKey(URL url) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("/").append(this.wrapperPath(root, url));
+		sb.append("/").append(this.wrapperPath(app, url));
+		sb.append("/").append(this.wrapperPath(conf, url));
+		
+		return sb.toString();
+	}
+	
+	//$NON-NLS-The Node Governor$
+	
+	@Override
+	public Set<String> nodes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<String> apps(String node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<String> confs(String node, String app) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Map<String, Map<String, Set<String>>> structures() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
