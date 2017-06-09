@@ -31,6 +31,7 @@ import org.apache.zookeeper.KeeperException.NodeExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cn.ms.mconf.Mconf;
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.NotifyConf;
@@ -354,49 +355,91 @@ public class ZookeeperMconf extends AbstractMconf {
 	
 	private String wrapperPaths(URL url) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("/").append(this.wrapperPath(root, url));
-		sb.append("/").append(this.wrapperPath(app, url));
-		sb.append("/").append(this.wrapperPath(conf, url));
-		sb.append("/").append(this.wrapperPath(data, url));
+		sb.append("/").append(this.path).append(this.wrapperPath(root, url));
+		sb.append("/").append(url.getProtocol()).append(this.wrapperPath(app, url));
+		
+		String[] pathArray = url.getPath().split("\\/");
+		if(2 != pathArray.length){
+			throw new RuntimeException("The path must 'conf/data'.");
+		}
+		
+		sb.append("/").append(pathArray[0]).append(this.wrapperPath(conf, url));
+		sb.append("/").append(pathArray[1]).append(this.wrapperPath(data, url));
 		
 		return sb.toString();
 	}
 	
 	//$NON-NLS-The Node Governor$
 	
+	public static void main(String[] args) {
+		Mconf mconf = new ZookeeperMconf();
+		mconf.connect(URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&root=param&app=node&conf=env&data=group,version"));
+		System.out.println(mconf.structures());
+	}
+	
+	//Map< node, Map< app, Map< env, Map< conf, Map< group, Set<version>>>>> 
 	@Override
-	public Set<String> nodes() {
-		Set<String> set = new ConcurrentHashSet<String>();
+	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
+		Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> map = new ConcurrentHashMap<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>>();
 		
 		try {
-			String path = this.wrapperPaths(null);
-			List<String> childNodeList = client.getChildren().forPath(path);
-			for (String childNode:childNodeList) {
-				System.out.println(childNode);
+			List<String> rootChildNodeList = client.getChildren().forPath("/");
+			for (String rootChildNode:rootChildNodeList) {
+				if(rootChildNode.startsWith(path)){
+					List<String> appChildNodeList = client.getChildren().forPath("/" + rootChildNode);
+					for (String appChildNode:appChildNodeList) {
+						URL rootChildNodeURL = URL.valueOf("/"+URL.decode(appChildNode));
+						// setter node 
+						String node = rootChildNodeURL.getParameter(this.node);
+						Map<String, Map<String, Map<String, Map<String, Set<String>>>>> nodeMap = map.get(node);
+						if(nodeMap == null){
+							map.put(node, nodeMap = new ConcurrentHashMap<String, Map<String,Map<String,Map<String,Set<String>>>>>());
+						}
+						// setter app
+						String app = rootChildNodeURL.getPath();
+						Map<String,Map<String,Map<String,Set<String>>>> appMap = nodeMap.get(app);
+						if(appMap == null){
+							nodeMap.put(app, appMap = new ConcurrentHashMap<String, Map<String,Map<String,Set<String>>>>());
+						}
+						
+						List<String> confChildNodeList = client.getChildren().forPath("/" + rootChildNode + "/" + appChildNode);
+						for (String confChildNode:confChildNodeList) {
+							URL confChildNodeURL = URL.valueOf("/"+URL.decode(confChildNode));
+							// setter env
+							String env = confChildNodeURL.getParameter(this.env);
+							Map<String,Map<String,Set<String>>> envMap = appMap.get(env);
+							if(envMap == null){
+								appMap.put(env, envMap = new ConcurrentHashMap<String, Map<String,Set<String>>>());
+							}
+							// setter conf confChildNodeURL.getPath()
+							String conf = confChildNodeURL.getPath();
+							Map<String,Set<String>> confMap = envMap.get(conf);
+							if(confMap == null){
+								envMap.put(conf, confMap = new ConcurrentHashMap<String,Set<String>>());
+							}
+							
+							List<String> dataChildNodeList = client.getChildren().forPath("/" + rootChildNode + "/" + appChildNode + "/" + confChildNode);
+							for (String dataChildNode:dataChildNodeList) {
+								URL dataChildNodeURL = URL.valueOf("/"+URL.decode(dataChildNode));
+								// setter group
+								String group = dataChildNodeURL.getParameter(this.group);
+								Set<String> groupMap = confMap.get(group);
+								if(groupMap == null){
+									confMap.put(group, groupMap = new ConcurrentHashSet<String>());
+								}
+								// setter version
+								String version = dataChildNodeURL.getParameter(this.version);
+								groupMap.add(version);
+							}
+						}
+					}
+				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("The get confs is exception.", e);
 		}
 		
-		return set;
-	}
-	
-	@Override
-	public Set<String> apps(String node) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Set<String> confs(String node, String app) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Map<String, Map<String, Set<String>>> structures() {
-		// TODO Auto-generated method stub
-		return null;
+		return map;
 	}
 
 }

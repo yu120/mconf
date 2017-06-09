@@ -290,29 +290,10 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	//$NON-NLS-The Node Governor$
-	
 	@Override
-	public Set<String> nodes() {
+	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	@Override
-	public Set<String> apps(String node) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Set<String> confs(String node, String app) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Map<String, Map<String, Set<String>>> structures() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

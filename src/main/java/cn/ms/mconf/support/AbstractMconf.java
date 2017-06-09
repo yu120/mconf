@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public abstract class AbstractMconf implements Mconf {
 	private Category category = new Category();
 	protected String path;
 	protected String root="root",app="app",conf="conf",data="data";
+	protected String node="node",env="env",group="group",version="version";
 	protected Map<String, String[]> structureMap = new ConcurrentHashMap<String, String[]>();
 	
 	@Override
@@ -57,7 +59,7 @@ public abstract class AbstractMconf implements Mconf {
 		} else {
 			//$NON-NLS-@MconfEntity$
 			MconfEntity mconfEntity = data.getClass().getAnnotation(MconfEntity.class);
-			metaData.setConf(mconfEntity == null ? data.getClass().getSimpleName() : mconfEntity.value());
+			metaData.setConf(mconfEntity == null ? data.getClass().getName() : mconfEntity.value());
 			Field dataIdField = FieldUtils.getField(data.getClass(), ID_KEY, true);
 			if(dataIdField == null){
 				throw new RuntimeException("Field '"+ID_KEY+"' is null.");
@@ -98,13 +100,15 @@ public abstract class AbstractMconf implements Mconf {
 	
 	protected String wrapperPath(String keyPath, URL url) {
 		StringBuffer sb = new StringBuffer();
-		sb.append(keyPath);
 		
 		String[] keyPathArray = structureMap.get(keyPath);
 		if(keyPathArray.length > 0){
 			sb.append("?");
 			for (String keyP:keyPathArray) {
-				sb.append(keyP).append("=").append(url.getParameter(keyP)).append("&");
+				String val = url.getParameter(keyP);
+				if(StringUtils.isNotBlank(val)) {
+					sb.append(keyP).append("=").append(val).append("&");
+				}
 			}
 		}
 		

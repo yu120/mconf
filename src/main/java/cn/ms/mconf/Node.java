@@ -11,37 +11,12 @@ import java.util.Set;
 public interface Node {
 
 	/**
-	 * Query node list.
-	 * 
-	 * @return
-	 */
-	Set<String> nodes();
-
-	/**
-	 * Query application list.
-	 * 
-	 * @param node
-	 *            Support the * query.
-	 * @return
-	 */
-	Set<String> apps(String node);
-
-	/**
-	 * Query configuration list.
-	 * 
-	 * @param node
-	 *            Support the * query.
-	 * @param app
-	 *            Support the * query.
-	 * @return
-	 */
-	Set<String> confs(String node, String app);
-
-	/**
 	 * Query configuration center data structure.
-	 * 
+	 * <br>
+	 * Map< node, Map< app, Map< env, Map< conf, Map< group, Set< version>>>>>>
+	 * <br>
 	 * @return
 	 */
-	Map<String, Map<String, Set<String>>> structures();
+	Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures();
 
 }
