@@ -28,7 +28,6 @@ import cn.ms.micro.extension.SpiMeta;
 import cn.ms.micro.threadpool.NamedThreadFactory;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 
 /**
  * The base of Redis Mconf.
@@ -81,8 +80,8 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> void addConf(URL url, T data) {
-		String key = this.buildKey(url);
-		String field = this.buildParameters(this.data, url);
+		String key = this.buildKey(false, url);
+		String field = this.buildKey(true, url);
 		String json = this.obj2Json(data);
 
 		Jedis jedis = null;
@@ -100,14 +99,14 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void delConf(URL url) {
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
 			String data = url.getParameter(this.data);
 			if (StringUtils.isNotBlank(data)) {
-				String field = this.buildParameters(this.data, url);
+				String field = this.buildKey(true, url);
 				jedis.hdel(key, field);
 			} else {
 				jedis.hdel(key);
@@ -128,12 +127,12 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> T pull(URL url, Class<T> cls) {
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 		if (StringUtils.isBlank(url.getParameter(this.data))) {
 			throw new RuntimeException("The must set parameter 'data'[url.setParameter('data',…)].");
 		}
 
-		String field = this.buildParameters(this.data, url);
+		String field = this.buildKey(true, url);
 		Jedis jedis = null;
 
 		try {
@@ -152,16 +151,18 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> List<T> pulls(URL url, Class<T> cls) {
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
 			Map<String, String> dataMap = jedis.hgetAll(key);
-
-			JSONArray jsonArray = new JSONArray();
-			jsonArray.addAll(dataMap.values());
-			return JSON.parseArray(jsonArray.toString(), cls);
+			List<T> list = new ArrayList<T>();
+			for (String tempJson:dataMap.values()) {
+				list.add(JSON.parseObject(tempJson, cls));
+			}
+			
+			return list;
 		} catch (Exception e) {
 			logger.error("The pulls conf exception.", e);
 		} finally {
@@ -181,7 +182,7 @@ public class RedisMconf extends AbstractMconf {
 			isSubscribe = false;
 		}
 
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 		Jedis jedis = null;
 
 		try {
@@ -202,9 +203,11 @@ public class RedisMconf extends AbstractMconf {
 				dataMap = new HashMap<String, String>();
 			}
 
-			JSONArray jsonArray = new JSONArray();
-			jsonArray.addAll(dataMap.values());
-			List<T> list = JSON.parseArray(jsonArray.toString(), cls);
+			List<T> list = new ArrayList<T>();
+			for (String tempJson:dataMap.values()) {
+				list.add(JSON.parseObject(tempJson, cls));
+			}
+			
 			pushValueMap.put(key, dataMap);
 			notifyConf.notify(list);
 		} catch (Exception e) {
@@ -218,7 +221,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void unpush(URL url) {
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 
 		if (pushClassMap.containsKey(key)) {
 			pushClassMap.remove(key);
@@ -236,7 +239,7 @@ public class RedisMconf extends AbstractMconf {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public <T> void unpush(URL url, NotifyConf<T> notifyConf) {
-		String key = this.buildKey(url);
+		String key = this.buildKey(false, url);
 
 		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
 		notifyConfs.remove(notifyConf);
@@ -313,22 +316,34 @@ public class RedisMconf extends AbstractMconf {
 	 * @param url
 	 * @return
 	 */
-	private String buildKey(URL url) {
-		// check app
-		if (StringUtils.isBlank(url.getProtocol())) {
-			throw new RuntimeException("The must set parameter 'app'[url.setProtocol(…)].");
+	private String buildKey(boolean buildData, URL url) {
+		if(buildData){
+			// check app
+			String data = url.getParameter(this.data);
+			if (StringUtils.isBlank(data)) {
+				throw new RuntimeException("The must set parameter 'data'[url.setParameter('data',…)].");
+			}
+			
+			StringBuffer sb = new StringBuffer();
+			sb.append("/").append(data).append(this.buildParameters(this.data, url));
+			return sb.toString();
+		} else {
+			// check app
+			if (StringUtils.isBlank(url.getProtocol())) {
+				throw new RuntimeException("The must set parameter 'app'[url.setProtocol(…)].");
+			}
+			// check conf
+			if (StringUtils.isBlank(url.getPath())) {
+				throw new RuntimeException("The must set parameter 'conf'[url.setPath(…)].");
+			}
+	
+			StringBuffer sb = new StringBuffer();
+			sb.append("/").append(this.path).append(this.buildParameters(this.root, url));
+			sb.append("/").append(url.getProtocol()).append(this.buildParameters(this.app, url));
+			sb.append("/").append(url.getPath()).append(this.buildParameters(this.conf, url));
+	
+			return sb.toString();
 		}
-		// check conf
-		if (StringUtils.isBlank(url.getPath())) {
-			throw new RuntimeException("The must set parameter 'conf'[url.setPath(…)].");
-		}
-
-		StringBuffer sb = new StringBuffer();
-		sb.append("/").append(this.path).append(this.buildParameters(root, url));
-		sb.append("/").append(url.getProtocol()).append(this.buildParameters(app, url));
-		sb.append("/").append(url.getPath()).append(this.buildParameters(conf, url));
-
-		return sb.toString();
 	}
 
 }
