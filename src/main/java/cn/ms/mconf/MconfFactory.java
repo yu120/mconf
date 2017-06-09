@@ -23,41 +23,22 @@ public enum MconfFactory {
 
 	private final static Logger logger = LoggerFactory.getLogger(MconfFactory.class);
 
-	public static final String MCONF_URL_KEY = "mconf.url";
-
-	private Conf conf;
 	private Mconf mconf;
-
-	public Conf getConf() {
-		return conf;
-	}
 
 	public Mconf getMconf() {
 		return mconf;
 	}
 
-	public void start(String confName) {
+	public void start(URL mconfURL) {
 		logger.info("Is loading conf and mconf center...");
 
-		conf = Conf.INSTANCE;
-		if (!conf.connection(confName)) {
-			throw new IllegalStateException("No conf(" + confName + ") connection fail.");
+		URL url = URL.valueOf(String.valueOf(mconfURL));
+		mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
+		mconf.connect(url);
+		if (!mconf.available()) {
+			throw new IllegalStateException("No mconf center available: " + url);
 		} else {
-			logger.info("The conf connection successed, data is: {}", conf.getPropertys());
-
-			Object mconfURL = conf.getProperty(MCONF_URL_KEY);
-			if (mconfURL == null || String.valueOf(mconfURL).length() == 0) {
-				throw new IllegalStateException("The conf(" + confName + ") KEY '" + MCONF_URL_KEY + "'='" + mconfURL + "'.");
-			} else {
-				URL url = URL.valueOf(String.valueOf(mconfURL));
-				mconf = ExtensionLoader.getExtensionLoader(Mconf.class).getExtension(url.getProtocol());
-				mconf.connect(url);
-				if (!mconf.available()) {
-					throw new IllegalStateException("No mconf center available: " + url);
-				} else {
-					logger.info("The mconf center started successed!");
-				}
-			}
+			logger.info("The mconf center started successed!");
 		}
 	}
 
