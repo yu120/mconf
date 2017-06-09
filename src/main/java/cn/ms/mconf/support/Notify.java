@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @param <C>
  */
-public interface NotifyConf<T> {
+public interface Notify<T> {
 
 	/**
 	 * Do Notify

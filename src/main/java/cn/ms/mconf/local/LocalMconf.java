@@ -9,9 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.Conf;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.MParamType;
 import cn.ms.mconf.support.MetaData;
-import cn.ms.mconf.support.NotifyConf;
+import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.SpiMeta;
 
@@ -31,7 +30,7 @@ public class LocalMconf extends AbstractMconf {
 	@Override
 	public void connect(URL url) {
 		super.connect(url);
-		String confName = url.getParameter(MParamType.confName.getName(), MParamType.confName.getValue());
+		String confName = url.getParameter("confName", "mconf.properties");
 		
 		try {
 			available = conf.connection(confName);
@@ -79,7 +78,7 @@ public class LocalMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void push(URL url, Class<T> cls, NotifyConf<T> notifyMessage) {
+	public <T> void push(URL url, Class<T> cls, Notify<T> notifyMessage) {
 		logger.warn("The local mconf no support push.");
 		List<T> list = this.pulls(url, cls);
 		notifyMessage.notify(list);
@@ -91,7 +90,7 @@ public class LocalMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void unpush(URL url, NotifyConf<T> notifyMessage) {
+	public <T> void unpush(URL url, Notify<T> notifyMessage) {
 		logger.warn("The local mconf no support unpush.");
 	}
 	

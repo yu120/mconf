@@ -21,7 +21,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.NotifyConf;
+import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.SpiMeta;
@@ -45,7 +45,7 @@ public class RedisMconf extends AbstractMconf {
 
 	private final Map<String, Class<?>> pushClassMap = new ConcurrentHashMap<String, Class<?>>();
 	@SuppressWarnings("rawtypes")
-	private final ConcurrentMap<String, Set<NotifyConf>> pushNotifyConfMap = new ConcurrentHashMap<String, Set<NotifyConf>>();
+	private final ConcurrentMap<String, Set<Notify>> pushNotifyMap = new ConcurrentHashMap<String, Set<Notify>>();
 	private final ConcurrentMap<String, Map<String, String>> pushValueMap = new ConcurrentHashMap<String, Map<String, String>>();
 
 	@SuppressWarnings("unused")
@@ -176,7 +176,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void push(URL url, Class<T> cls, NotifyConf<T> notifyConf) {
+	public <T> void push(URL url, Class<T> cls, Notify<T> notify) {
 		if (isSubscribe) {
 			this.pushSubscribe();
 			isSubscribe = false;
@@ -191,11 +191,11 @@ public class RedisMconf extends AbstractMconf {
 				pushClassMap.put(key, cls);
 			}
 
-			Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
-			if (notifyConfs == null) {
-				pushNotifyConfMap.put(key, notifyConfs = new ConcurrentHashSet<NotifyConf>());
+			Set<Notify> notifies = pushNotifyMap.get(key);
+			if (notifies == null) {
+				pushNotifyMap.put(key, notifies = new ConcurrentHashSet<Notify>());
 			}
-			notifyConfs.add(notifyConf);
+			notifies.add(notify);
 
 			// 第一次拉取式通知
 			Map<String, String> dataMap = jedis.hgetAll(key);
@@ -209,7 +209,7 @@ public class RedisMconf extends AbstractMconf {
 			}
 			
 			pushValueMap.put(key, dataMap);
-			notifyConf.notify(list);
+			notify.notify(list);
 		} catch (Exception e) {
 			logger.error("The push conf exception.", e);
 		} finally {
@@ -227,8 +227,8 @@ public class RedisMconf extends AbstractMconf {
 			pushClassMap.remove(key);
 		}
 
-		if (pushNotifyConfMap.containsKey(key)) {
-			pushNotifyConfMap.remove(key);
+		if (pushNotifyMap.containsKey(key)) {
+			pushNotifyMap.remove(key);
 		}
 
 		if (pushValueMap.containsKey(key)) {
@@ -238,13 +238,13 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void unpush(URL url, NotifyConf<T> notifyConf) {
+	public <T> void unpush(URL url, Notify<T> notify) {
 		String key = this.buildKey(false, url);
 
-		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(key);
-		notifyConfs.remove(notifyConf);
+		Set<Notify> notifies = pushNotifyMap.get(key);
+		notifies.remove(notify);
 
-		if (pushNotifyConfMap.get(key) == null) {
+		if (pushNotifyMap.get(key) == null) {
 			pushValueMap.remove(key);
 		}
 	}
@@ -282,18 +282,18 @@ public class RedisMconf extends AbstractMconf {
 							}
 							Map<String, String> oldMap = pushValueMap.get(entry.getKey());
 							if (!newMap.equals(oldMap)) {// 已变更
-								Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(entry.getKey());
-								if (notifyConfs == null) {
+								Set<Notify> notifies = pushNotifyMap.get(entry.getKey());
+								if (notifies == null) {
 									continue;
 								} else {
 									pushValueMap.put(entry.getKey(), newMap);
-									for (NotifyConf notifyConf : notifyConfs) {
+									for (Notify notify : notifies) {
 										List list = new ArrayList();
 										for (Map.Entry<String, String> tempEntry : newMap.entrySet()) {
 											list.add(JSON.parseObject(tempEntry.getValue(), entry.getValue()));
 										}
 
-										notifyConf.notify(list);
+										notify.notify(list);
 									}
 								}
 							}

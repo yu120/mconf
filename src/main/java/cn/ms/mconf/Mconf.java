@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.ms.mconf.support.NotifyConf;
+import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
 import cn.ms.micro.extension.Spi;
@@ -97,14 +97,14 @@ public interface Mconf {
 	 * 
 	 * @param url Format：[app]://0.0.0.0:0/[conf]?[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
 	 * @param cls
-	 * @param notifyConf
+	 * @param notify
 	 * @return
 	 */
-	<T> void push(URL url, Class<T> cls, NotifyConf<T> notifyConf);
+	<T> void push(URL url, Class<T> cls, Notify<T> notify);
 
 	void unpush(URL url);
 
-	<T> void unpush(URL url, NotifyConf<T> notifyConf);
+	<T> void unpush(URL url, Notify<T> notify);
 	
 	
 	//$NON-NLS-The Node Governor$

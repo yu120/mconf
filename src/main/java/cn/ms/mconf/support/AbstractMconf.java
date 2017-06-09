@@ -145,7 +145,7 @@ public abstract class AbstractMconf implements Mconf {
 	 */
 	protected String decode(String data) {
 		try {
-			return URLDecoder.decode(data, MParamType.DEFAULT_CHARTSET);
+			return URLDecoder.decode(data, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("Decoding exception", e);
 		}

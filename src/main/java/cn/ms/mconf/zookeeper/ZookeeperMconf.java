@@ -32,8 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.MParamType;
-import cn.ms.mconf.support.NotifyConf;
+import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.SpiMeta;
@@ -55,7 +54,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	private final ExecutorService pool = Executors.newFixedThreadPool(2);
 	@SuppressWarnings("rawtypes")
-	private final Map<String, Set<NotifyConf>> pushNotifyConfMap = new ConcurrentHashMap<String, Set<NotifyConf>>();
+	private final Map<String, Set<Notify>> pushNotifyMap = new ConcurrentHashMap<String, Set<Notify>>();
 	private final Map<String, Map<String, Object>> pushMap = new ConcurrentHashMap<String, Map<String, Object>>();
 	private final Map<String, PathChildrenCache> pathChildrenCacheMap = new ConcurrentHashMap<String, PathChildrenCache>();
 
@@ -64,8 +63,10 @@ public class ZookeeperMconf extends AbstractMconf {
 		super.connect(url);
 
 		String connAddrs = url.getBackupAddress();
-		int timeout = url.getParameter(MParamType.TIMEOUT.getName(), MParamType.TIMEOUT.getIntValue());
-		int session = url.getParameter(MParamType.SESSION.getName(), MParamType.SESSION.getIntValue());
+		// Connection timeout, defaults to 60s
+		int timeout = url.getParameter("timeout", 60 * 1000);
+		// Expired cleanup time, defaults to 60s
+		int session = url.getParameter("session", 60 * 1000);
 
 		Builder builder = CuratorFrameworkFactory.builder()
 				.connectString(connAddrs)
@@ -242,23 +243,23 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public <T> void push(final URL url, final Class<T> cls, final NotifyConf<T> notifyConf) {
+	public <T> void push(final URL url, final Class<T> cls, final Notify<T> notify) {
 		final String path = this.buildPath(false, url);
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
 
 		// 允许多个监听者监听同一个节点
-		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(path);
-		if (notifyConfs == null) {
-			pushNotifyConfMap.put(path, notifyConfs = new ConcurrentHashSet<NotifyConf>());
+		Set<Notify> notifies = pushNotifyMap.get(path);
+		if (notifies == null) {
+			pushNotifyMap.put(path, notifies = new ConcurrentHashSet<Notify>());
 		}
-		notifyConfs.add(notifyConf);
+		notifies.add(notify);
 
 		if (pushMap.containsKey(path)) {// 已被订阅
 			List list = new ArrayList();
 			list.addAll(pushMap.get(path).values());
-			notifyConf.notify(list);// 通知一次
+			notify.notify(list);// 通知一次
 		} else {
 			final Map<String, Object> tempMap;
 			pushMap.put(path, tempMap = new ConcurrentHashMap<String, Object>());
@@ -295,11 +296,11 @@ public class ZookeeperMconf extends AbstractMconf {
 									if (isInit) {
 										logger.debug("The changed PATH[{}] update data[{}].", tempPath, event.getType(), tempJsonData);
 										logger.debug("The changed PATH[{}] notify all datas[{}].", path, JSON.toJSONString(tempMap));
-										Set<NotifyConf> tempNotifyConfSet = pushNotifyConfMap.get(path);
-										for (NotifyConf tempNotifyConf : tempNotifyConfSet) {// 通知每一个监听器
+										Set<Notify> tempNotifySet = pushNotifyMap.get(path);
+										for (Notify tempNotify : tempNotifySet) {// 通知每一个监听器
 											List list = new ArrayList();
 											list.addAll(tempMap.values());
-											tempNotifyConf.notify(list);
+											tempNotify.notify(list);
 										}
 									}
 								}
@@ -328,8 +329,8 @@ public class ZookeeperMconf extends AbstractMconf {
 			}
 		}
 
-		if (pushNotifyConfMap.containsKey(path)) {
-			pushNotifyConfMap.remove(path);
+		if (pushNotifyMap.containsKey(path)) {
+			pushNotifyMap.remove(path);
 		}
 
 		if (pushMap.containsKey(path)) {
@@ -338,7 +339,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void unpush(URL url, NotifyConf<T> notifyConf) {
+	public <T> void unpush(URL url, Notify<T> notify) {
 		String path = this.buildPath(false, url);
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
@@ -354,14 +355,14 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 
 		@SuppressWarnings("rawtypes")
-		Set<NotifyConf> notifyConfs = pushNotifyConfMap.get(path);
-		if (notifyConfs != null) {
-			if (notifyConfs.contains(notifyConf)) {
-				notifyConfs.remove(notifyConf);
+		Set<Notify> notifies = pushNotifyMap.get(path);
+		if (notifies != null) {
+			if (notifies.contains(notify)) {
+				notifies.remove(notify);
 			}
 		}
 
-		if (pushNotifyConfMap.get(path) == null) {
+		if (pushNotifyMap.get(path) == null) {
 			pushMap.remove(path);
 		}
 	}
