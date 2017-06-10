@@ -21,16 +21,14 @@ import com.alibaba.fastjson.JSON;
 
 public abstract class AbstractMconf implements Mconf {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(AbstractMconf.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractMconf.class);
 
 	public static final String ID_KEY = "id";
 
 	private Category category = new Category();
 	protected String path;
 	protected String root = "root", app = "app", conf = "conf", data = "data";
-	protected String DEFAULT_KEY = "default_", NODO_KEY = "node",
-			ENV_KEY = "env", GROUP_KEY = "group", VERSION_KEY = "version";
+	protected String DEFAULT_KEY = "default_", NODO_KEY = "node", ENV_KEY = "env", GROUP_KEY = "group", VERSION_KEY = "version", DATA_KEY = "id";
 	protected Map<String, String[]> structureMap = new ConcurrentHashMap<String, String[]>();
 
 	@Override

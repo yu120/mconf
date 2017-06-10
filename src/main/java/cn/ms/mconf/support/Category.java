@@ -10,7 +10,7 @@ public class Category {
 	/**
 	 * The Node.
 	 */
-	protected String node = "default_node";
+	protected String node;
 	/**
 	 * The Application.
 	 */
