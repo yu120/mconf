@@ -11,6 +11,13 @@
 	<artifactId>mconf-ui</artifactId>
 	<packaging>war</packaging>
 
+	<properties>
+		<springframework>4.2.0.RELEASE</springframework>
+		<log4j>1.2.17</log4j>
+		<jstl>1.2</jstl>
+		<junit>4.12</junit>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>cn.ms</groupId>
@@ -20,6 +27,35 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
+		</dependency>
+
+		<!-- Spring web mvc -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${springframework}</version>
+		</dependency>
+
+		<!-- JSTL -->
+		<dependency>
+			<groupId>jstl</groupId>
+			<artifactId>jstl</artifactId>
+			<version>${jstl}</version>
+		</dependency>
+
+		<!-- log4j -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j}</version>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
