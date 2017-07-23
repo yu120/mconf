@@ -29,7 +29,7 @@
                 <div class="col-sm-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <h5>数据中心</h5>
+                            <h5><font color="gray">蚂蚁视角 >> </font>数据中心</h5>
                             <div class="ibox-tools">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
                                 <ul class="dropdown-menu dropdown-user">
@@ -39,24 +39,38 @@
                             </div>
                         </div>
                         <div class="ibox-content">
-                        	<a href="#">
-                        		<button class="btn btn-info" type="button"><i class="fa fa-check"></i>添加</button>
-                        	</a>
-                        	<a href="#">
-                        		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>删除</button>
-                        	</a>
+                        	<div class="row">
+	                            <div class="col-sm-8 m-b-xs">
+	                                <a href="#">
+		                        		<button class="btn btn-info" type="button"><i class="fa fa-check"></i>添加</button>
+		                        	</a>
+		                        	<a href="#">
+		                        		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>删除</button>
+		                        	</a>
+	                            </div>
+	                            <div class="col-sm-4">
+	                            	<form action="${ctx}/web/datas">
+	                                	<div class="input-group">
+		                                    <input type="text" name="keywords" placeholder="请输入关键词开始搜索……" value="${keywords}" class="input-sm form-control">
+		                                    <span class="input-group-btn">
+		                                    	<button type="submit" class="btn btn-sm btn-info"> 搜索</button>
+		                                    </span>
+	                                	</div>
+	                                </form>
+	                            </div>
+	                        </div>
                         	
                             <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="8">
                                 <thead>
                                 <tr>
                                     <th data-toggle="true">ID</th>
-                                    <th>App</th>
-                                    <th>Conf Name</th>
+                                    <th>Application</th>
+                                    <th>Configure</th>
                                     <th>Data ID</th>
-                                    <th>Node</th>
+                                    <th>Data Node</th>
                                     <th>Environment</th>
-                                    <th>Group</th>
-                                    <th>Version</th>
+                                    <th>Group(<i class="fa fa-google"></i>)</th>
+                                    <th>Version(<i class="fa fa-vimeo"></i>)</th>
                                     <th data-hide="all">Data</th>
                                 </tr>
                                 </thead>
@@ -69,11 +83,21 @@
 			                                    <td>${data.app}</td>
 			                                    <td>${data.conf}</td>
 			                                    <td>${data.data}</td>
-			                                    <td>${data.node}</td>
-			                                    <td>${data.env}</td>
-			                                    <td>${data.group}</td>
-			                                    <td>${data.version}</td>
-			                                    <td>${data.kvdata}</td>
+			                                    <td><span class="badge badge-info">${data.node}</span></td>
+			                                    <td><span class="badge badge-green">${data.env}</span></td>
+			                                    <td><span class="badge badge-blue">${data.group}</span></td>
+			                                    <td><span class="badge badge-warning"><i class="fa fa-vimeo"></i> ${data.version}</span></td>
+			                                    <td>
+			                                    	<ul>
+			                                    		<c:forEach items="${data.kvdata}" var="kv">
+			                                    			<li style="list-style:none;">
+			                                    				<span class="badge badge-warning">${kv.key}</span>
+			                                    				<font color="gray"> :</font>
+			                                    				<span class="badge badge-blue">${kv.value}</span>
+			                                    			</li>			                                    		
+			                                    		</c:forEach>
+			                                    	</ul>
+			                                    </td>
 			                                </tr>
 		                                </c:forEach>
                                 	</c:when>

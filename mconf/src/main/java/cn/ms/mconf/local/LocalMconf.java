@@ -140,25 +140,25 @@ public class LocalMconf extends AbstractMconf {
 	//$NON-NLS-The Node Governor$
 	@Override
 	public List<DataConf> getApps() {
-		// TODO Auto-generated method stub
+		logger.warn("The local mconf no support getApps.");
 		return null;
 	}
 	
 	@Override
 	public List<DataConf> getConfs() {
-		// TODO Auto-generated method stub
+		logger.warn("The local mconf no support getConfs.");
 		return null;
 	}
 	
 	@Override
 	public List<DataConf> getKVDatas() {
-		// TODO Auto-generated method stub
+		logger.warn("The local mconf no support getKVDatas.");
 		return null;
 	}
 	
 	@Override
 	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
-		// TODO Auto-generated method stub
+		logger.warn("The local mconf no support structures.");
 		return null;
 	}
 	

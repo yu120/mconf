@@ -26,15 +26,20 @@
 <body class="gray-bg">
     <div class="wrapper wrapper-content animated fadeInRight">
     	<div class="row">
+    		<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-title"><h5><font color="gray">蚂蚁视角 >> </font>应用列表</h5></div>
+				</div>
+			</div>
     		<c:forEach items="${apps}" var="app">
 				<div class="col-sm-4">
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
-	                        <h5>${app.app} <small>${app.root}</small></h5>
-	                        <div class="ibox-tools">节点：${app.node}</div>
+	                        <h5><i class="fa fa-paper-plane"></i> ${app.app} <small>${app.root}</small></h5>
+	                        <div class="ibox-tools">${app.node}</div>
 	                    </div>
 	                    <div class="ibox-content">
-	                        <h5><a href="#" style="color: gray">查看所有配置块(<i class="fa text-danger">${app.subNum}</i>)</a></h5>
+	                        <h5><i class="fa fa-file-word-o"></i> <a href="#" style="color: gray">查看配置文件(<i class="fa text-navy">${app.subNum}</i>)</a></h5>
 	                        <table class="table table-stripped small m-t-md">
 	                        	<thead>
 	                        		<tr>
@@ -46,13 +51,13 @@
 	                            	<c:forEach items="${app.attributes}" var="attr">
 	                            		<tr>
 	                                    	<td><i class="fa fa-circle text-navy"> ${attr.key}</i></td>
-	                                    	<td><i class="fa text-danger"> ${attr.value}</i></td>
+	                                    	<td><i class="fa text-navy"> ${attr.value}</i></td>
 	                                	</tr>
 	                            	</c:forEach>
 	                            </tbody>
 	                        </table>
-	                        <div class="stat-percent font-bold text-navy">98% <i class="fa fa-bolt"></i></div>
-	                        <small>更新时间:2017-05-12 13:32:51</small>
+	                        <div class="stat-percent font-bold text-navy">正常 <i class="fa fa-heartbeat"></i></div>
+	                        <small><i class="fa fa-spinner"></i> 最近状态检测：2017-05-12 13:32:51</small>
 	                    </div>
 	                </div>
 	            </div>

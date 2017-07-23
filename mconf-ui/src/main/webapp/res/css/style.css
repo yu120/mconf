@@ -1249,6 +1249,18 @@ button.dim:active:before {
     color: #8B91A0;
 }
 
+.label-green,
+.badge-green {
+    background-color: #27c24c;
+    color: #FFFFFF;
+}
+
+.label-blue,
+.badge-blue {
+    background-color: #23b7e5;
+    color: #FFFFFF;
+}
+
 
 /* TOOGLE SWICH */
 

@@ -1,10 +1,12 @@
 package cn.ms.mconf.ui.ctrl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -67,8 +69,20 @@ public class WebCtrl {
 	 * @return
 	 */
 	@RequestMapping(value = "datas")
-	public String datas(HttpServletRequest request) {
-		List<DataConf> dataList = confService.getDatas();
+	public String datas(String keywords, HttpServletRequest request) {
+		List<DataConf> dataList = new ArrayList<DataConf>();
+		List<DataConf> tempDataList = confService.getDatas();
+		if(StringUtils.isNotBlank(keywords)){
+			for (DataConf data:tempDataList) {
+				if(data.toString().contains(keywords)){
+					dataList.add(data);
+				}
+			}
+			request.setAttribute("keywords", keywords);
+		} else {
+			dataList.addAll(tempDataList);
+		}
+		
 		request.setAttribute("datas", dataList);
 		return "datas";
 	}

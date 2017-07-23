@@ -58,14 +58,14 @@
                     </li>
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/apps">
-	                    	<i class="fa fa-cart-arrow-down"></i>
+	                    	<i class="fa fa-paper-plane"></i>
 	                        <span class="nav-label">应用列表</span>
 	                        <span class="label label-info pull-right">${statistics.app}</span>
 	               		</a>
 	              	</li>
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/confs">
-	                    	<i class="fa fa-sitemap"></i>
+	                    	<i class="fa fa-sliders"></i>
 	                        <span class="nav-label">配置文件</span>
 	                        <span class="label label-warning pull-right">${statistics.conf}</span>
 	               		</a>
@@ -77,6 +77,17 @@
 	                        <span class="label label-warning pull-right">${statistics.data}</span>
 	               		</a>
 	              	</li>
+	              	<%-- <li class="line dk"></li>
+                    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                        <span class="ng-scope">系统设置</span>
+                    </li>
+	              	<li>
+	                	<a class="J_menuItem" href="${ctx}/web/apps">
+	                    	<i class="fa fa-paper-plane"></i>
+	                        <span class="nav-label">修改密码</span>
+	                        <span class="label label-info pull-right">${statistics.app}</span>
+	               		</a>
+	              	</li> --%>
                 </ul>
             </div>
         </nav>
@@ -88,7 +99,7 @@
                     <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-info " href="#"><i class="fa fa-bars"></i> </a>
                         <form role="search" class="navbar-form-custom" method="post" action="search_results.html">
                             <div class="form-group">
-                                <input type="text" placeholder="${msg.search_tip}" class="form-control" name="top-search" id="top-search">
+                                <input type="text" placeholder="请输入关键词搜索……" class="form-control" name="top-search" id="top-search">
                             </div>
                         </form>
                     </div>
