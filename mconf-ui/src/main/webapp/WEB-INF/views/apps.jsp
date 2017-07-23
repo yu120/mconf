@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>${msg.menu_auth_title} - ${msg.menu_auth_router}</title>
+    <title>应用中心 - 蚂蚁配置</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -25,103 +25,40 @@
 
 <body class="gray-bg">
     <div class="wrapper wrapper-content animated fadeInRight">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="ibox float-e-margins">
-                        <div class="ibox-title">
-                            <h5>${msg.menu_auth_router}</h5>
-                            <div class="ibox-tools">
-                                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
-                                <ul class="dropdown-menu dropdown-user">
-                                    <li><a href="#">选项 01</a></li>
-                                    <li><a href="#">选项 02</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="ibox-content">
-                        	<a href="#">
-                        		<button class="btn btn-info" type="button"><i class="fa fa-check"></i>${msg.add_tip}</button>
-                        	</a>
-                        	<a href="#">
-                        		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>${msg.delete_tip}</button>
-                        	</a>
-                        	
-                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="7">
-                                <thead>
-                                <tr>
-                                    <th data-toggle="true">${msg.router_appkey}</th>
-                                    <th>${msg.router_apiId}</th>
-                                    <th>
-                                    	${msg.consumer_categories}
-                                    	<c:if test="${not empty categoriesKeys}">(${categoriesKeys})</c:if>
-                                    </th>
-                                    <th>${msg.common_status}</th>
-                                    <th data-hide="all">${msg.common_operateTime}</th>
-                                    <th data-hide="all">${msg.common_remarks}</th>
-                                    <th width="130px">${msg.common_operate}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <c:choose>
-                                	<c:when test="${not empty routerVos}">
-                                		<c:forEach items="${routerVos}" var="routerVo">
-			                                <tr>
-			                                    <td>${routerVo.router.appkey}</td>
-			                                    <td>${routerVo.api.service}:${routerVo.api.group}:${routerVo.api.version}</td>
-			                                    <td>
-			                                    	<c:forEach items="${routerVo.consumer.categories}" var="category">
-			                                    		<span class="badge badge-warning">${category.value}</span>
-			                                    	</c:forEach>
-			                                    </td>
-												<td>
-													<c:choose>
-														<c:when test="${routerVo.router.status}">
-															<span class="badge badge-info">${msg.router_status_enable}</span>
-														</c:when>
-														<c:otherwise>
-															<span class="badge">${msg.router_status_notEnable}</span>
-														</c:otherwise>
-													</c:choose>
-												</td>
-												<td>
-													<fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${routerVo.router.operateTime}" type="both"/> 
-												</td>
-												<td>
-													<c:choose>
-														<c:when test="${not empty routerVo.router.remarks}">${routerVo.router.remarks}</c:when>
-														<c:otherwise><font color="gray">${msg.common_notInformation}</font></c:otherwise>
-													</c:choose>
-												</td>
-												<td>
-			                                    	<button class="btn btn-info btn-xs" type="button"><i class="fa fa-paste"></i> ${msg.edit_tip}</button>
-			                                    	<a href="#">
-			                                    		<button class="btn btn-danger btn-xs" type="button"><i class="fa fa-times"></i> ${msg.delete_tip}</button>
-			                                    	</a>
-			                                    </td>
-			                                </tr>
-		                                </c:forEach>
-                                	</c:when>
-                                	<c:otherwise>
-                                		<tr>
-                                			<td colspan="8" style="color: gray">${msg.common_notfound}</td>
-                                		</tr>
-                                	</c:otherwise>
-                                </c:choose>
-                                </tbody>
-                                <tfoot>
-                                <tr>
-                                    <td colspan="6">
-                                        <ul class="pagination pull-right"></ul>
-                                    </td>
-                                </tr>
-                                </tfoot>
-                            </table>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+    	<div class="row">
+    		<c:forEach items="${appconfs}" var="appconf">
+				<div class="col-sm-4">
+	                <div class="ibox float-e-margins">
+	                    <div class="ibox-title">
+	                        <h5>${appconf.app} <small>${appconf.root}</small></h5>
+	                        <div class="ibox-tools">节点：${appconf.node}</div>
+	                    </div>
+	                    <div class="ibox-content">
+	                        <h5><a href="#" style="color: gray">查看所有配置块(<i class="fa text-danger">${appconf.subNum}</i>)</a></h5>
+	                        <table class="table table-stripped small m-t-md">
+	                        	<thead>
+	                        		<tr>
+	                                	<th>Attribute Key</th>
+	                                    <th>Attribute Value</th>
+	                               	</tr>
+	                        	</thead>
+	                            <tbody>
+	                            	<c:forEach items="${appconf.attributes}" var="attr">
+	                            		<tr>
+	                                    	<td><i class="fa fa-circle text-navy"> ${attr.key}</i></td>
+	                                    	<td><i class="fa text-danger"> ${attr.value}</i></td>
+	                                	</tr>
+	                            	</c:forEach>
+	                            </tbody>
+	                        </table>
+	                        <div class="stat-percent font-bold text-navy">98% <i class="fa fa-bolt"></i></div>
+	                        <small>更新时间:2017-05-12 13:32:51</small>
+	                    </div>
+	                </div>
+	            </div>
+			</c:forEach>
         </div>
+    </div>
     <!-- 全局js -->
     <script src="${ctx}/res/js/jquery.min.js?v=2.1.4"></script>
     <script src="${ctx}/res/js/bootstrap.min.js?v=3.3.6"></script>

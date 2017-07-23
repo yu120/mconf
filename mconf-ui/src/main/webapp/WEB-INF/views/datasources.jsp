@@ -29,7 +29,7 @@
                 <div class="col-sm-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <h5>${msg.menu_auth_router}</h5>
+                            <h5>数据中心</h5>
                             <div class="ibox-tools">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
                                 <ul class="dropdown-menu dropdown-user">
@@ -40,77 +40,55 @@
                         </div>
                         <div class="ibox-content">
                         	<a href="#">
-                        		<button class="btn btn-info" type="button"><i class="fa fa-check"></i>${msg.add_tip}</button>
+                        		<button class="btn btn-info" type="button"><i class="fa fa-check"></i>添加</button>
                         	</a>
                         	<a href="#">
-                        		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>${msg.delete_tip}</button>
+                        		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>删除</button>
                         	</a>
                         	
-                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="7">
+                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="8">
                                 <thead>
                                 <tr>
-                                    <th data-toggle="true">${msg.router_appkey}</th>
-                                    <th>${msg.router_apiId}</th>
-                                    <th>
-                                    	${msg.consumer_categories}
-                                    	<c:if test="${not empty categoriesKeys}">(${categoriesKeys})</c:if>
-                                    </th>
-                                    <th>${msg.common_status}</th>
-                                    <th data-hide="all">${msg.common_operateTime}</th>
-                                    <th data-hide="all">${msg.common_remarks}</th>
-                                    <th width="130px">${msg.common_operate}</th>
+                                    <th data-toggle="true">ID</th>
+                                    <th>Node</th>
+                                    <th>App</th>
+                                    <th>Conf Name</th>
+                                    <th>Environment</th>
+                                    <th>Data ID</th>
+                                    <th>Group</th>
+                                    <th>Version</th>
+                                    <th data-hide="all">Conf JSON</th>
+                                    <th data-hide="all">Conf Map</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <c:choose>
-                                	<c:when test="${not empty routerVos}">
-                                		<c:forEach items="${routerVos}" var="routerVo">
+                                	<c:when test="${not empty datas}">
+                                		<c:forEach items="${datas}" var="data" varStatus="dataid">
 			                                <tr>
-			                                    <td>${routerVo.router.appkey}</td>
-			                                    <td>${routerVo.api.service}:${routerVo.api.group}:${routerVo.api.version}</td>
-			                                    <td>
-			                                    	<c:forEach items="${routerVo.consumer.categories}" var="category">
-			                                    		<span class="badge badge-warning">${category.value}</span>
-			                                    	</c:forEach>
-			                                    </td>
-												<td>
-													<c:choose>
-														<c:when test="${routerVo.router.status}">
-															<span class="badge badge-info">${msg.router_status_enable}</span>
-														</c:when>
-														<c:otherwise>
-															<span class="badge">${msg.router_status_notEnable}</span>
-														</c:otherwise>
-													</c:choose>
-												</td>
-												<td>
-													<fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${routerVo.router.operateTime}" type="both"/> 
-												</td>
-												<td>
-													<c:choose>
-														<c:when test="${not empty routerVo.router.remarks}">${routerVo.router.remarks}</c:when>
-														<c:otherwise><font color="gray">${msg.common_notInformation}</font></c:otherwise>
-													</c:choose>
-												</td>
-												<td>
-			                                    	<button class="btn btn-info btn-xs" type="button"><i class="fa fa-paste"></i> ${msg.edit_tip}</button>
-			                                    	<a href="#">
-			                                    		<button class="btn btn-danger btn-xs" type="button"><i class="fa fa-times"></i> ${msg.delete_tip}</button>
-			                                    	</a>
-			                                    </td>
+			                                	<td>${dataid.index+1}</td>
+			                                    <td>${data.node}</td>
+			                                    <td>${data.app}</td>
+			                                    <td>${data.conf}</td>
+			                                    <td>${data.env}</td>
+			                                    <td>${data.data}</td>
+			                                    <td>${data.group}</td>
+			                                    <td>${data.version}</td>
+			                                    <td>${data.json}</td>
+			                                    <td>${data.kvdata}</td>
 			                                </tr>
 		                                </c:forEach>
                                 	</c:when>
                                 	<c:otherwise>
                                 		<tr>
-                                			<td colspan="8" style="color: gray">${msg.common_notfound}</td>
+                                			<td colspan="10" style="color: gray">${msg.common_notfound}</td>
                                 		</tr>
                                 	</c:otherwise>
                                 </c:choose>
                                 </tbody>
                                 <tfoot>
                                 <tr>
-                                    <td colspan="6">
+                                    <td colspan="8">
                                         <ul class="pagination pull-right"></ul>
                                     </td>
                                 </tr>

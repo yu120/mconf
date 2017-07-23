@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
@@ -108,6 +109,10 @@ public interface Mconf {
 	
 	
 	//$NON-NLS-The Node Governor$
+	
+	List<DataConf> getApps();
+	List<DataConf> getConfs();
+	List<DataConf> getKVDatas();
 	
 	/**
 	 * Query configuration center data structure.<br>

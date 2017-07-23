@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
+import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -368,6 +369,24 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	//$NON-NLS-The Node Governor$
+	@Override
+	public List<DataConf> getApps() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public List<DataConf> getConfs() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public List<DataConf> getKVDatas() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
 		Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> map = new ConcurrentHashMap<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>>();

@@ -21,6 +21,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
+import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -250,6 +251,156 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	//$NON-NLS-The Node Governor$
+	@Override
+	public List<DataConf> getApps() {
+		List<DataConf> appConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> appConfMap = new HashMap<String, DataConf>();
+		
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			for (String key:keySet) {
+				String[] keyArray = key.split("/");
+				if(keyArray.length == 4){
+					DataConf appConf = new DataConf();
+					Map<String, String> attributes = new HashMap<String, String>();
+					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
+					attributes.putAll(tempAppURL.getParameters());
+					attributes.put(this.root, this.path);
+
+					appConf.setApp(tempAppURL.getPath());
+					appConf.setAttributes(attributes);
+					appConf.setNode(attributes.get(this.NODO_KEY));
+					appConf.setRoot(this.path);
+					
+					Set<String> confSet = jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*");
+					appConf.setSubNum(confSet.size());
+					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], appConf);
+				}
+			}
+			
+			if(!appConfMap.isEmpty()){
+				appConfs.addAll(appConfMap.values());
+			}
+		} catch (Exception e) {
+			logger.error("The pulls conf exception.", e);
+		} finally {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+
+		return appConfs;
+	}
+	
+	@Override
+	public List<DataConf> getConfs() {
+		List<DataConf> confConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+		
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			for (String key:keySet) {
+				String[] keyArray = key.split("/");
+				if(keyArray.length == 4){
+					DataConf confConf = new DataConf();
+					Map<String, String> attributes = new HashMap<String, String>();
+					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
+					attributes.putAll(tempAppURL.getParameters());
+					attributes.put(this.app, tempAppURL.getPath());
+					confConf.setApp(tempAppURL.getPath());
+					
+					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
+					attributes.putAll(tempConfURL.getParameters());
+					attributes.put(this.root, this.path);
+					confConf.setConf(tempConfURL.getPath());
+					
+					confConf.setAttributes(attributes);
+					confConf.setNode(attributes.get(this.NODO_KEY));
+					Set<String> dataSet = jedis.hkeys(key);
+					confConf.setSubNum(dataSet.size());
+					
+					confConfMap.put(key, confConf);
+				}
+			}
+			
+			if(!confConfMap.isEmpty()){
+				confConfs.addAll(confConfMap.values());
+			}
+		} catch (Exception e) {
+			logger.error("The pulls conf exception.", e);
+		} finally {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+
+		return confConfs;
+	}
+	
+	@Override
+	public List<DataConf> getKVDatas() {
+		List<DataConf> confConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+		
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			for (String key:keySet) {
+				String[] keyArray = key.split("/");
+				if(keyArray.length == 4){
+					DataConf confConf = new DataConf();
+					Map<String, String> attributes = new HashMap<String, String>();
+					//解析节点层属性
+					confConf.setRoot(URL.decode(keyArray[1]));
+					//解析应用层属性
+					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
+					attributes.putAll(tempAppURL.getParameters());
+					confConf.setApp(tempAppURL.getPath());
+					confConf.setNode(attributes.get(this.NODO_KEY));
+					//解析配置层属性
+					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
+					attributes.putAll(tempConfURL.getParameters());
+					confConf.setConf(tempConfURL.getPath());
+					confConf.setEnv(attributes.get(this.ENV_KEY));
+					//解析数据层属性
+					Set<String> fieldSet = jedis.hkeys(key);
+					for (String field:fieldSet) {
+						URL tempDataURL = URL.valueOf(URL.decode(field));
+						Map<String, String> dataAttributes = new HashMap<String, String>();
+						dataAttributes.putAll(attributes);
+						dataAttributes.putAll(tempDataURL.getParameters());
+						confConf.setData(tempDataURL.getPath());
+						confConf.setGroup(dataAttributes.get(this.GROUP_KEY));
+						confConf.setVersion(dataAttributes.get(this.VERSION_KEY));
+						confConf.setAttributes(dataAttributes);
+						//解析配置数据
+						confConf.setJson(jedis.hget(key, field));
+						confConf.setKvdata(JSON.parseObject(confConf.getJson(), Map.class));
+						
+						confConfMap.put(key + field, confConf);
+					}
+				}
+			}
+			
+			if(!confConfMap.isEmpty()){
+				confConfs.addAll(confConfMap.values());
+			}
+		} catch (Exception e) {
+			logger.error("The pulls conf exception.", e);
+		} finally {
+			if (jedis != null) {
+				jedis.close();
+			}
+		}
+
+		return confConfs;
+	}
+	
 	@Override
 	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
 		// TODO Auto-generated method stub

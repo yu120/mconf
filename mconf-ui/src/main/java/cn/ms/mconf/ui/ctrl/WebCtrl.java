@@ -1,11 +1,14 @@
 package cn.ms.mconf.ui.ctrl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.ui.service.ConfService;
 
 @Controller
@@ -32,29 +35,35 @@ public class WebCtrl {
 	}
 
 	/**
-	 * 首页
+	 * 应用中心
 	 * 
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(value = "apps")
 	public String apps(HttpServletRequest request) {
+		List<DataConf> appConfList = confService.getApps();
+		System.out.println(appConfList);
+		request.setAttribute("appconfs", appConfList);
 		return "apps";
 	}
 
 	/**
-	 * 配置块
+	 * 配置中心
 	 * 
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(value = "blocks")
 	public String blocks(HttpServletRequest request) {
+		List<DataConf> confConfList = confService.getBlocks();
+		System.out.println(confConfList);
+		request.setAttribute("confconfs", confConfList);
 		return "blocks";
 	}
 
 	/**
-	 * 配置项
+	 * 数据清单
 	 * 
 	 * @param request
 	 * @return
@@ -72,6 +81,9 @@ public class WebCtrl {
 	 */
 	@RequestMapping(value = "datasources")
 	public String datasources(HttpServletRequest request) {
+		List<DataConf> dataConfList = confService.getDatasources();
+		System.out.println(dataConfList);
+		request.setAttribute("datas", dataConfList);
 		return "datasources";
 	}
 
