@@ -64,17 +64,17 @@
 	               		</a>
 	              	</li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/web/blocks">
+	                	<a class="J_menuItem" href="${ctx}/web/confs">
 	                    	<i class="fa fa-sitemap"></i>
 	                        <span class="nav-label">配置分析</span>
-	                        <span class="label label-warning pull-right">${statistics.block}</span>
+	                        <span class="label label-warning pull-right">${statistics.conf}</span>
 	               		</a>
 	              	</li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/web/datasources">
+	                	<a class="J_menuItem" href="${ctx}/web/datas">
 	                    	<i class="fa fa-bitbucket"></i>
 	                        <span class="nav-label">数据中心</span>
-	                        <span class="label label-warning pull-right">${statistics.datasource}</span>
+	                        <span class="label label-warning pull-right">${statistics.data}</span>
 	               		</a>
 	              	</li>
                 </ul>
