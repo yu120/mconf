@@ -66,7 +66,7 @@
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/confs">
 	                    	<i class="fa fa-sitemap"></i>
-	                        <span class="nav-label">配置分析</span>
+	                        <span class="nav-label">配置文件</span>
 	                        <span class="label label-warning pull-right">${statistics.conf}</span>
 	               		</a>
 	              	</li>

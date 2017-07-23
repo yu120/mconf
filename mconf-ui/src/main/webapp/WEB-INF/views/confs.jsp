@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>配置分析 - 蚂蚁配置</title>
+    <title>配置文件 - 蚂蚁配置</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
