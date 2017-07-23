@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
 
-    <title>${msg.title_fu} - ${msg.title_ab}</title>
+    <title>蚂蚁配置 - 微配置</title>
 
     <meta name="keywords" content="">
     <meta name="description" content="">
@@ -36,75 +36,54 @@
                                 <span class="clear">
                                     <span class="block m-t-xs" style="font-size:20px;">
                                         <i class="fa fa-map-signs"></i>
-                                        <strong class="font-bold">${msg.title_fu}</strong>
+                                        <strong class="font-bold">蚂蚁配置</strong>
                                     </span>
                                 </span>
                             </a>
                         </div>
-                        <div class="logo-element">${msg.title_ab}</div>
+                        <div class="logo-element">微配置</div>
                     </li>
                     <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                        <span class="ng-scope">${msg.menu_statistics_title}</span>
+                        <span class="ng-scope">监控统计</span>
                     </li>
                     <li>
                         <a class="J_menuItem" href="${ctx}/web/main">
                             <i class="fa fa-home"></i>
-                            <span class="nav-label">${msg.menu_statistics_home}</span>
+                            <span class="nav-label">首页</span>
                         </a>
                     </li>
                     <li class="line dk"></li>
                     <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                        <span class="ng-scope">${msg.menu_auth_title}</span>
+                        <span class="ng-scope">蚂蚁视角</span>
                     </li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/api/apis">
+	                	<a class="J_menuItem" href="${ctx}/web/apps">
 	                    	<i class="fa fa-cart-arrow-down"></i>
-	                        <span class="nav-label">${msg.menu_auth_api}</span>
-	                        <span class="label label-info pull-right">${statistics.api}</span>
+	                        <span class="nav-label">应用中心</span>
+	                        <span class="label label-info pull-right">${statistics.app}</span>
 	               		</a>
 	              	</li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/consumer/consumers">
-	                    	<i class="fa fa-users"></i>
-	                        <span class="nav-label">${msg.menu_auth_consumer}</span>
-	                        <span class="label label-primary pull-right">${statistics.consumer}</span>
-	               		</a>
-	              	</li>
-	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/router/routers">
+	                	<a class="J_menuItem" href="${ctx}/web/blocks">
 	                    	<i class="fa fa-sitemap"></i>
-	                        <span class="nav-label">${msg.menu_auth_router}</span>
-	                        <span class="label label-warning pull-right">${statistics.router}</span>
+	                        <span class="nav-label">配置块</span>
+	                        <span class="label label-warning pull-right">${statistics.block}</span>
 	               		</a>
 	              	</li>
-	              	<li class="line dk"></li>
-                    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                        <span class="ng-scope">${msg.menu_governor_title}</span>
-                    </li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/parameter/parameters">
+	                	<a class="J_menuItem" href="${ctx}/web/items">
 	                    	<i class="fa fa-exchange"></i>
-	                        <span class="nav-label">${msg.menu_governor_parameter}</span>
-	                        <span class="label label-success pull-right">${statistics.parameter}</span>
+	                        <span class="nav-label">配置项</span>
+	                        <span class="label label-warning pull-right">${statistics.item}</span>
 	               		</a>
 	              	</li>
 	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/throttle/throttles">
+	                	<a class="J_menuItem" href="${ctx}/web/datasources">
 	                    	<i class="fa fa-bitbucket"></i>
-	                        <span class="nav-label">${msg.menu_governor_throttle}</span>
+	                        <span class="nav-label">数据源</span>
+	                        <span class="label label-warning pull-right">${statistics.datasource}</span>
 	               		</a>
 	              	</li>
-                    
-                    <li class="line dk"></li>
-                    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                        <span class="ng-scope">${msg.menu_sys_title}</span>
-                    </li>
-                    <li>
-                        <a class="J_menuItem" href="${ctx}/sysconf/sysconfs">
-                            <i class="fa fa-cogs"></i>
-                            <span class="nav-label">${msg.menu_sys_sysconf}</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
         </nav>

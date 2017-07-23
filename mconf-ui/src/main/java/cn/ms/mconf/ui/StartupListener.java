@@ -15,7 +15,8 @@ public class StartupListener implements ServletContextListener {
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
-		// 连接配置中心
+		// 初始化国际化
+		//sce.getServletContext().setAttribute(International.MSG_KEY, International.getMSG(null));
 	}
 
 	/**

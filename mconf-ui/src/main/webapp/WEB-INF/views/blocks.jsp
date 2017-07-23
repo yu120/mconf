@@ -1,12 +1,12 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ include file="../library/master.jsp"%>
+<%@ include file="library/master.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>${msg.menu_auth_title} - ${msg.menu_auth_api}</title>
+    <title>${msg.menu_auth_title} - ${msg.menu_auth_router}</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -29,7 +29,7 @@
                 <div class="col-sm-12">
                     <div class="ibox float-e-margins">
                         <div class="ibox-title">
-                            <h5>${msg.menu_auth_api}</h5>
+                            <h5>${msg.menu_auth_router}</h5>
                             <div class="ibox-tools">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-wrench"></i></a>
                                 <ul class="dropdown-menu dropdown-user">
@@ -46,54 +46,54 @@
                         		<button class="btn btn-danger" type="button"><i class="fa fa-trash-o"></i>${msg.delete_tip}</button>
                         	</a>
                         	
-                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="11">
+                            <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="7">
                                 <thead>
                                 <tr>
-                                    <th data-toggle="true">${msg.api_apiId}</th>
-                                    <th>${msg.api_title}</th>
-                                    <th>${msg.api_consumerNum}</th>
+                                    <th data-toggle="true">${msg.router_appkey}</th>
+                                    <th>${msg.router_apiId}</th>
+                                    <th>
+                                    	${msg.consumer_categories}
+                                    	<c:if test="${not empty categoriesKeys}">(${categoriesKeys})</c:if>
+                                    </th>
                                     <th>${msg.common_status}</th>
                                     <th data-hide="all">${msg.common_operateTime}</th>
                                     <th data-hide="all">${msg.common_remarks}</th>
-                                    <th width="200px">${msg.common_operate}</th>
+                                    <th width="130px">${msg.common_operate}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <c:choose>
-                                	<c:when test="${not empty apis}">
-                                		<c:forEach items="${apis}" var="api">
+                                	<c:when test="${not empty routerVos}">
+                                		<c:forEach items="${routerVos}" var="routerVo">
 			                                <tr>
-			                                    <td>${api.key.service}:${api.key.group}:${api.key.version}</td>
-			                                    <td>${api.key.title}</td>
+			                                    <td>${routerVo.router.appkey}</td>
+			                                    <td>${routerVo.api.service}:${routerVo.api.group}:${routerVo.api.version}</td>
 			                                    <td>
-			                                    	<a href="${ctx}/router/routers?apiId=${api.key.id}">
-			                                    		<span class="badge badge-warning">${api.value}</span>
-			                                    	</a>
+			                                    	<c:forEach items="${routerVo.consumer.categories}" var="category">
+			                                    		<span class="badge badge-warning">${category.value}</span>
+			                                    	</c:forEach>
 			                                    </td>
 												<td>
 													<c:choose>
-														<c:when test="${api.key.status}">
-															<span class="badge badge-info">${msg.api_status_enable}</span>
+														<c:when test="${routerVo.router.status}">
+															<span class="badge badge-info">${msg.router_status_enable}</span>
 														</c:when>
 														<c:otherwise>
-															<span class="badge">${msg.api_status_notEnable}</span>
+															<span class="badge">${msg.router_status_notEnable}</span>
 														</c:otherwise>
 													</c:choose>
 												</td>
 												<td>
-													<fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${api.key.operateTime}" type="both"/> 
+													<fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${routerVo.router.operateTime}" type="both"/> 
 												</td>
 												<td>
 													<c:choose>
-														<c:when test="${not empty api.key.remarks}">${api.key.remarks}</c:when>
+														<c:when test="${not empty routerVo.router.remarks}">${routerVo.router.remarks}</c:when>
 														<c:otherwise><font color="gray">${msg.common_notInformation}</font></c:otherwise>
 													</c:choose>
 												</td>
 												<td>
-													<a href="${ctx}/api/api/${api.key.id}">
-			                                    		<button class="btn btn-info btn-xs" type="button"><i class="fa fa-list"></i> ${msg.details_tip}</button>
-			                                    	</a>
-			                                    	<button class="btn btn-success btn-xs" type="button"><i class="fa fa-paste"></i> ${msg.edit_tip}</button>
+			                                    	<button class="btn btn-info btn-xs" type="button"><i class="fa fa-paste"></i> ${msg.edit_tip}</button>
 			                                    	<a href="#">
 			                                    		<button class="btn btn-danger btn-xs" type="button"><i class="fa fa-times"></i> ${msg.delete_tip}</button>
 			                                    	</a>
