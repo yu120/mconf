@@ -353,23 +353,27 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					DataConf confConf = new DataConf();
 					Map<String, String> attributes = new HashMap<String, String>();
-					//解析节点层属性
-					confConf.setRoot(URL.decode(keyArray[1]));
 					//解析应用层属性
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
 					attributes.putAll(tempAppURL.getParameters());
-					confConf.setApp(tempAppURL.getPath());
-					confConf.setNode(attributes.get(this.NODO_KEY));
 					//解析配置层属性
 					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
 					attributes.putAll(tempConfURL.getParameters());
-					confConf.setConf(tempConfURL.getPath());
-					confConf.setEnv(attributes.get(this.ENV_KEY));
+					
 					//解析数据层属性
 					Set<String> fieldSet = jedis.hkeys(key);
 					for (String field:fieldSet) {
+						DataConf confConf = new DataConf();
+						//解析节点层属性
+						confConf.setRoot(URL.decode(keyArray[1]));
+						//解析应用层属性
+						confConf.setApp(tempAppURL.getPath());
+						confConf.setNode(attributes.get(this.NODO_KEY));
+						//解析配置层属性
+						confConf.setConf(tempConfURL.getPath());
+						confConf.setEnv(attributes.get(this.ENV_KEY));
+						
 						URL tempDataURL = URL.valueOf(URL.decode(field));
 						Map<String, String> dataAttributes = new HashMap<String, String>();
 						dataAttributes.putAll(attributes);

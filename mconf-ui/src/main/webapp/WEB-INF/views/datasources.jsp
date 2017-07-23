@@ -50,15 +50,14 @@
                                 <thead>
                                 <tr>
                                     <th data-toggle="true">ID</th>
-                                    <th>Node</th>
                                     <th>App</th>
                                     <th>Conf Name</th>
-                                    <th>Environment</th>
                                     <th>Data ID</th>
+                                    <th>Node</th>
+                                    <th>Environment</th>
                                     <th>Group</th>
                                     <th>Version</th>
-                                    <th data-hide="all">Conf JSON</th>
-                                    <th data-hide="all">Conf Map</th>
+                                    <th data-hide="all">Data</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -67,21 +66,20 @@
                                 		<c:forEach items="${datas}" var="data" varStatus="dataid">
 			                                <tr>
 			                                	<td>${dataid.index+1}</td>
-			                                    <td>${data.node}</td>
 			                                    <td>${data.app}</td>
 			                                    <td>${data.conf}</td>
-			                                    <td>${data.env}</td>
 			                                    <td>${data.data}</td>
+			                                    <td>${data.node}</td>
+			                                    <td>${data.env}</td>
 			                                    <td>${data.group}</td>
 			                                    <td>${data.version}</td>
-			                                    <td>${data.json}</td>
 			                                    <td>${data.kvdata}</td>
 			                                </tr>
 		                                </c:forEach>
                                 	</c:when>
                                 	<c:otherwise>
                                 		<tr>
-                                			<td colspan="10" style="color: gray">${msg.common_notfound}</td>
+                                			<td colspan="9" style="color: gray">${msg.common_notfound}</td>
                                 		</tr>
                                 	</c:otherwise>
                                 </c:choose>

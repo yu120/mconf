@@ -59,28 +59,21 @@
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/apps">
 	                    	<i class="fa fa-cart-arrow-down"></i>
-	                        <span class="nav-label">应用中心</span>
+	                        <span class="nav-label">应用列表</span>
 	                        <span class="label label-info pull-right">${statistics.app}</span>
 	               		</a>
 	              	</li>
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/blocks">
 	                    	<i class="fa fa-sitemap"></i>
-	                        <span class="nav-label">配置块</span>
+	                        <span class="nav-label">配置分析</span>
 	                        <span class="label label-warning pull-right">${statistics.block}</span>
-	               		</a>
-	              	</li>
-	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/web/items">
-	                    	<i class="fa fa-exchange"></i>
-	                        <span class="nav-label">配置项</span>
-	                        <span class="label label-warning pull-right">${statistics.item}</span>
 	               		</a>
 	              	</li>
 	              	<li>
 	                	<a class="J_menuItem" href="${ctx}/web/datasources">
 	                    	<i class="fa fa-bitbucket"></i>
-	                        <span class="nav-label">数据源</span>
+	                        <span class="nav-label">数据中心</span>
 	                        <span class="label label-warning pull-right">${statistics.datasource}</span>
 	               		</a>
 	              	</li>
