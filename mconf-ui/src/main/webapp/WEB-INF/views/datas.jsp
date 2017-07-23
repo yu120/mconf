@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>${msg.menu_auth_title} - ${msg.menu_auth_router}</title>
+    <title>数据中心 - 蚂蚁配置</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 

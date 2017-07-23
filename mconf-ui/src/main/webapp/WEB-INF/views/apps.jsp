@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>应用中心 - 蚂蚁配置</title>
+    <title>应用列表 - 蚂蚁配置</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -26,15 +26,15 @@
 <body class="gray-bg">
     <div class="wrapper wrapper-content animated fadeInRight">
     	<div class="row">
-    		<c:forEach items="${appconfs}" var="appconf">
+    		<c:forEach items="${apps}" var="app">
 				<div class="col-sm-4">
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
-	                        <h5>${appconf.app} <small>${appconf.root}</small></h5>
-	                        <div class="ibox-tools">节点：${appconf.node}</div>
+	                        <h5>${app.app} <small>${app.root}</small></h5>
+	                        <div class="ibox-tools">节点：${app.node}</div>
 	                    </div>
 	                    <div class="ibox-content">
-	                        <h5><a href="#" style="color: gray">查看所有配置块(<i class="fa text-danger">${appconf.subNum}</i>)</a></h5>
+	                        <h5><a href="#" style="color: gray">查看所有配置块(<i class="fa text-danger">${app.subNum}</i>)</a></h5>
 	                        <table class="table table-stripped small m-t-md">
 	                        	<thead>
 	                        		<tr>
@@ -43,7 +43,7 @@
 	                               	</tr>
 	                        	</thead>
 	                            <tbody>
-	                            	<c:forEach items="${appconf.attributes}" var="attr">
+	                            	<c:forEach items="${app.attributes}" var="attr">
 	                            		<tr>
 	                                    	<td><i class="fa fa-circle text-navy"> ${attr.key}</i></td>
 	                                    	<td><i class="fa text-danger"> ${attr.value}</i></td>

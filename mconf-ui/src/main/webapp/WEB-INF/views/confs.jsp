@@ -6,7 +6,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>${msg.menu_auth_title} - ${msg.menu_auth_router}</title>
+    <title>配置分析 - 蚂蚁配置</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -26,15 +26,15 @@
 <body class="gray-bg">
     <div class="wrapper wrapper-content animated fadeInRight">
     	<div class="row">
-    		<c:forEach items="${confconfs}" var="confconf">
+    		<c:forEach items="${confs}" var="conf">
 				<div class="col-sm-4">
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
-	                        <h5>${confconf.conf} <small>${confconf.app}</small></h5>
-	                        <div class="ibox-tools">节点：${confconf.node}</div>
+	                        <h5>${conf.conf} <small>${conf.app}</small></h5>
+	                        <div class="ibox-tools">节点：${conf.node}</div>
 	                    </div>
 	                    <div class="ibox-content">
-	                        <h5><a href="#" style="color: gray">查看所有配置项(<i class="fa text-danger">${confconf.subNum}</i>)</a></h5>
+	                        <h5><a href="#" style="color: gray">查看所有配置项(<i class="fa text-danger">${conf.subNum}</i>)</a></h5>
 	                        <table class="table table-stripped small m-t-md">
 	                        	<thead>
 	                        		<tr>
@@ -43,7 +43,7 @@
 	                               	</tr>
 	                        	</thead>
 	                            <tbody>
-	                            	<c:forEach items="${confconf.attributes}" var="attr">
+	                            	<c:forEach items="${conf.attributes}" var="attr">
 	                            		<tr>
 	                                    	<td><i class="fa fa-circle text-navy"> ${attr.key}</i></td>
 	                                    	<td><i class="fa text-danger"> ${attr.value}</i></td>
