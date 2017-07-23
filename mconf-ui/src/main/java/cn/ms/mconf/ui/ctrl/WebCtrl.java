@@ -1,7 +1,9 @@
 package cn.ms.mconf.ui.ctrl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +35,23 @@ public class WebCtrl {
 	 */
 	@RequestMapping(value = "main")
 	public String main(HttpServletRequest request) {
+		Set<String> nodeSet = new HashSet<String>();
+		List<DataConf> appList = confService.getApps();
+		for (DataConf dc:appList) {
+			nodeSet.add(dc.getNode());
+		}
+		
+		Set<String> confSet = new HashSet<String>();
+		List<DataConf> confList = confService.getConfs();
+		for (DataConf dc:confList) {
+			confSet.add(dc.getEnv());
+		}
+		
+		request.setAttribute("appNum", appList.size());
+		request.setAttribute("confNum", confList.size());
+		request.setAttribute("nodeNum", nodeSet.size());
+		request.setAttribute("envNum", confSet.size());
+		
 		return "main";
 	}
 

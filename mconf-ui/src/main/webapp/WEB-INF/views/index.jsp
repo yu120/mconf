@@ -77,17 +77,6 @@
 	                        <span class="label label-warning pull-right">${statistics.data}</span>
 	               		</a>
 	              	</li>
-	              	<%-- <li class="line dk"></li>
-                    <li class="hidden-folded padder m-t m-b-sm text-muted text-xs">
-                        <span class="ng-scope">系统设置</span>
-                    </li>
-	              	<li>
-	                	<a class="J_menuItem" href="${ctx}/web/apps">
-	                    	<i class="fa fa-paper-plane"></i>
-	                        <span class="nav-label">修改密码</span>
-	                        <span class="label label-info pull-right">${statistics.app}</span>
-	               		</a>
-	              	</li> --%>
                 </ul>
             </div>
         </nav>
@@ -104,39 +93,6 @@
                         </form>
                     </div>
                     <ul class="nav navbar-top-links navbar-right">
-                        <li class="dropdown">
-                            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
-                                <i class="fa fa-bell"></i> <span class="label label-primary">2</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-alerts">
-                                <li>
-                                    <a href="#">
-                                        <div>
-                                            <i class="fa fa-envelope fa-fw"></i> 您有16条未读消息
-                                            <span class="pull-right text-muted small">4分钟前</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="divider"></li>
-                                <li>
-                                    <a href="#">
-                                        <div>
-                                            <i class="fa fa-qq fa-fw"></i> 3条新回复
-                                            <span class="pull-right text-muted small">12分钟钱</span>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li class="divider"></li>
-                                <li>
-                                    <div class="text-center link-block">
-                                        <a class="J_menuItem" href="#">
-                                            <strong>查看所有 </strong>
-                                            <i class="fa fa-angle-right"></i>
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
                         <li>
                         	<div class="ibox-tools">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-size: 12px">${msg.language_tip}</a>
