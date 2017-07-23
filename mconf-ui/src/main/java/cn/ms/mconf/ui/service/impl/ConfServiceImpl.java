@@ -28,19 +28,19 @@ public class ConfServiceImpl implements ConfService {
 	}
 
 	@Override
-	public List<DataConf> getBlocks() {
+	public List<DataConf> getConfs() {
 		return mconf.getConfs();
 	}
 
 	@Override
-	public List<String> getItems() {
+	public List<DataConf> getDatas() {
+		return mconf.getKVDatas();
+	}
+	
+	@Override
+	public List<DataConf> getDataids() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public List<DataConf> getDatasources() {
-		return mconf.getKVDatas();
-	}
-	
 }

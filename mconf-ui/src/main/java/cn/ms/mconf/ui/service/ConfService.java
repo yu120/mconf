@@ -8,10 +8,10 @@ public interface ConfService {
 
 	List<DataConf> getApps();
 
-	List<DataConf> getBlocks();
+	List<DataConf> getConfs();
 
-	List<String> getItems();
-
-	List<DataConf> getDatasources();
+	List<DataConf> getDatas();
+	
+	List<DataConf> getDataids();
 
 }

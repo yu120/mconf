@@ -35,56 +35,53 @@ public class WebCtrl {
 	}
 
 	/**
-	 * 应用中心
+	 * 应用列表
 	 * 
 	 * @param request
 	 * @return
 	 */
 	@RequestMapping(value = "apps")
 	public String apps(HttpServletRequest request) {
-		List<DataConf> appConfList = confService.getApps();
-		System.out.println(appConfList);
-		request.setAttribute("appconfs", appConfList);
+		List<DataConf> appList = confService.getApps();
+		request.setAttribute("apps", appList);
 		return "apps";
 	}
 
 	/**
-	 * 配置中心
+	 * 配置分析
 	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "blocks")
-	public String blocks(HttpServletRequest request) {
-		List<DataConf> confConfList = confService.getBlocks();
-		System.out.println(confConfList);
-		request.setAttribute("confconfs", confConfList);
-		return "blocks";
+	@RequestMapping(value = "confs")
+	public String confs(HttpServletRequest request) {
+		List<DataConf> confList = confService.getConfs();
+		request.setAttribute("confs", confList);
+		return "confs";
 	}
 
 	/**
-	 * 数据清单
+	 * 数据中心
 	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "items")
-	public String items(HttpServletRequest request) {
-		return "items";
+	@RequestMapping(value = "datas")
+	public String datas(HttpServletRequest request) {
+		List<DataConf> dataList = confService.getDatas();
+		request.setAttribute("datas", dataList);
+		return "datas";
 	}
 
 	/**
-	 * 数据源
+	 * 数据ID列表
 	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "datasources")
-	public String datasources(HttpServletRequest request) {
-		List<DataConf> dataConfList = confService.getDatasources();
-		System.out.println(dataConfList);
-		request.setAttribute("datas", dataConfList);
-		return "datasources";
+	@RequestMapping(value = "dataids")
+	public String dataids(HttpServletRequest request) {
+		return "dataids";
 	}
-
+	
 }
