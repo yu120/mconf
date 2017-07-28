@@ -1,13 +1,9 @@
 package cn.ms.mconf.support;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.jboss.netty.util.internal.ConcurrentHashMap;
 import org.slf4j.Logger;
@@ -24,20 +20,19 @@ public abstract class AbstractMconf implements Mconf {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMconf.class);
 
 	public static final String ID_KEY = "id";
+	public static final String DEFAULT_KEY = "default_";
 
-	private Category category = new Category();
-	protected String path;
-	protected String root = "root", app = "app", conf = "conf", data = "data";
-	protected String DEFAULT_KEY = "default_", NODO_KEY = "node", ENV_KEY = "env", GROUP_KEY = "group", VERSION_KEY = "version", DATA_KEY = "id";
+	protected String ROOT;
+	protected Category category = new Category();
 	protected Map<String, String[]> structureMap = new ConcurrentHashMap<String, String[]>();
 
 	@Override
 	public void connect(URL url) {
-		this.path = url.getPath();
-		this.structureMap.put(root, url.getParameter(root, new String[] {}));
-		this.structureMap.put(app, url.getParameter(app, new String[] {}));
-		this.structureMap.put(conf, url.getParameter(conf, new String[] {}));
-		this.structureMap.put(data, url.getParameter(data, new String[] {}));
+		this.ROOT = url.getPath();
+		this.structureMap.put(Cmd.ROOT_KEY, url.getParameter(Cmd.ROOT_KEY, new String[] {}));
+		this.structureMap.put(Cmd.APP_KEY, url.getParameter(Cmd.APP_KEY, new String[] {}));
+		this.structureMap.put(Cmd.CONF_KEY, url.getParameter(Cmd.CONF_KEY, new String[] {}));
+		this.structureMap.put(Cmd.DATA_KEY, url.getParameter(Cmd.DATA_KEY, new String[] {}));
 
 		try {
 			BeanUtils.copyProperties(category, url.getParameters());
@@ -97,56 +92,6 @@ public abstract class AbstractMconf implements Mconf {
 		metaData.setVersion(category.getVersion());
 
 		return metaData;
-	}
-
-	protected String buildParameters(String keyPath, URL url) {
-		StringBuffer sb = new StringBuffer();
-
-		String[] keyPathArray = structureMap.get(keyPath);
-		if (keyPathArray.length > 0) {
-			sb.append("?");
-			for (String keyP : keyPathArray) {
-				String val = url.getParameter(keyP);
-				if (StringUtils.isNotBlank(val)) {
-					sb.append(keyP).append("=").append(val).append("&");
-				}
-			}
-		}
-
-		String keyAllPath = sb.toString();
-		if (keyAllPath.endsWith("&")) {
-			keyAllPath = keyAllPath.substring(0, keyAllPath.length() - 1);
-		}
-
-		return encode(keyAllPath);
-	}
-
-	/**
-	 * Data encoding
-	 * 
-	 * @param data
-	 * @return
-	 */
-	protected String encode(String data) {
-		try {
-			return URLEncoder.encode(data, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Encoding exception", e);
-		}
-	}
-
-	/**
-	 * Data decoding
-	 * 
-	 * @param data
-	 * @return
-	 */
-	protected String decode(String data) {
-		try {
-			return URLDecoder.decode(data, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Decoding exception", e);
-		}
 	}
 
 	@SuppressWarnings("unchecked")

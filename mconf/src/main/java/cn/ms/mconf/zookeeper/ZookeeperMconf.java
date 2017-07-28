@@ -105,7 +105,8 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void addConf(Cmd cmd, T data) {
-		String path = cmd.buildRoot(this.path).buildKey();
+		String path = cmd.buildRoot(super.ROOT).buildKey();
+		
 		byte[] dataByte = null;
 		try {
 			String json = this.obj2Json(data);
@@ -126,19 +127,23 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public void delConf(Cmd cmd) {
-		String path;
 		try {
 			if (StringUtils.isNotBlank(cmd.getData())) {
-				client.delete().forPath(path = cmd.buildRoot(this.path).buildKey());
+				String path = cmd.buildRoot(super.ROOT).buildKey();
+				logger.debug("The PATH[{}] delete conf data.", path);
+				
+				client.delete().forPath(path);
 			} else {
-				List<String> tempDataPathList = client.getChildren().forPath(path = cmd.buildPrefixKey());
+				String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+				logger.debug("The PATH[{}] delete conf data list.", path);
+				
+				List<String> tempDataPathList = client.getChildren().forPath(path);
 				if (tempDataPathList != null) {
 					for (String tempDataPath : tempDataPathList) {
 						client.delete().forPath(path + "/" + tempDataPath);
 					}
 				}
 			}
-			logger.debug("The PATH[{}] delete conf data.", path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
 			throw new IllegalStateException("Delete data exception.", e);
@@ -147,11 +152,13 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void upConf(Cmd cmd, T data) {
-		String path = cmd.buildRoot(this.path).buildKey();
+		String path = cmd.buildRoot(super.ROOT).buildKey();
+		
 		byte[] dataByte = null;
 		try {
 			String json = this.obj2Json(data);
 			logger.debug("The PATH[{}] update conf data[{}].", path, json);
+			
 			dataByte = json.getBytes(Charset.forName("UTF-8"));
 		} catch (Exception e) {
 			throw new IllegalStateException("Serialized data exception.", e);
@@ -161,20 +168,21 @@ public class ZookeeperMconf extends AbstractMconf {
 			client.setData().forPath(path, dataByte);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
-			throw new IllegalStateException("Modify data exception.", e);
+			throw new IllegalStateException("UpConf data exception.", e);
 		}
 	}
 
 	@Override
 	public <T> T pull(Cmd cmd, Class<T> cls) {
-		String path = cmd.buildRoot(this.path).buildKey();
+		String path = cmd.buildRoot(super.ROOT).buildKey();
+		logger.debug("The PATH[{}] pull conf data.", path);
+		
 		byte[] dataByte = null;
 		try {
-			logger.debug("The PATH[{}] pull conf data.", path);
 			dataByte = client.getData().forPath(path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
-			throw new IllegalStateException("Modify data exception.", e);
+			throw new IllegalStateException("Pull data exception.", e);
 		}
 
 		if (dataByte == null) {
@@ -184,7 +192,8 @@ public class ZookeeperMconf extends AbstractMconf {
 		try {
 			String json = new String(dataByte, Charset.forName("UTF-8"));
 			logger.debug("The PATH[{}] pulled conf data[{}].", path, json);
-			return (T) json2Obj(json, cls);
+			
+			return json2Obj(json, cls);
 		} catch (Exception e) {
 			throw new IllegalStateException("UnSerialized data exception.", e);
 		}
@@ -192,46 +201,48 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
-		String path = cmd.buildRoot(this.path).buildPrefixKey();
+		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		logger.debug("The PATH[{}] pulls conf data.", path);
+		
 		List<T> list = new ArrayList<T>();
-
-		// Query all dataId lists
-		List<String> childNodeList = null;
+		List<String> childNodeList = null;// Query all dataId lists
+		
 		try {
-			logger.debug("The PATH[{}] pulls conf data.", path);
 			childNodeList = client.getChildren().forPath(path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
 			throw new IllegalStateException("Gets all child node exceptions.", e);
 		}
 
-		if (childNodeList != null) {
-			for (String childNode : childNodeList) {
-				String json;
-				byte[] dataByte = null;
+		if (childNodeList == null) {
+			return list;
+		}
+		
+		for (String childNode : childNodeList) {
+			String json;
+			byte[] dataByte = null;
 
-				try {
-					dataByte = client.getData().forPath(path + "/" + childNode);
-				} catch (NoNodeException e) {
-				} catch (Exception e) {
-					throw new IllegalStateException("Modify data exception.", e);
-				}
+			try {
+				dataByte = client.getData().forPath(path + "/" + childNode);
+			} catch (NoNodeException e) {
+			} catch (Exception e) {
+				throw new IllegalStateException("Modify data exception.", e);
+			}
 
-				if (dataByte == null) {
-					return null;
-				}
+			if (dataByte == null) {
+				return null;
+			}
 
-				try {
-					json = new String(dataByte, Charset.forName("UTF-8"));
-					logger.debug("The PATH[{}] pullsed conf data[{}].", path, json);
-				} catch (Exception e) {
-					throw new IllegalStateException("UnSerialized data exception.", e);
-				}
+			try {
+				json = new String(dataByte, Charset.forName("UTF-8"));
+				logger.debug("The PATH[{}] pullsed conf data[{}].", path, json);
+			} catch (Exception e) {
+				throw new IllegalStateException("UnSerialized data exception.", e);
+			}
 
-				T t = (T) json2Obj(json, cls);
-				if (t != null) {
-					list.add(t);
-				}
+			T t = (T) json2Obj(json, cls);
+			if (t != null) {
+				list.add(t);
 			}
 		}
 
@@ -241,7 +252,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T> void push(final Cmd cmd, final Class<T> cls, final Notify<T> notify) {
-		final String path = cmd.buildRoot(this.path).buildPrefixKey();
+		final String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -312,7 +323,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public void unpush(Cmd cmd) {
-		String path = cmd.buildRoot(this.path).buildPrefixKey();
+		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -337,7 +348,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> void unpush(Cmd cmd, Notify<T> notify) {
-		String path = cmd.buildRoot(this.path).buildPrefixKey();
+		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -390,14 +401,14 @@ public class ZookeeperMconf extends AbstractMconf {
 		try {
 			List<String> rootChildNodeList = client.getChildren().forPath("/");
 			for (String rootChildNode : rootChildNodeList) {
-				if (rootChildNode.startsWith(path)) {
+				if (rootChildNode.startsWith(super.ROOT)) {
 					List<String> appChildNodeList = client.getChildren().forPath("/" + rootChildNode);
 					for (String appChildNode : appChildNodeList) {
 						URL rootChildNodeURL = URL.valueOf("/" + URL.decode(appChildNode));
 						// setter node
-						String node = rootChildNodeURL.getParameter(NODO_KEY);
+						String node = rootChildNodeURL.getParameter(Cmd.NODE_KEY);
 						if (StringUtils.isBlank(node)) {
-							node = DEFAULT_KEY + NODO_KEY;
+							node = DEFAULT_KEY + Cmd.NODE_KEY;
 						}
 						Map<String, Map<String, Map<String, Map<String, Set<String>>>>> nodeMap = map.get(node);
 						if (nodeMap == null) {
@@ -415,9 +426,9 @@ public class ZookeeperMconf extends AbstractMconf {
 						for (String confChildNode : confChildNodeList) {
 							URL confChildNodeURL = URL.valueOf("/" + URL.decode(confChildNode));
 							// setter env
-							String env = confChildNodeURL.getParameter(ENV_KEY);
+							String env = confChildNodeURL.getParameter(Cmd.ENV_KEY);
 							if (StringUtils.isBlank(env)) {
-								env = DEFAULT_KEY + ENV_KEY;
+								env = DEFAULT_KEY + Cmd.ENV_KEY;
 							}
 							Map<String, Map<String, Set<String>>> envMap = appMap.get(env);
 							if (envMap == null) {
@@ -435,18 +446,18 @@ public class ZookeeperMconf extends AbstractMconf {
 							for (String dataChildNode : dataChildNodeList) {
 								URL dataChildNodeURL = URL.valueOf("/" + URL.decode(dataChildNode));
 								// setter group
-								String group = dataChildNodeURL.getParameter(GROUP_KEY);
+								String group = dataChildNodeURL.getParameter(Cmd.GROUP_KEY);
 								if (StringUtils.isBlank(group)) {
-									group = DEFAULT_KEY + GROUP_KEY;
+									group = DEFAULT_KEY + Cmd.GROUP_KEY;
 								}
 								Set<String> groupMap = confMap.get(group);
 								if (groupMap == null) {
 									confMap.put(group, groupMap = new ConcurrentHashSet<String>());
 								}
 								// setter version
-								String version = dataChildNodeURL.getParameter(VERSION_KEY);
+								String version = dataChildNodeURL.getParameter(Cmd.VERSION_KEY);
 								if (StringUtils.isBlank(version)) {
-									version = DEFAULT_KEY + VERSION_KEY;
+									version = DEFAULT_KEY + Cmd.VERSION_KEY;
 								}
 								groupMap.add(version);
 							}

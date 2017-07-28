@@ -81,7 +81,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> void addConf(Cmd cmd, T data) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		String field = cmd.buildSuffixKey();
 		String json = this.obj2Json(data);
 		Jedis jedis = null;
@@ -99,7 +99,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void delConf(Cmd cmd) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -125,7 +125,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> T pull(Cmd cmd, Class<T> cls) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		String field = cmd.buildSuffixKey();
 		Jedis jedis = null;
 		try {
@@ -144,7 +144,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -174,7 +174,7 @@ public class RedisMconf extends AbstractMconf {
 			isSubscribe = false;
 		}
 		
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -212,7 +212,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void unpush(Cmd cmd) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		if (pushClassMap.containsKey(key)) {
 			pushClassMap.remove(key);
 		}
@@ -227,7 +227,7 @@ public class RedisMconf extends AbstractMconf {
 	@SuppressWarnings("rawtypes")
 	@Override
 	public <T> void unpush(Cmd cmd, Notify<T> notify) {
-		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		Set<Notify> notifies = pushNotifyMap.get(key);
 		notifies.remove(notify);
 		if (pushNotifyMap.get(key) == null) {
@@ -244,7 +244,7 @@ public class RedisMconf extends AbstractMconf {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
@@ -252,12 +252,12 @@ public class RedisMconf extends AbstractMconf {
 					Map<String, String> attributes = new HashMap<String, String>();
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
 					attributes.putAll(tempAppURL.getParameters());
-					attributes.put(this.root, this.path);
+					attributes.put(Cmd.ROOT_KEY, super.ROOT);
 
 					appConf.setApp(tempAppURL.getPath());
 					appConf.setAttributes(attributes);
-					appConf.setNode(attributes.get(this.NODO_KEY));
-					appConf.setRoot(this.path);
+					appConf.setNode(attributes.get(Cmd.NODE_KEY));
+					appConf.setRoot(super.ROOT);
 					
 					Set<String> confSet = jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*");
 					appConf.setSubNum(confSet.size());
@@ -287,7 +287,7 @@ public class RedisMconf extends AbstractMconf {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
@@ -295,16 +295,16 @@ public class RedisMconf extends AbstractMconf {
 					Map<String, String> attributes = new HashMap<String, String>();
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
 					attributes.putAll(tempAppURL.getParameters());
-					attributes.put(this.app, tempAppURL.getPath());
+					attributes.put(Cmd.APP_KEY, tempAppURL.getPath());
 					confConf.setApp(tempAppURL.getPath());
 					
 					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
 					attributes.putAll(tempConfURL.getParameters());
-					attributes.put(this.root, this.path);
+					attributes.put(Cmd.ROOT_KEY, super.ROOT);
 					confConf.setConf(tempConfURL.getPath());
 					
 					confConf.setAttributes(attributes);
-					confConf.setNode(attributes.get(this.NODO_KEY));
+					confConf.setNode(attributes.get(Cmd.NODE_KEY));
 					Set<String> dataSet = jedis.hkeys(key);
 					confConf.setSubNum(dataSet.size());
 					
@@ -334,7 +334,7 @@ public class RedisMconf extends AbstractMconf {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + this.path + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
@@ -354,18 +354,18 @@ public class RedisMconf extends AbstractMconf {
 						confConf.setRoot(URL.decode(keyArray[1]));
 						//解析应用层属性
 						confConf.setApp(tempAppURL.getPath());
-						confConf.setNode(attributes.get(this.NODO_KEY));
+						confConf.setNode(attributes.get(Cmd.NODE_KEY));
 						//解析配置层属性
 						confConf.setConf(tempConfURL.getPath());
-						confConf.setEnv(attributes.get(this.ENV_KEY));
+						confConf.setEnv(attributes.get(Cmd.ENV_KEY));
 						
 						URL tempDataURL = URL.valueOf(URL.decode(field));
 						Map<String, String> dataAttributes = new HashMap<String, String>();
 						dataAttributes.putAll(attributes);
 						dataAttributes.putAll(tempDataURL.getParameters());
 						confConf.setData(tempDataURL.getPath());
-						confConf.setGroup(dataAttributes.get(this.GROUP_KEY));
-						confConf.setVersion(dataAttributes.get(this.VERSION_KEY));
+						confConf.setGroup(dataAttributes.get(Cmd.GROUP_KEY));
+						confConf.setVersion(dataAttributes.get(Cmd.VERSION_KEY));
 						confConf.setAttributes(dataAttributes);
 						//解析配置数据
 						confConf.setJson(jedis.hget(key, field));

@@ -10,10 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Cmd {
 
+	public static final String ROOT_KEY = "root";
 	public static final String NODE_KEY = "node";
+	public static final String APP_KEY = "app";
 	public static final String ENV_KEY = "env";
+	public static final String CONF_KEY = "conf";
 	public static final String GROUP_KEY = "group";
 	public static final String VERSION_KEY = "version";
+	public static final String DATA_KEY = "data";
 
 	// 第一层
 	private String root;//必须
@@ -140,13 +144,13 @@ public class Cmd {
 	 */
 	public String buildPrefixKey() {
 		if (StringUtils.isBlank(root)) {// check root
-			throw new RuntimeException("The must set parameter 'root'.");
+			throw new RuntimeException("The must set 'root'.");
 		}
 		if (StringUtils.isBlank(app)) {// check app
-			throw new RuntimeException("The must set parameter 'app'.");
+			throw new RuntimeException("The must set 'app'.");
 		}
 		if (StringUtils.isBlank(conf)) {// check conf
-			throw new RuntimeException("The must set parameter 'conf'.");
+			throw new RuntimeException("The must set 'conf'.");
 		}
 
 		Map<String, Object> tempAppAttrs = new HashMap<String, Object>();
@@ -157,9 +161,9 @@ public class Cmd {
 		tempConfAttrs.put(ENV_KEY, env);
 
 		StringBuffer sb = new StringBuffer();
-		sb.append("/").append(root).append(this.buildAttributes(rootAttrs));
-		sb.append("/").append(app).append(this.buildAttributes(tempAppAttrs));
-		sb.append("/").append(conf).append(this.buildAttributes(tempConfAttrs));
+		sb.append("/").append(root).append(buildAttributes(rootAttrs));
+		sb.append("/").append(app).append(buildAttributes(tempAppAttrs));
+		sb.append("/").append(conf).append(buildAttributes(tempConfAttrs));
 
 		return sb.toString();
 	}
@@ -171,7 +175,7 @@ public class Cmd {
 	 */
 	public String buildSuffixKey() {
 		if (StringUtils.isBlank(data)) {// check data
-			throw new RuntimeException("The must set parameter 'data'.");
+			throw new RuntimeException("The must set 'data'.");
 		}
 
 		Map<String, Object> tempDataAttrs = new HashMap<String, Object>();
@@ -180,12 +184,12 @@ public class Cmd {
 		tempDataAttrs.put(VERSION_KEY, version);
 
 		StringBuffer sb = new StringBuffer();
-		sb.append("/").append(data).append(this.buildAttributes(tempDataAttrs));
+		sb.append("/").append(data).append(buildAttributes(tempDataAttrs));
 
 		return sb.toString();
 	}
 
-	public String buildAttributes(Map<String, Object> attributes) {
+	public static String buildAttributes(Map<String, Object> attributes) {
 		if (attributes == null || attributes.size() == 0) {
 			return "";
 		}
@@ -193,8 +197,8 @@ public class Cmd {
 		StringBuffer sb = new StringBuffer("?");
 		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
 			if (entry.getValue() != null) {
-				String key = this.encode(entry.getKey());
-				String value = this.encode(String.valueOf(entry.getValue()));
+				String key = encode(entry.getKey());
+				String value = encode(String.valueOf(entry.getValue()));
 				sb.append(key).append("=").append(value).append("&");
 			}
 		}
@@ -208,7 +212,7 @@ public class Cmd {
 	}
 
 	// encode、decode
-	public String encode(String data) {
+	public static String encode(String data) {
 		try {
 			return URLEncoder.encode(data, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
@@ -216,7 +220,7 @@ public class Cmd {
 		}
 	}
 
-	public String decode(String data) {
+	public static String decode(String data) {
 		try {
 			return URLDecoder.decode(data, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
