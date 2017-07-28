@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cn.ms.mconf.support.Command;
 import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
@@ -14,20 +15,22 @@ import cn.ms.micro.extension.Spi;
  * The Micro Service Configuration Center.<br>
  * <br>
  * Configuration center data structure:<br>
- * ①--> /mconf<br>
- * ②--> /[app]?node=[node]<br>
- * ③--> /[conf]?env=[env]<br>
- * ④--> /[data]?group=[group]&version=[version]<br>
+ * ①--> /mconf?……<br>
+ * ②--> /[app]?node=[node]&……<br>
+ * ③--> /[conf]?env=[env]&……<br>
+ * ④--> /[data]?group=[group]&version=[version]&……<br>
  * ⑤--> {JSON Data String}<br>
  * <br>
- * 
+ * <br>
  * Connect URL:<br>
- * zookeeper://127.0.0.1:2181/mconf?app=node&conf=env&data=group,version<br>
- * Data URL:<br>
- * [app]://0.0.0.0:0/[conf]/[data]?node=[node]&env=[env]&group=[group]&version=[verison]<br>
+ * [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&group=[group]&version=[version]&data=[data]&……<br>
  * <br>
  * <br>
  * The data structure：<br>
+ * prefixKey(①+②+③)--> /mconf?……/[app]?node=[node]&……/[conf]?env=[env]&……<br>
+ * suffixKey(④)--> /[data]?group=[group]&version=[version]&……<br>
+ * Data String(⑤)--> JSON String<br>
+ * <br>
  * Zookeeper< Path, Data> ——> <①+②+③+④, ⑤> ——> Push<br>
  * Redis< Key, Value> ——> <①+②+③, Map<④, ⑤>> ——> Pull<br>
  * 
@@ -51,10 +54,10 @@ public interface Mconf {
 	/**
 	 * The Add Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 * @param data
 	 */
-	<T> void addConf(URL url, T data);
+	<T> void addConf(Command command, T data);
 
 	/**
 	 * The Delete Configuration Data.<br>
@@ -63,53 +66,63 @@ public interface Mconf {
 	 * 1.Set parameter 'data'：Delete a data.<br>
 	 * 2.Not set parameter 'data'：Delete a conf.<br>
 	 * <br>
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 */
-	void delConf(URL url);
+	void delConf(Command command);
 
 	/**
 	 * The Update Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 * @param data
 	 */
-	<T> void upConf(URL url, T data);
+	<T> void upConf(Command command, T data);
 
 	/**
 	 * The Pull Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[data]=[data]&[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 * @param cls
 	 * @return
 	 */
-	<T> T pull(URL url, Class<T> cls);
+	<T> T pull(Command command, Class<T> cls);
 
 	/**
 	 * The Pulls Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 * @param cls
 	 * @return
 	 */
-	<T> List<T> pulls(URL url, Class<T> cls);
+	<T> List<T> pulls(Command command, Class<T> cls);
 
 	/**
 	 * The Push Configuration Data.
 	 * 
-	 * @param url Format：[app]://0.0.0.0:0/[conf]?[node]=[node]&[env]=[env]&[group]=[group]&[version]=[verison]……
+	 * @param command
 	 * @param cls
 	 * @param notify
 	 * @return
 	 */
-	<T> void push(URL url, Class<T> cls, Notify<T> notify);
+	<T> void push(Command command, Class<T> cls, Notify<T> notify);
 
-	void unpush(URL url);
+	/**
+	 * The UnPush Configuration Data.
+	 * 
+	 * @param command
+	 */
+	void unpush(Command command);
 
-	<T> void unpush(URL url, Notify<T> notify);
+	/**
+	 * The UnPush Configuration Data.
+	 * 
+	 * @param command
+	 * @param notify
+	 */
+	<T> void unpush(Command command, Notify<T> notify);
 	
 	
 	//$NON-NLS-The Node Governor$
-	
 	List<DataConf> getApps();
 	List<DataConf> getConfs();
 	List<DataConf> getKVDatas();

@@ -21,6 +21,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
+import cn.ms.mconf.support.Command;
 import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
@@ -59,7 +60,6 @@ public class RedisMconf extends AbstractMconf {
 		this.retryPeriod = url.getParameter("retryPeriod", retryPeriod);
 
 		JedisPoolConfig config = new JedisPoolConfig();
-
 		Map<String, String> parameters = url.getParameters();
 		if (parameters != null) {
 			if (!parameters.isEmpty()) {
@@ -80,11 +80,10 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(URL url, T data) {
-		String key = this.buildKey(false, url);
-		String field = this.buildKey(true, url);
+	public <T> void addConf(Command command, T data) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
+		String field = command.buildSuffixKey();
 		String json = this.obj2Json(data);
-
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -99,15 +98,13 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void delConf(URL url) {
-		String key = this.buildKey(false, url);
-
+	public void delConf(Command command) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			String data = url.getParameter(this.data);
-			if (StringUtils.isNotBlank(data)) {
-				String field = this.buildKey(true, url);
+			String field = command.buildSuffixKey();
+			if (StringUtils.isNotBlank(field)) {
 				jedis.hdel(key, field);
 			} else {
 				jedis.hdel(key);
@@ -122,20 +119,15 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void upConf(URL url, T data) {
-		this.addConf(url, data);
+	public <T> void upConf(Command command, T data) {
+		this.addConf(command, data);
 	}
 
 	@Override
-	public <T> T pull(URL url, Class<T> cls) {
-		String key = this.buildKey(false, url);
-		if (StringUtils.isBlank(url.getParameter(this.data))) {
-			throw new RuntimeException("The must set parameter 'data'[url.setParameter('data',…)].");
-		}
-
-		String field = this.buildKey(true, url);
+	public <T> T pull(Command command, Class<T> cls) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
+		String field = command.buildSuffixKey();
 		Jedis jedis = null;
-
 		try {
 			jedis = jedisPool.getResource();
 			String json = jedis.hget(key, field);
@@ -151,9 +143,8 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> List<T> pulls(URL url, Class<T> cls) {
-		String key = this.buildKey(false, url);
-
+	public <T> List<T> pulls(Command command, Class<T> cls) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -177,15 +168,14 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void push(URL url, Class<T> cls, Notify<T> notify) {
+	public <T> void push(Command command, Class<T> cls, Notify<T> notify) {
 		if (isSubscribe) {
 			this.pushSubscribe();
 			isSubscribe = false;
 		}
-
-		String key = this.buildKey(false, url);
+		
+		String key = command.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
-
 		try {
 			jedis = jedisPool.getResource();
 			if (!pushClassMap.containsKey(key)) {
@@ -221,17 +211,14 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void unpush(URL url) {
-		String key = this.buildKey(false, url);
-
+	public void unpush(Command command) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
 		if (pushClassMap.containsKey(key)) {
 			pushClassMap.remove(key);
 		}
-
 		if (pushNotifyMap.containsKey(key)) {
 			pushNotifyMap.remove(key);
 		}
-
 		if (pushValueMap.containsKey(key)) {
 			pushValueMap.remove(key);
 		}
@@ -239,12 +226,10 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void unpush(URL url, Notify<T> notify) {
-		String key = this.buildKey(false, url);
-
+	public <T> void unpush(Command command, Notify<T> notify) {
+		String key = command.buildRoot(this.path).buildPrefixKey();
 		Set<Notify> notifies = pushNotifyMap.get(key);
 		notifies.remove(notify);
-
 		if (pushNotifyMap.get(key) == null) {
 			pushValueMap.remove(key);
 		}
@@ -463,42 +448,6 @@ public class RedisMconf extends AbstractMconf {
 				}
 			}
 		}, retryPeriod, retryPeriod, TimeUnit.MILLISECONDS);
-	}
-
-	/**
-	 * The Build Key.
-	 * 
-	 * @param url
-	 * @return
-	 */
-	private String buildKey(boolean buildData, URL url) {
-		if(buildData){
-			// check app
-			String data = url.getParameter(this.data);
-			if (StringUtils.isBlank(data)) {
-				throw new RuntimeException("The must set parameter 'data'[url.setParameter('data',…)].");
-			}
-			
-			StringBuffer sb = new StringBuffer();
-			sb.append("/").append(data).append(this.buildParameters(this.data, url));
-			return sb.toString();
-		} else {
-			// check app
-			if (StringUtils.isBlank(url.getProtocol())) {
-				throw new RuntimeException("The must set parameter 'app'[url.setProtocol(…)].");
-			}
-			// check conf
-			if (StringUtils.isBlank(url.getPath())) {
-				throw new RuntimeException("The must set parameter 'conf'[url.setPath(…)].");
-			}
-	
-			StringBuffer sb = new StringBuffer();
-			sb.append("/").append(this.path).append(this.buildParameters(this.root, url));
-			sb.append("/").append(url.getProtocol()).append(this.buildParameters(this.app, url));
-			sb.append("/").append(url.getPath()).append(this.buildParameters(this.conf, url));
-	
-			return sb.toString();
-		}
 	}
 
 }
