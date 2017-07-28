@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.Command;
+import cn.ms.mconf.support.Cmd;
 import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
@@ -104,8 +104,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(Command command, T data) {
-		String path = command.buildRoot(this.path).buildKey();
+	public <T> void addConf(Cmd cmd, T data) {
+		String path = cmd.buildRoot(this.path).buildKey();
 		byte[] dataByte = null;
 		try {
 			String json = this.obj2Json(data);
@@ -125,13 +125,13 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void delConf(Command command) {
+	public void delConf(Cmd cmd) {
 		String path;
 		try {
-			if (StringUtils.isNotBlank(command.getData())) {
-				client.delete().forPath(path = command.buildRoot(this.path).buildKey());
+			if (StringUtils.isNotBlank(cmd.getData())) {
+				client.delete().forPath(path = cmd.buildRoot(this.path).buildKey());
 			} else {
-				List<String> tempDataPathList = client.getChildren().forPath(path = command.buildPrefixKey());
+				List<String> tempDataPathList = client.getChildren().forPath(path = cmd.buildPrefixKey());
 				if (tempDataPathList != null) {
 					for (String tempDataPath : tempDataPathList) {
 						client.delete().forPath(path + "/" + tempDataPath);
@@ -146,8 +146,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void upConf(Command command, T data) {
-		String path = command.buildRoot(this.path).buildKey();
+	public <T> void upConf(Cmd cmd, T data) {
+		String path = cmd.buildRoot(this.path).buildKey();
 		byte[] dataByte = null;
 		try {
 			String json = this.obj2Json(data);
@@ -166,8 +166,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> T pull(Command command, Class<T> cls) {
-		String path = command.buildRoot(this.path).buildKey();
+	public <T> T pull(Cmd cmd, Class<T> cls) {
+		String path = cmd.buildRoot(this.path).buildKey();
 		byte[] dataByte = null;
 		try {
 			logger.debug("The PATH[{}] pull conf data.", path);
@@ -191,8 +191,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> List<T> pulls(Command command, Class<T> cls) {
-		String path = command.buildRoot(this.path).buildPrefixKey();
+	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
+		String path = cmd.buildRoot(this.path).buildPrefixKey();
 		List<T> list = new ArrayList<T>();
 
 		// Query all dataId lists
@@ -240,8 +240,8 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public <T> void push(final Command command, final Class<T> cls, final Notify<T> notify) {
-		final String path = command.buildRoot(this.path).buildPrefixKey();
+	public <T> void push(final Cmd cmd, final Class<T> cls, final Notify<T> notify) {
+		final String path = cmd.buildRoot(this.path).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -311,8 +311,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void unpush(Command command) {
-		String path = command.buildRoot(this.path).buildPrefixKey();
+	public void unpush(Cmd cmd) {
+		String path = cmd.buildRoot(this.path).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -336,8 +336,8 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void unpush(Command command, Notify<T> notify) {
-		String path = command.buildRoot(this.path).buildPrefixKey();
+	public <T> void unpush(Cmd cmd, Notify<T> notify) {
+		String path = cmd.buildRoot(this.path).buildPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}

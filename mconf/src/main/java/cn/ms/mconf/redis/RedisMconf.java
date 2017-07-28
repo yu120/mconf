@@ -21,7 +21,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
-import cn.ms.mconf.support.Command;
+import cn.ms.mconf.support.Cmd;
 import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
@@ -80,9 +80,9 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(Command command, T data) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
-		String field = command.buildSuffixKey();
+	public <T> void addConf(Cmd cmd, T data) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String field = cmd.buildSuffixKey();
 		String json = this.obj2Json(data);
 		Jedis jedis = null;
 		try {
@@ -98,12 +98,12 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void delConf(Command command) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
+	public void delConf(Cmd cmd) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			String field = command.buildSuffixKey();
+			String field = cmd.buildSuffixKey();
 			if (StringUtils.isNotBlank(field)) {
 				jedis.hdel(key, field);
 			} else {
@@ -119,14 +119,14 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void upConf(Command command, T data) {
-		this.addConf(command, data);
+	public <T> void upConf(Cmd cmd, T data) {
+		this.addConf(cmd, data);
 	}
 
 	@Override
-	public <T> T pull(Command command, Class<T> cls) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
-		String field = command.buildSuffixKey();
+	public <T> T pull(Cmd cmd, Class<T> cls) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
+		String field = cmd.buildSuffixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -143,8 +143,8 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> List<T> pulls(Command command, Class<T> cls) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
+	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -168,13 +168,13 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void push(Command command, Class<T> cls, Notify<T> notify) {
+	public <T> void push(Cmd cmd, Class<T> cls, Notify<T> notify) {
 		if (isSubscribe) {
 			this.pushSubscribe();
 			isSubscribe = false;
 		}
 		
-		String key = command.buildRoot(this.path).buildPrefixKey();
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -211,8 +211,8 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public void unpush(Command command) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
+	public void unpush(Cmd cmd) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
 		if (pushClassMap.containsKey(key)) {
 			pushClassMap.remove(key);
 		}
@@ -226,8 +226,8 @@ public class RedisMconf extends AbstractMconf {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public <T> void unpush(Command command, Notify<T> notify) {
-		String key = command.buildRoot(this.path).buildPrefixKey();
+	public <T> void unpush(Cmd cmd, Notify<T> notify) {
+		String key = cmd.buildRoot(this.path).buildPrefixKey();
 		Set<Notify> notifies = pushNotifyMap.get(key);
 		notifies.remove(notify);
 		if (pushNotifyMap.get(key) == null) {

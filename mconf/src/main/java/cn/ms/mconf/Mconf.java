@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import cn.ms.mconf.support.Command;
+import cn.ms.mconf.support.Cmd;
 import cn.ms.mconf.support.DataConf;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
@@ -54,10 +54,10 @@ public interface Mconf {
 	/**
 	 * The Add Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param data
 	 */
-	<T> void addConf(Command command, T data);
+	<T> void addConf(Cmd cmd, T data);
 
 	/**
 	 * The Delete Configuration Data.<br>
@@ -66,60 +66,60 @@ public interface Mconf {
 	 * 1.Set parameter 'data'：Delete a data.<br>
 	 * 2.Not set parameter 'data'：Delete a conf.<br>
 	 * <br>
-	 * @param command
+	 * @param cmd
 	 */
-	void delConf(Command command);
+	void delConf(Cmd cmd);
 
 	/**
 	 * The Update Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param data
 	 */
-	<T> void upConf(Command command, T data);
+	<T> void upConf(Cmd cmd, T data);
 
 	/**
 	 * The Pull Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param cls
 	 * @return
 	 */
-	<T> T pull(Command command, Class<T> cls);
+	<T> T pull(Cmd cmd, Class<T> cls);
 
 	/**
 	 * The Pulls Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param cls
 	 * @return
 	 */
-	<T> List<T> pulls(Command command, Class<T> cls);
+	<T> List<T> pulls(Cmd cmd, Class<T> cls);
 
 	/**
 	 * The Push Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param cls
 	 * @param notify
 	 * @return
 	 */
-	<T> void push(Command command, Class<T> cls, Notify<T> notify);
+	<T> void push(Cmd cmd, Class<T> cls, Notify<T> notify);
 
 	/**
 	 * The UnPush Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 */
-	void unpush(Command command);
+	void unpush(Cmd cmd);
 
 	/**
 	 * The UnPush Configuration Data.
 	 * 
-	 * @param command
+	 * @param cmd
 	 * @param notify
 	 */
-	<T> void unpush(Command command, Notify<T> notify);
+	<T> void unpush(Cmd cmd, Notify<T> notify);
 	
 	
 	//$NON-NLS-The Node Governor$
