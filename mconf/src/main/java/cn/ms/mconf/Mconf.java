@@ -23,7 +23,7 @@ import cn.ms.micro.extension.Spi;
  * <br>
  * <br>
  * Connect URL:<br>
- * [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&group=[group]&version=[version]&data=[data]&……<br>
+ * [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……<br>
  * <br>
  * <br>
  * The data structure：<br>

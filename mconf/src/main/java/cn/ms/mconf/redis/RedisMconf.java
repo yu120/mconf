@@ -248,20 +248,20 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					DataConf appConf = new DataConf();
-					Map<String, String> attributes = new HashMap<String, String>();
+					DataConf dataConf = new DataConf();
+					// build root
+					URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
+					dataConf.setRoot(tempRootURL.getPath());
+					dataConf.setRootAttrs(tempRootURL.getParameters());
+					// build app
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-					attributes.putAll(tempAppURL.getParameters());
-					attributes.put(Cmd.ROOT_KEY, super.ROOT);
-
-					appConf.setApp(tempAppURL.getPath());
-					appConf.setAttributes(attributes);
-					appConf.setNode(attributes.get(Cmd.NODE_KEY));
-					appConf.setRoot(super.ROOT);
+					dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+					dataConf.setApp(tempAppURL.getPath());
+					dataConf.setAppAttrs(tempAppURL.getParameters());
+					// build others
+					dataConf.setSubNum(jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*").size());
 					
-					Set<String> confSet = jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*");
-					appConf.setSubNum(confSet.size());
-					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], appConf);
+					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], dataConf);
 				}
 			}
 			
@@ -291,24 +291,26 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					DataConf confConf = new DataConf();
-					Map<String, String> attributes = new HashMap<String, String>();
+					DataConf dataConf = new DataConf();
+					// build root
+					URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
+					dataConf.setRoot(tempRootURL.getPath());
+					dataConf.setRootAttrs(tempRootURL.getParameters());
+					// build app
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-					attributes.putAll(tempAppURL.getParameters());
-					attributes.put(Cmd.APP_KEY, tempAppURL.getPath());
-					confConf.setApp(tempAppURL.getPath());
-					
+					dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+					dataConf.setApp(tempAppURL.getPath());
+					dataConf.setAppAttrs(tempAppURL.getParameters());
+					// build conf
 					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
-					attributes.putAll(tempConfURL.getParameters());
-					attributes.put(Cmd.ROOT_KEY, super.ROOT);
-					confConf.setConf(tempConfURL.getPath());
+					dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+					dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+					dataConf.setConf(tempConfURL.getPath());
+					dataConf.setConfAttrs(tempConfURL.getParameters());
+					// build others
+					dataConf.setSubNum(jedis.hkeys(key).size());
 					
-					confConf.setAttributes(attributes);
-					confConf.setNode(attributes.get(Cmd.NODE_KEY));
-					Set<String> dataSet = jedis.hkeys(key);
-					confConf.setSubNum(dataSet.size());
-					
-					confConfMap.put(key, confConf);
+					confConfMap.put(key, dataConf);
 				}
 			}
 			
@@ -338,40 +340,36 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					Map<String, String> attributes = new HashMap<String, String>();
-					//解析应用层属性
-					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-					attributes.putAll(tempAppURL.getParameters());
-					//解析配置层属性
-					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
-					attributes.putAll(tempConfURL.getParameters());
-					
-					//解析数据层属性
 					Set<String> fieldSet = jedis.hkeys(key);
 					for (String field:fieldSet) {
-						DataConf confConf = new DataConf();
-						//解析节点层属性
-						confConf.setRoot(URL.decode(keyArray[1]));
-						//解析应用层属性
-						confConf.setApp(tempAppURL.getPath());
-						confConf.setNode(attributes.get(Cmd.NODE_KEY));
-						//解析配置层属性
-						confConf.setConf(tempConfURL.getPath());
-						confConf.setEnv(attributes.get(Cmd.ENV_KEY));
+						DataConf dataConf = new DataConf();
+						// build root
+						URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
+						dataConf.setRoot(tempRootURL.getPath());
+						dataConf.setRootAttrs(tempRootURL.getParameters());
+						// build app
+						URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
+						dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+						dataConf.setApp(tempAppURL.getPath());
+						dataConf.setAppAttrs(tempAppURL.getParameters());
+						// build conf
+						URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
+						dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+						dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+						dataConf.setConf(tempConfURL.getPath());
+						dataConf.setConfAttrs(tempConfURL.getParameters());
+						// build data
+						URL tempDataURL = URL.valueOf("/" + URL.decode(URL.decode(field)));
+						dataConf.setGroup(tempDataURL.getParameter(Cmd.GROUP_KEY));
+						dataConf.setVersion(tempDataURL.getParameter(Cmd.VERSION_KEY));
+						dataConf.setData(tempDataURL.getPath());
+						dataConf.setDataAttrs(tempDataURL.getParameters());
+						// build others
+						dataConf.setSubNum(0);
+						dataConf.setJson(jedis.hget(key, field));
+						dataConf.setBody(JSON.parseObject(dataConf.getJson(), Map.class));
 						
-						URL tempDataURL = URL.valueOf(URL.decode(field));
-						Map<String, String> dataAttributes = new HashMap<String, String>();
-						dataAttributes.putAll(attributes);
-						dataAttributes.putAll(tempDataURL.getParameters());
-						confConf.setData(tempDataURL.getPath());
-						confConf.setGroup(dataAttributes.get(Cmd.GROUP_KEY));
-						confConf.setVersion(dataAttributes.get(Cmd.VERSION_KEY));
-						confConf.setAttributes(dataAttributes);
-						//解析配置数据
-						confConf.setJson(jedis.hget(key, field));
-						confConf.setKvdata(JSON.parseObject(confConf.getJson(), Map.class));
-						
-						confConfMap.put(key + field, confConf);
+						confConfMap.put(key + field, dataConf);
 					}
 				}
 			}

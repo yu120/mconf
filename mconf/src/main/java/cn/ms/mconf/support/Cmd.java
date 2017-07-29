@@ -20,31 +20,31 @@ public class Cmd {
 	public static final String DATA_KEY = "data";
 
 	// 第一层
-	private String root;//必须
-	private Map<String, Object> rootAttrs = new HashMap<String, Object>();
+	String root;//必须
+	Map<String, String> rootAttrs = new HashMap<String, String>();
 
 	// 第二层
-	private String node;
-	private String app;//必须
-	private Map<String, Object> appAttrs = new HashMap<String, Object>();
+	String node;
+	String app;//必须
+	Map<String, String> appAttrs = new HashMap<String, String>();
 
 	// 第三层
-	private String env;
-	private String conf;//必须
-	private Map<String, Object> confAttrs = new HashMap<String, Object>();
+	String env;
+	String conf;//必须
+	Map<String, String> confAttrs = new HashMap<String, String>();
 
 	// 第四层
-	private String group;
-	private String version;
-	private String data;//必须
-	private Map<String, Object> dataAttrs = new HashMap<String, Object>();
+	String group;
+	String version;
+	String data;//必须
+	Map<String, String> dataAttrs = new HashMap<String, String>();
 
 	// build root
 	public Cmd buildRoot(String root) {
 		return this.buildRoot(root, null);
 	}
 
-	public Cmd buildRoot(String root, Map<String, Object> rootAttrs) {
+	public Cmd buildRoot(String root, Map<String, String> rootAttrs) {
 		if (StringUtils.isNotBlank(root)) {
 			this.setRoot(root);
 		}
@@ -63,7 +63,7 @@ public class Cmd {
 		return this.buildApp(node, app, null);
 	}
 
-	public Cmd buildApp(String node, String app, Map<String, Object> appAttrs) {
+	public Cmd buildApp(String node, String app, Map<String, String> appAttrs) {
 		if (StringUtils.isNotBlank(node)) {
 			this.setNode(node);
 		}
@@ -86,7 +86,7 @@ public class Cmd {
 		return this.buildConf(env, conf, null);
 	}
 
-	public Cmd buildConf(String env, String conf, Map<String, Object> confAttrs) {
+	public Cmd buildConf(String env, String conf, Map<String, String> confAttrs) {
 		if (StringUtils.isNotBlank(env)) {
 			this.setEnv(env);
 		}
@@ -108,7 +108,7 @@ public class Cmd {
 	}
 
 	public Cmd buildData(String group, String version, String data,
-			Map<String, Object> dataAttrs) {
+			Map<String, String> dataAttrs) {
 		if (StringUtils.isNotBlank(group)) {
 			this.setGroup(group);
 		}
@@ -153,10 +153,10 @@ public class Cmd {
 			throw new RuntimeException("The must set 'conf'.");
 		}
 
-		Map<String, Object> tempAppAttrs = new HashMap<String, Object>();
+		Map<String, String> tempAppAttrs = new HashMap<String, String>();
 		tempAppAttrs.putAll(appAttrs);
 		tempAppAttrs.put(NODE_KEY, node);
-		Map<String, Object> tempConfAttrs = new HashMap<String, Object>();
+		Map<String, String> tempConfAttrs = new HashMap<String, String>();
 		tempConfAttrs.putAll(confAttrs);
 		tempConfAttrs.put(ENV_KEY, env);
 
@@ -178,7 +178,7 @@ public class Cmd {
 			throw new RuntimeException("The must set 'data'.");
 		}
 
-		Map<String, Object> tempDataAttrs = new HashMap<String, Object>();
+		Map<String, String> tempDataAttrs = new HashMap<String, String>();
 		tempDataAttrs.putAll(dataAttrs);
 		tempDataAttrs.put(GROUP_KEY, group);
 		tempDataAttrs.put(VERSION_KEY, version);
@@ -189,13 +189,13 @@ public class Cmd {
 		return sb.toString();
 	}
 
-	public static String buildAttributes(Map<String, Object> attributes) {
+	public static String buildAttributes(Map<String, String> attributes) {
 		if (attributes == null || attributes.size() == 0) {
 			return "";
 		}
 
 		StringBuffer sb = new StringBuffer("?");
-		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+		for (Map.Entry<String, String> entry : attributes.entrySet()) {
 			if (entry.getValue() != null) {
 				String key = encode(entry.getKey());
 				String value = encode(String.valueOf(entry.getValue()));
@@ -237,11 +237,11 @@ public class Cmd {
 		this.root = root;
 	}
 
-	public Map<String, Object> getRootAttrs() {
+	public Map<String, String> getRootAttrs() {
 		return rootAttrs;
 	}
 
-	public void setRootAttrs(Map<String, Object> rootAttrs) {
+	public void setRootAttrs(Map<String, String> rootAttrs) {
 		this.rootAttrs = rootAttrs;
 	}
 
@@ -261,11 +261,11 @@ public class Cmd {
 		this.app = app;
 	}
 
-	public Map<String, Object> getAppAttrs() {
+	public Map<String, String> getAppAttrs() {
 		return appAttrs;
 	}
 
-	public void setAppAttrs(Map<String, Object> appAttrs) {
+	public void setAppAttrs(Map<String, String> appAttrs) {
 		this.appAttrs = appAttrs;
 	}
 
@@ -285,11 +285,11 @@ public class Cmd {
 		this.conf = conf;
 	}
 
-	public Map<String, Object> getConfAttrs() {
+	public Map<String, String> getConfAttrs() {
 		return confAttrs;
 	}
 
-	public void setConfAttrs(Map<String, Object> confAttrs) {
+	public void setConfAttrs(Map<String, String> confAttrs) {
 		this.confAttrs = confAttrs;
 	}
 
@@ -317,11 +317,11 @@ public class Cmd {
 		this.data = data;
 	}
 
-	public Map<String, Object> getDataAttrs() {
+	public Map<String, String> getDataAttrs() {
 		return dataAttrs;
 	}
 
-	public void setDataAttrs(Map<String, Object> dataAttrs) {
+	public void setDataAttrs(Map<String, String> dataAttrs) {
 		this.dataAttrs = dataAttrs;
 	}
 
