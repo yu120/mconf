@@ -112,6 +112,5 @@ Value：{JSON Data String}
 ![docs/datas.png](docs/datas.png)
 
 ## 5 功能范围
-+ mconf不支持多版本(version)、多场景(group)和多环境(env)。
 + mconf暂不支持本地缓存配置未离线文件,后期会考虑将拉下来的配置信息缓存到离线文件,解决对Zookeeper的强依赖问题。
 
