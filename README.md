@@ -67,9 +67,18 @@ List<DataConf> getDataBodys();//The Get Data Body.
 
 > [zookeeper/redis] ://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……
 
+####3.1.1 Zookeeper
+
++ timeout：连接超时时间，单位为ms，默认值60000ms
++ session：数据过期清理时间，单位为ms，默认值6000ms
+
+####3.1.2 Redis
+
++ retryPeriod：数据变更探测周期，单位为ms，默认值10000ms
+
 ### 3.2 数据存储结构
 #### 3.2.1 Zookeeper
-使用PATH节点来表示配置所属的相关信息，使用最后一层PATH的DATA区来存储JSON结构的配置数据。
+用curator来实现Zookeeper的操作。使用PATH节点来表示配置所属的相关信息，使用最后一层PATH的DATA区来存储JSON结构的配置数据。
 
 ```
 第1层PATH：/mconf?……
@@ -105,31 +114,4 @@ Value：{JSON Data String}
 ## 5 功能范围
 + mconf不支持多版本(version)、多场景(group)和多环境(env)。
 + mconf暂不支持本地缓存配置未离线文件,后期会考虑将拉下来的配置信息缓存到离线文件,解决对Zookeeper的强依赖问题。
-
-## 6 CRUD
-配置中心目前已经支持zkclient和curator对Zookeeper对增删改查(CRUD)。
-
-## 7 Zookeeper连接与实现方式配置信息
-+ confSpace:默认为mconf
-+ connAddrs:ZK连接地址,默认值为127.0.0.1：2181。集群地址配置方式如：127.0.0.1:2181,127.0.0.1:2182
-+ zkType:默认为curator
-+ timeout:连接超时时间,默认值为15*1000ms
-+ session:默认值为60*1000ms
-
-## 8 环境分类
-8.1 测试环境
-    提供测试人员使用，代码分支除了可以使用master分支外，其他的分支也是可以的。
-
-8.2 回归环境
-    如果同时有好几个人参与同一个项目，那么基于master分支可能拉出非常多的开发分支，那么当这些分支合并到master上后，master上的功能可能受到影响，这种情况下，会使用一个回归环境，部署master分支的代码。
-
-8.3 预发布环境
-    这个环境中，一般会连接生产环境的数据库，使用生产环境的数据来进行测试。
-
-8.4 灰度发布
-    预发布环境过后，就是灰度发布了。由于一个项目，一般会部署到多台机器，所以灰度1台至三台，看看新功能是否ok，如果失败则只需要回滚几台，比价方便。注意，由于是灰度发布几种几台，所以一般会使用跳板机，然后进行域名绑定，这样才可以保证只访问有最新代码的服务器。
-
-8.5 生产发布
-    所有服务器上的代码都已经是最新的了。
-
 
