@@ -65,8 +65,7 @@ List<DataConf> getDataBodys();//The Get Data Body.
 
 连接配置中心的URL格式：
 
-> 
-[zookeeper/redis] ://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……
+> [zookeeper/redis] ://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……
 
 ### 3.2 数据存储结构
 #### 3.2.1 Zookeeper
