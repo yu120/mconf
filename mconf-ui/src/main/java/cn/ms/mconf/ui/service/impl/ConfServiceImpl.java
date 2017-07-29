@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import cn.ms.mconf.Conf;
 import cn.ms.mconf.Mconf;
 import cn.ms.mconf.MconfFactory;
 import cn.ms.mconf.support.DataConf;
@@ -17,8 +18,11 @@ public class ConfServiceImpl implements ConfService {
 	Mconf mconf = null;
 
 	public ConfServiceImpl() {
-//		URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
-		URL mconfURL = URL.valueOf("redis://127.0.0.1:6379/mconf?app=node&conf=env&data=group,version");
+		Conf conf = Conf.INSTANCE;
+		conf.connection("mconf.properties");
+		Object mconfURLStr = conf.getProperty("mconf.url");
+
+		URL mconfURL = URL.valueOf(String.valueOf(mconfURLStr));
 		mf.start(mconfURL);
 		mconf = mf.getMconf();
 	}

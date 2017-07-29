@@ -62,17 +62,6 @@ public class ZookeeperMconf extends AbstractMconf {
 	private final Map<String, Map<String, Object>> pushMap = new ConcurrentHashMap<String, Map<String, Object>>();
 	private final Map<String, PathChildrenCache> pathChildrenCacheMap = new ConcurrentHashMap<String, PathChildrenCache>();
 
-	public static void main(String[] args) {
-		ZookeeperMconf zm = new ZookeeperMconf();
-		URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
-		zm.connect(mconfURL);
-		try {
-			System.out.println(zm.client.delete().deletingChildrenIfNeeded().forPath("/mconf/ms-gateway?node=node01/api?env=test/1?group=S01&version=1.0"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
 	@Override
 	public void connect(URL url) {
 		super.connect(url);
@@ -83,8 +72,7 @@ public class ZookeeperMconf extends AbstractMconf {
 		// Expired cleanup time, defaults to 60s
 		int session = url.getParameter("session", 60 * 1000);
 
-		Builder builder = CuratorFrameworkFactory.builder()
-				.connectString(connAddrs)
+		Builder builder = CuratorFrameworkFactory.builder().connectString(connAddrs)
 				.retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000))
 				.connectionTimeoutMs(timeout).sessionTimeoutMs(session);
 		final CountDownLatch cd = new CountDownLatch(1);
