@@ -1,8 +1,6 @@
 package cn.ms.mconf;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import cn.ms.mconf.support.Cmd;
 import cn.ms.mconf.support.DataConf;
@@ -17,13 +15,14 @@ import cn.ms.micro.extension.Spi;
  * Configuration center data structure:<br>
  * ①--> /mconf?……<br>
  * ②--> /[app]?node=[node]&……<br>
- * ③--> /[conf]?env=[env]&……<br>
- * ④--> /[data]?group=[group]&version=[version]&……<br>
+ * ③--> /[conf]?env=[env]&group=[group]&version=[version]&……<br>
+ * ④--> /[data]?……<br>
  * ⑤--> {JSON Data String}<br>
  * <br>
  * <br>
  * Connect URL:<br>
- * [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……<br>
+ * [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf
+ * =[conf]&category=[category]&version=[version]&data=[data]&……<br>
  * <br>
  * <br>
  * The data structure：<br>
@@ -55,9 +54,9 @@ public interface Mconf {
 	 * The Add Configuration Data.
 	 * 
 	 * @param cmd
-	 * @param data
+	 * @param obj
 	 */
-	<T> void addConf(Cmd cmd, T data);
+	void addConf(Cmd cmd, Object obj);
 
 	/**
 	 * The Delete Configuration Data.<br>
@@ -66,6 +65,7 @@ public interface Mconf {
 	 * 1.Set parameter 'data'：Delete a data.<br>
 	 * 2.Not set parameter 'data'：Delete a conf.<br>
 	 * <br>
+	 * 
 	 * @param cmd
 	 */
 	void delConf(Cmd cmd);
@@ -74,9 +74,9 @@ public interface Mconf {
 	 * The Update Configuration Data.
 	 * 
 	 * @param cmd
-	 * @param data
+	 * @param obj
 	 */
-	<T> void upConf(Cmd cmd, T data);
+	void upConf(Cmd cmd, Object obj);
 
 	/**
 	 * The Pull Configuration Data.
@@ -113,27 +113,26 @@ public interface Mconf {
 	 */
 	void unpush(Cmd cmd);
 
-	/**
-	 * The UnPush Configuration Data.
-	 * 
-	 * @param cmd
-	 * @param notify
-	 */
-	<T> void unpush(Cmd cmd, Notify<T> notify);
-	
-	
 	//$NON-NLS-The Node Governor$
-	List<DataConf> getApps();
-	List<DataConf> getConfs();
-	List<DataConf> getKVDatas();
-	
 	/**
-	 * Query configuration center data structure.<br>
-	 * <br>
-	 * The Data Structures: Map< node, Map< app, Map< env, Map< conf, Map< group, Set< version>>>>>>
+	 * The Get Apps.
 	 * 
 	 * @return
 	 */
-	Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures();
-	
+	List<DataConf> getApps();
+
+	/**
+	 * The Get Confs.
+	 * 
+	 * @return
+	 */
+	List<DataConf> getConfs();
+
+	/**
+	 * The Get Data Body.
+	 * 
+	 * @return
+	 */
+	List<DataConf> getDataBodys();
+
 }

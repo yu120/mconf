@@ -20,9 +20,8 @@ import cn.ms.micro.common.URL;
 
 public class MconfDataTest {
 
-	public static URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
-//	public static URL mconfURL = URL.valueOf("redis://127.0.0.1:6379/mconf?app=node&conf=env&data=group,version");
-//	public static URL mconfURL = URL.valueOf("local://0.0.0.0:0/mconf?app=node&conf=env&data=group,version");
+//	URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
+	URL mconfURL = URL.valueOf("redis://127.0.0.1:6379/mconf?app=node&conf=env&data=group,version");
 	
 	Mconf mconf;
 	Integer id = 1;
@@ -40,7 +39,7 @@ public class MconfDataTest {
 
 	@Test
 	public void testGetParameter() {
-		Cmd cmd = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "parameter");
+		Cmd cmd = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "parameter");
 		List<ParameterEntity> list = mconf.pulls(cmd, ParameterEntity.class);
 		System.out.println(list);
 	}
@@ -52,7 +51,7 @@ public class MconfDataTest {
 		parameterEntity1.setKey("channelId");
 		parameterEntity1.setTitle("渠道ID");
 		parameterEntity1.setType("String");
-		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "parameter").buildData("S01", "1.0", parameterEntity1.getId());
+		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "parameter").buildData(parameterEntity1.getId());
 		mconf.addConf(command1, parameterEntity1);
 
 		ParameterEntity parameterEntity2 = new ParameterEntity();
@@ -60,7 +59,7 @@ public class MconfDataTest {
 		parameterEntity2.setKey("consumerId");
 		parameterEntity2.setTitle("消费服务ID");
 		parameterEntity2.setType("String");
-		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "parameter").buildData("S01", "1.0", parameterEntity2.getId());
+		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "parameter").buildData(parameterEntity2.getId());
 		mconf.addConf(command2, parameterEntity2);
 
 		ParameterEntity parameterEntity3 = new ParameterEntity();
@@ -68,7 +67,7 @@ public class MconfDataTest {
 		parameterEntity3.setKey("areaId");
 		parameterEntity3.setTitle("地区ID");
 		parameterEntity3.setType("String");
-		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "parameter").buildData("S01", "1.0", parameterEntity3.getId());
+		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "parameter").buildData(parameterEntity3.getId());
 		mconf.addConf(command3, parameterEntity3);
 	}
 
@@ -78,35 +77,35 @@ public class MconfDataTest {
 		this.wrapperBaseEntity(routerEntity1);
 		routerEntity1.setAppkey("850d5a93");
 		routerEntity1.setApiId("1");
-		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "router").buildData("S01", "1.0", routerEntity1.getId());
+		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "router").buildData(routerEntity1.getId());
 		mconf.addConf(command1, routerEntity1);
 		
 		RouterEntity routerEntity2 = new RouterEntity();
 		this.wrapperBaseEntity(routerEntity2);
 		routerEntity2.setAppkey("850d5a93");
 		routerEntity2.setApiId("2");
-		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "router").buildData("S01", "1.0", routerEntity2.getId());
+		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "router").buildData(routerEntity2.getId());
 		mconf.addConf(command2, routerEntity2);
 		
 		RouterEntity routerEntity3 = new RouterEntity();
 		this.wrapperBaseEntity(routerEntity3);
 		routerEntity3.setAppkey("850d5a93");
 		routerEntity3.setApiId("3");
-		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "router").buildData("S01", "1.0", routerEntity3.getId());
+		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "router").buildData(routerEntity3.getId());
 		mconf.addConf(command3, routerEntity3);
 		
 		RouterEntity routerEntity4 = new RouterEntity();
 		this.wrapperBaseEntity(routerEntity4);
 		routerEntity4.setAppkey("714b4aaa");
 		routerEntity4.setApiId("1");
-		Cmd command4 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "router").buildData("S01", "1.0", routerEntity4.getId());
+		Cmd command4 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "router").buildData(routerEntity4.getId());
 		mconf.addConf(command4, routerEntity4);
 		
 		RouterEntity routerEntity5 = new RouterEntity();
 		this.wrapperBaseEntity(routerEntity5);
 		routerEntity5.setAppkey("f74b334a");
 		routerEntity5.setApiId("3");
-		Cmd command5 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "router").buildData("S01", "1.0", routerEntity5.getId());
+		Cmd command5 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "router").buildData(routerEntity5.getId());
 		mconf.addConf(command5, routerEntity5);
 	}
 
@@ -119,7 +118,7 @@ public class MconfDataTest {
 		sysconfEntity1.setValue("127.0.0.1;10.22.*.*");
 		sysconfEntity1.setGroup("BALCKWHITE");
 		sysconfEntity1.setTitle("白名单清单");
-		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "sysconf").buildData("S01", "1.0", sysconfEntity1.getId());
+		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "sysconf").buildData(sysconfEntity1.getId());
 		mconf.addConf(command1, sysconfEntity1);
 
 		// 黑名单清单
@@ -129,7 +128,7 @@ public class MconfDataTest {
 		sysconfEntity2.setValue("192.168.1.*");
 		sysconfEntity2.setGroup("BALCKWHITE");
 		sysconfEntity2.setTitle("黑名单清单");
-		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "sysconf").buildData("S01", "1.0", sysconfEntity2.getId());
+		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "sysconf").buildData(sysconfEntity2.getId());
 		mconf.addConf(command2, sysconfEntity2);
 
 		// 分组路由维度
@@ -139,7 +138,7 @@ public class MconfDataTest {
 		sysconfEntity3.setValue("areaId,channelId");
 		sysconfEntity3.setGroup("ROUTERS");
 		sysconfEntity3.setTitle("分组路由维度");
-		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "sysconf").buildData("S01", "1.0", sysconfEntity3.getId());
+		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "sysconf").buildData(sysconfEntity3.getId());
 		mconf.addConf(command3, sysconfEntity3);
 
 		// 故障重试错误码
@@ -149,7 +148,7 @@ public class MconfDataTest {
 		sysconfEntity4.setValue("404=>3,405=>5,406=>2,409=>1");
 		sysconfEntity4.setGroup("RETRY_ENABLE");
 		sysconfEntity4.setTitle("故障重试错误码");
-		Cmd command4 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "sysconf").buildData("S01", "1.0", sysconfEntity4.getId());
+		Cmd command4 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "sysconf").buildData(sysconfEntity4.getId());
 		mconf.addConf(command4, sysconfEntity4);
 	}
 
@@ -163,7 +162,7 @@ public class MconfDataTest {
 		categories1.put("channelId", "weixin07");
 		categories1.put("areaId", "shenzheng");
 		consumerEntity1.setCategories(categories1);
-		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "consumer").buildData("S01", "1.0", consumerEntity1.getId());
+		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "consumer").buildData(consumerEntity1.getId());
 		mconf.addConf(command1, consumerEntity1);
 		
 		ConsumerEntity consumerEntity2 = new ConsumerEntity();
@@ -174,7 +173,7 @@ public class MconfDataTest {
 		categories2.put("channelId", "weixin07");
 		categories2.put("areaId", "shenzheng");
 		consumerEntity2.setCategories(categories2);
-		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "consumer").buildData("S01", "1.0", consumerEntity2.getId());
+		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "consumer").buildData(consumerEntity2.getId());
 		mconf.addConf(command2, consumerEntity2);
 		
 		ConsumerEntity consumerEntity3 = new ConsumerEntity();
@@ -185,7 +184,7 @@ public class MconfDataTest {
 		categories3.put("channelId", "weixin06");
 		categories3.put("areaId", "beijing");
 		consumerEntity3.setCategories(categories3);
-		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "consumer").buildData("S01", "1.0", consumerEntity3.getId());
+		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "consumer").buildData(consumerEntity3.getId());
 		mconf.addConf(command3, consumerEntity3);
 	}
 	
@@ -207,7 +206,7 @@ public class MconfDataTest {
 		resHeaders1.put("2", new ApiParamType("title", "状态标题", true, null, "String", null));
 		resHeaders1.put("3", new ApiParamType("msg", "状态码描述", true, null, "String", null));
 		apiEntity1.setResHeaders(resHeaders1);
-		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "api").buildData("S01", "1.0", apiEntity1.getId());
+		Cmd command1 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "api").buildData(apiEntity1.getId());
 		mconf.addConf(command1, apiEntity1);
 		
 		ApiEntity apiEntity2 = new ApiEntity();
@@ -226,7 +225,7 @@ public class MconfDataTest {
 		resHeaders2.put("2", new ApiParamType("title", "状态标题", true, null, "String", null));
 		resHeaders2.put("3", new ApiParamType("msg", "状态码描述", true, null, "String", null));
 		apiEntity2.setResHeaders(resHeaders2);
-		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "api").buildData("S01", "1.0", apiEntity2.getId());
+		Cmd command2 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "api").buildData(apiEntity2.getId());
 		mconf.addConf(command2, apiEntity2);
 		
 		ApiEntity apiEntity3 = new ApiEntity();
@@ -245,7 +244,7 @@ public class MconfDataTest {
 		resHeaders3.put("2", new ApiParamType("title", "状态标题", true, null, "String", null));
 		resHeaders3.put("3", new ApiParamType("msg", "状态码描述", true, null, "String", null));
 		apiEntity3.setResHeaders(resHeaders3);
-		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "api").buildData("S01", "1.0", apiEntity3.getId());
+		Cmd command3 = new Cmd().buildApp("node01", "ms-gateway").buildConf("test", "S01", "1.0", "api").buildData(apiEntity3.getId());
 		mconf.addConf(command3, apiEntity3);
 	}
 

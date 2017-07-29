@@ -3,6 +3,7 @@ package cn.ms.mconf.zookeeper;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -60,6 +62,17 @@ public class ZookeeperMconf extends AbstractMconf {
 	private final Map<String, Map<String, Object>> pushMap = new ConcurrentHashMap<String, Map<String, Object>>();
 	private final Map<String, PathChildrenCache> pathChildrenCacheMap = new ConcurrentHashMap<String, PathChildrenCache>();
 
+	public static void main(String[] args) {
+		ZookeeperMconf zm = new ZookeeperMconf();
+		URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
+		zm.connect(mconfURL);
+		try {
+			System.out.println(zm.client.delete().deletingChildrenIfNeeded().forPath("/mconf/ms-gateway?node=node01/api?env=test/1?group=S01&version=1.0"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void connect(URL url) {
 		super.connect(url);
@@ -104,12 +117,12 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(Cmd cmd, T data) {
+	public void addConf(Cmd cmd, Object obj) {
 		String path = cmd.buildRoot(super.ROOT).buildKey();
 		
 		byte[] dataByte = null;
 		try {
-			String json = this.obj2Json(data);
+			String json = super.obj2Json(obj);
 			logger.debug("The PATH[{}] add conf data[{}].", path, json);
 
 			dataByte = json.getBytes(Charset.forName("UTF-8"));
@@ -128,22 +141,16 @@ public class ZookeeperMconf extends AbstractMconf {
 	@Override
 	public void delConf(Cmd cmd) {
 		try {
+			String path;
 			if (StringUtils.isNotBlank(cmd.getData())) {
-				String path = cmd.buildRoot(super.ROOT).buildKey();
+				path = cmd.buildRoot(super.ROOT).buildKey();
 				logger.debug("The PATH[{}] delete conf data.", path);
-				
-				client.delete().forPath(path);
 			} else {
-				String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
-				logger.debug("The PATH[{}] delete conf data list.", path);
-				
-				List<String> tempDataPathList = client.getChildren().forPath(path);
-				if (tempDataPathList != null) {
-					for (String tempDataPath : tempDataPathList) {
-						client.delete().forPath(path + "/" + tempDataPath);
-					}
-				}
+				path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+				logger.debug("The PATH[{}] and SubPATH delete conf datas.", path);
 			}
+			
+			client.delete().deletingChildrenIfNeeded().forPath(path);
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
 			throw new IllegalStateException("Delete data exception.", e);
@@ -151,12 +158,12 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void upConf(Cmd cmd, T data) {
+	public void upConf(Cmd cmd, Object obj) {
 		String path = cmd.buildRoot(super.ROOT).buildKey();
 		
 		byte[] dataByte = null;
 		try {
-			String json = this.obj2Json(data);
+			String json = super.obj2Json(obj);
 			logger.debug("The PATH[{}] update conf data[{}].", path, json);
 			
 			dataByte = json.getBytes(Charset.forName("UTF-8"));
@@ -172,6 +179,7 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T pull(Cmd cmd, Class<T> cls) {
 		String path = cmd.buildRoot(super.ROOT).buildKey();
@@ -187,15 +195,19 @@ public class ZookeeperMconf extends AbstractMconf {
 
 		if (dataByte == null) {
 			return null;
-		}
-
-		try {
+		} else {
 			String json = new String(dataByte, Charset.forName("UTF-8"));
 			logger.debug("The PATH[{}] pulled conf data[{}].", path, json);
 			
-			return json2Obj(json, cls);
-		} catch (Exception e) {
-			throw new IllegalStateException("UnSerialized data exception.", e);
+			try {
+				if (cls == null) {
+					return (T)json;
+				} else {
+					return super.json2Obj(json, cls);
+				}
+			} catch (Exception e) {
+				throw new IllegalStateException("UnSerialized data exception.", e);
+			}
 		}
 	}
 
@@ -204,9 +216,9 @@ public class ZookeeperMconf extends AbstractMconf {
 		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		logger.debug("The PATH[{}] pulls conf data.", path);
 		
+		// Query all dataId lists
 		List<T> list = new ArrayList<T>();
-		List<String> childNodeList = null;// Query all dataId lists
-		
+		List<String> childNodeList = null;
 		try {
 			childNodeList = client.getChildren().forPath(path);
 		} catch (NoNodeException e) {
@@ -221,28 +233,33 @@ public class ZookeeperMconf extends AbstractMconf {
 		for (String childNode : childNodeList) {
 			String json;
 			byte[] dataByte = null;
-
+			String allPath = path + "/" + childNode;
+			
 			try {
-				dataByte = client.getData().forPath(path + "/" + childNode);
+				dataByte = client.getData().forPath(allPath);
 			} catch (NoNodeException e) {
 			} catch (Exception e) {
 				throw new IllegalStateException("Modify data exception.", e);
 			}
 
 			if (dataByte == null) {
-				return null;
+				continue;
 			}
 
 			try {
 				json = new String(dataByte, Charset.forName("UTF-8"));
-				logger.debug("The PATH[{}] pullsed conf data[{}].", path, json);
+				logger.debug("The PATH[{}] pullsed conf data[{}].", allPath, json);
 			} catch (Exception e) {
 				throw new IllegalStateException("UnSerialized data exception.", e);
 			}
-
-			T t = (T) json2Obj(json, cls);
-			if (t != null) {
-				list.add(t);
+			
+			if (StringUtils.isBlank(json)) {
+				continue;
+			} else {
+				T t = super.json2Obj(json, cls);
+				if (t != null) {
+					list.add(t);
+				}				
 			}
 		}
 
@@ -282,7 +299,6 @@ public class ZookeeperMconf extends AbstractMconf {
 							@Override
 							public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
 								ChildData childData = event.getData();
-
 								if (event.getInitialData() != null) {
 									isInit = true;
 								}
@@ -346,130 +362,185 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 	}
 
-	@Override
-	public <T> void unpush(Cmd cmd, Notify<T> notify) {
-		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
-		if (StringUtils.isBlank(path)) {
-			throw new RuntimeException("The PATH cannot be empty, path==" + path);
-		}
-
-		PathChildrenCache pathChildrenCache = pathChildrenCacheMap.get(path);
-		if (pathChildrenCache != null) {
-			try {
-				pathChildrenCache.close();
-			} catch (IOException e) {
-				logger.error("PathChildrenCache close exception.", e);
-			}
-		}
-
-		@SuppressWarnings("rawtypes")
-		Set<Notify> notifies = pushNotifyMap.get(path);
-		if (notifies != null) {
-			if (notifies.contains(notify)) {
-				notifies.remove(notify);
-			}
-		}
-
-		if (pushNotifyMap.get(path) == null) {
-			pushMap.remove(path);
-		}
-	}
-
 	//$NON-NLS-The Node Governor$
 	@Override
 	public List<DataConf> getApps() {
-		// TODO Auto-generated method stub
-		return null;
+		List<DataConf> dataConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> appConfMap = new HashMap<String, DataConf>();
+		
+		try {
+			String rootPath = null;
+			List<String> rootPathList = client.getChildren().forPath("/");
+			for (String rp:rootPathList) {
+				if(rp.startsWith(super.ROOT)){
+					rootPath = rp;
+					break;
+				}
+			}
+			if(StringUtils.isBlank(rootPath)){
+				return dataConfs;
+			}
+			
+			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
+			for (String appPath:appPathList) {
+				DataConf dataConf = new DataConf();
+				// build root
+				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
+				dataConf.setRoot(tempRootURL.getPath());
+				dataConf.setRootAttrs(tempRootURL.getParameters());
+				// build app
+				URL tempAppURL = URL.valueOf("/" + URL.decode(rootPath) + "/" + URL.decode(appPath));
+				dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+				dataConf.setApp(tempAppURL.getPath());
+				dataConf.setAppAttrs(tempAppURL.getParameters());
+				// build others
+				String tempPath = "/" + rootPath + "/" + appPath;
+				dataConf.setSubNum(client.getChildren().forPath(tempPath).size());
+				appConfMap.put(tempPath, dataConf);
+			}
+		} catch (NoNodeException e) {
+		} catch (Exception e) {
+			throw new IllegalStateException("Get data exception.", e);
+		}
+		
+		if(!appConfMap.isEmpty()){
+			dataConfs.addAll(appConfMap.values());
+		}
+		return dataConfs;
 	}
 	
 	@Override
 	public List<DataConf> getConfs() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public List<DataConf> getKVDatas() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
-		Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> map = new ConcurrentHashMap<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>>();
-
+		List<DataConf> dataConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+		
 		try {
-			List<String> rootChildNodeList = client.getChildren().forPath("/");
-			for (String rootChildNode : rootChildNodeList) {
-				if (rootChildNode.startsWith(super.ROOT)) {
-					List<String> appChildNodeList = client.getChildren().forPath("/" + rootChildNode);
-					for (String appChildNode : appChildNodeList) {
-						URL rootChildNodeURL = URL.valueOf("/" + URL.decode(appChildNode));
-						// setter node
-						String node = rootChildNodeURL.getParameter(Cmd.NODE_KEY);
-						if (StringUtils.isBlank(node)) {
-							node = DEFAULT_KEY + Cmd.NODE_KEY;
-						}
-						Map<String, Map<String, Map<String, Map<String, Set<String>>>>> nodeMap = map.get(node);
-						if (nodeMap == null) {
-							map.put(node, nodeMap = new ConcurrentHashMap<String, Map<String, Map<String, Map<String, Set<String>>>>>());
-						}
-						// setter app
-						String app = rootChildNodeURL.getPath();
-						Map<String, Map<String, Map<String, Set<String>>>> appMap = nodeMap.get(app);
-						if (appMap == null) {
-							nodeMap.put(app, appMap = new ConcurrentHashMap<String, Map<String, Map<String, Set<String>>>>());
-						}
+			String rootPath = null;
+			List<String> rootPathList = client.getChildren().forPath("/");
+			for (String rp:rootPathList) {
+				if(rp.startsWith(super.ROOT)){
+					rootPath = rp;
+					break;
+				}
+			}
+			if(StringUtils.isBlank(rootPath)){
+				return dataConfs;
+			}
+			
+			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
+			for (String appPath:appPathList) {
+				DataConf tempDataConf = new DataConf();
+				// build root
+				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
+				tempDataConf.setRoot(tempRootURL.getPath());
+				tempDataConf.setRootAttrs(tempRootURL.getParameters());
+				// build app
+				URL tempAppURL = URL.valueOf("/" + URL.decode(appPath));
+				tempDataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+				tempDataConf.setApp(tempAppURL.getPath());
+				tempDataConf.setAppAttrs(tempAppURL.getParameters());
+				// build conf
+				List<String> confPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath);
+				for (String confPath:confPathList) {
+					DataConf dataConf = new DataConf();
+					BeanUtils.copyProperties(dataConf, tempDataConf);
+					
+					URL tempConfURL = URL.valueOf("/" + URL.decode(confPath));
+					dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
+					dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+					dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+					dataConf.setConf(tempConfURL.getPath());
+					dataConf.setConfAttrs(tempConfURL.getParameters());
+					// build others
+					String tempPath = "/" + rootPath + "/" + appPath + "/" + confPath;
+					dataConf.setSubNum(client.getChildren().forPath(tempPath).size());
+					confConfMap.put(tempPath, dataConf);
+				}
+			}
+		} catch (NoNodeException e) {
+		} catch (Exception e) {
+			throw new IllegalStateException("Get data exception.", e);
+		}
+			
+		if(!confConfMap.isEmpty()){
+			dataConfs.addAll(confConfMap.values());
+		}
 
-						String path = "/" + rootChildNode + "/" + appChildNode;
-						List<String> confChildNodeList = client.getChildren().forPath(path);
-						for (String confChildNode : confChildNodeList) {
-							URL confChildNodeURL = URL.valueOf("/" + URL.decode(confChildNode));
-							// setter env
-							String env = confChildNodeURL.getParameter(Cmd.ENV_KEY);
-							if (StringUtils.isBlank(env)) {
-								env = DEFAULT_KEY + Cmd.ENV_KEY;
-							}
-							Map<String, Map<String, Set<String>>> envMap = appMap.get(env);
-							if (envMap == null) {
-								appMap.put(env, envMap = new ConcurrentHashMap<String, Map<String, Set<String>>>());
-							}
-							// setter conf confChildNodeURL.getPath()
-							String conf = confChildNodeURL.getPath();
-							Map<String, Set<String>> confMap = envMap.get(conf);
-							if (confMap == null) {
-								envMap.put(conf, confMap = new ConcurrentHashMap<String, Set<String>>());
-							}
-
-							String confPath = "/" + rootChildNode + "/" + appChildNode + "/" + confChildNode;
-							List<String> dataChildNodeList = client.getChildren().forPath(confPath);
-							for (String dataChildNode : dataChildNodeList) {
-								URL dataChildNodeURL = URL.valueOf("/" + URL.decode(dataChildNode));
-								// setter group
-								String group = dataChildNodeURL.getParameter(Cmd.GROUP_KEY);
-								if (StringUtils.isBlank(group)) {
-									group = DEFAULT_KEY + Cmd.GROUP_KEY;
-								}
-								Set<String> groupMap = confMap.get(group);
-								if (groupMap == null) {
-									confMap.put(group, groupMap = new ConcurrentHashSet<String>());
-								}
-								// setter version
-								String version = dataChildNodeURL.getParameter(Cmd.VERSION_KEY);
-								if (StringUtils.isBlank(version)) {
-									version = DEFAULT_KEY + Cmd.VERSION_KEY;
-								}
-								groupMap.add(version);
-							}
-						}
+		return dataConfs;
+	}
+	
+	@Override
+	public List<DataConf> getDataBodys() {
+		List<DataConf> dataConfs = new ArrayList<DataConf>();
+		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+		
+		try {
+			String rootPath = null;
+			List<String> rootPathList = client.getChildren().forPath("/");
+			for (String rp:rootPathList) {
+				if(rp.startsWith(super.ROOT)){
+					rootPath = rp;
+					break;
+				}
+			}
+			if(StringUtils.isBlank(rootPath)){
+				return dataConfs;
+			}
+			
+			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
+			for (String appPath:appPathList) {
+				DataConf appDataConf = new DataConf();
+				// build root
+				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
+				appDataConf.setRoot(tempRootURL.getPath());
+				appDataConf.setRootAttrs(tempRootURL.getParameters());
+				// build app
+				URL tempAppURL = URL.valueOf("/" + URL.decode(appPath));
+				appDataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+				appDataConf.setApp(tempAppURL.getPath());
+				appDataConf.setAppAttrs(tempAppURL.getParameters());
+				// build conf
+				List<String> confPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath);
+				for (String confPath:confPathList) {
+					DataConf confDataConf = new DataConf();
+					BeanUtils.copyProperties(confDataConf, appDataConf);
+					
+					URL tempConfURL = URL.valueOf("/" + URL.decode(confPath));
+					confDataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
+					confDataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+					confDataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+					confDataConf.setConf(tempConfURL.getPath());
+					confDataConf.setConfAttrs(tempConfURL.getParameters());
+					
+					// build data
+					List<String> dataPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath + "/" + confPath);
+					for (String dataPath:dataPathList) {
+						DataConf dataConf = new DataConf();
+						BeanUtils.copyProperties(dataConf, confDataConf);
+						URL tempDataURL = URL.valueOf("/" + URL.decode(dataPath));
+						dataConf.setData(tempDataURL.getPath());
+						dataConf.setDataAttrs(tempDataURL.getParameters());
+						
+						// build others
+						dataConf.setSubNum(0);
+						String tempPath = "/" + rootPath + "/" + appPath + "/" + confPath + "/" + dataPath;
+						byte[] dataByte = client.getData().forPath(tempPath);
+						dataConf.setJson(new String(dataByte, Charset.forName("UTF-8")));
+						dataConf.setBody(JSON.parseObject(dataConf.getJson(), Map.class));
+						confConfMap.put(tempPath, dataConf);
 					}
 				}
 			}
+		} catch (NoNodeException e) {
 		} catch (Exception e) {
-			logger.error("The get confs is exception.", e);
+			throw new IllegalStateException("Get data exception.", e);
+		}
+			
+		if(!confConfMap.isEmpty()){
+			dataConfs.addAll(confConfMap.values());
 		}
 
-		return map;
+		return dataConfs;
 	}
-
+	
 }

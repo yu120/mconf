@@ -63,14 +63,13 @@
                             <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="8">
                                 <thead>
                                 <tr>
-                                    <th data-toggle="true">ID</th>
-                                    <th>Application</th>
+                                    <th data-toggle="true">Data ID</th>
                                     <th>Configure</th>
-                                    <th>Data ID</th>
-                                    <th>Data Node</th>
-                                    <th>Environment</th>
-                                    <th>Group(<i class="fa fa-google"></i>)</th>
                                     <th>Version(<i class="fa fa-vimeo"></i>)</th>
+                                    <th>Group</th>
+                                    <th>Environment</th>
+                                    <th>Application</th>
+                                    <th>Data Node</th>
                                     <th data-hide="all">Data</th>
                                 </tr>
                                 </thead>
@@ -79,17 +78,16 @@
                                 	<c:when test="${not empty datas}">
                                 		<c:forEach items="${datas}" var="data" varStatus="dataid">
 			                                <tr>
-			                                	<td>${dataid.index+1}</td>
-			                                    <td>${data.app}</td>
-			                                    <td>${data.conf}</td>
 			                                    <td>${data.data}</td>
-			                                    <td><span class="badge badge-info">${data.node}</span></td>
-			                                    <td><span class="badge badge-green">${data.env}</span></td>
-			                                    <td><span class="badge badge-blue">${data.group}</span></td>
+			                                    <td>${data.conf}</td>
 			                                    <td><span class="badge badge-warning"><i class="fa fa-vimeo"></i> ${data.version}</span></td>
+			                                    <td><span class="badge badge-blue">${data.group}</span></td>
+			                                    <td><span class="badge badge-green">${data.env}</span></td>
+			                                    <td>${data.app}</td>
+			                                    <td><span class="badge badge-info">${data.node}</span></td>
 			                                    <td>
 			                                    	<ul>
-			                                    		<c:forEach items="${data.kvdata}" var="kv">
+			                                    		<c:forEach items="${data.body}" var="kv">
 			                                    			<li style="list-style:none;">
 			                                    				<span class="badge badge-warning">${kv.key}</span>
 			                                    				<font color="gray"> :</font>
@@ -111,6 +109,7 @@
                                 <tfoot>
                                 <tr>
                                     <td colspan="8">
+                                        <span style="color: gray">共 ${datas.size()} 条记录！</span>
                                         <ul class="pagination pull-right"></ul>
                                     </td>
                                 </tr>

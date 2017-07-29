@@ -30,27 +30,31 @@
                         <div class="row row-sm text-center">
                             <div class="col-xs-6">
                                 <div class="panel padder-v item">
-                                    <div class="h1 text-info font-thin h1">${appNum}</div>
-                                    <span class="text-muted text-xs">应用数量</span>
-                                </div>
-                            </div>
-                            <div class="col-xs-6">
-                                <div class="panel padder-v item bg-info">
-                                    <div class="h1 text-fff font-thin h1">${confNum}</div>
-                                    <span class="text-muted text-xs">配置文件</span>
-                                </div>
-                            </div>
-                            <div class="col-xs-6">
-                                <div class="panel padder-v item bg-primary">
-                                    <div class="h1 text-fff font-thin h1">${nodeNum}</div>
+                                    <div class="h1 text-info font-thin h1">${nodeNum}</div>
                                     <span class="text-muted text-xs">数据节点</span>
                                 </div>
                             </div>
                             <div class="col-xs-6">
-                                <div class="panel padder-v item">
-                                    <div class="font-thin h1">${envNum}</div>
+                            	<a href="${ctx}/web/apps">
+                                	<div class="panel padder-v item bg-info">
+                                    	<div class="h1 text-fff font-thin h1">${appNum}</div>
+                                    	<span class="text-muted text-xs">应用数量</span>
+                                	</div>
+                                </a>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="panel padder-v item bg-primary">
+                                    <div class="h1 text-fff font-thin h1">${envNum}</div>
                                     <span class="text-muted text-xs">配置环境</span>
                                 </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <a href="${ctx}/web/confs">
+	                                <div class="panel padder-v item">
+	                                    <div class="font-thin h1">${confNum}</div>
+	                                    <span class="text-muted text-xs">配置文件</span>
+	                                </div>
+	                        	</a>
                             </div>
                         </div>
                     </div>

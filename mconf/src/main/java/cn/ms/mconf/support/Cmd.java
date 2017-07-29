@@ -14,29 +14,29 @@ public class Cmd {
 	public static final String NODE_KEY = "node";
 	public static final String APP_KEY = "app";
 	public static final String ENV_KEY = "env";
-	public static final String CONF_KEY = "conf";
 	public static final String GROUP_KEY = "group";
 	public static final String VERSION_KEY = "version";
+	public static final String CONF_KEY = "conf";
 	public static final String DATA_KEY = "data";
 
 	// 第一层
-	String root;//必须
+	String root;// 必须
 	Map<String, String> rootAttrs = new HashMap<String, String>();
 
 	// 第二层
 	String node;
-	String app;//必须
+	String app;// 必须
 	Map<String, String> appAttrs = new HashMap<String, String>();
 
 	// 第三层
 	String env;
-	String conf;//必须
+	String group;
+	String version;
+	String conf;// 必须
 	Map<String, String> confAttrs = new HashMap<String, String>();
 
 	// 第四层
-	String group;
-	String version;
-	String data;//必须
+	String data;// 必须
 	Map<String, String> dataAttrs = new HashMap<String, String>();
 
 	// build root
@@ -82,13 +82,20 @@ public class Cmd {
 	}
 
 	// build conf
-	public Cmd buildConf(String env, String conf) {
-		return this.buildConf(env, conf, null);
+	public Cmd buildConf(String env, String group, String version, String conf) {
+		return this.buildConf(env, group, version, conf, null);
 	}
 
-	public Cmd buildConf(String env, String conf, Map<String, String> confAttrs) {
+	public Cmd buildConf(String env, String group, String version, String conf,
+			Map<String, String> confAttrs) {
 		if (StringUtils.isNotBlank(env)) {
 			this.setEnv(env);
+		}
+		if (StringUtils.isNotBlank(group)) {
+			this.setGroup(group);
+		}
+		if (StringUtils.isNotBlank(version)) {
+			this.setVersion(version);
 		}
 		if (StringUtils.isNotBlank(conf)) {
 			this.setConf(conf);
@@ -103,18 +110,11 @@ public class Cmd {
 	}
 
 	// build data
-	public Cmd buildData(String group, String version, String data) {
-		return this.buildData(group, version, data, null);
+	public Cmd buildData(String data) {
+		return this.buildData(data, null);
 	}
 
-	public Cmd buildData(String group, String version, String data,
-			Map<String, String> dataAttrs) {
-		if (StringUtils.isNotBlank(group)) {
-			this.setGroup(group);
-		}
-		if (StringUtils.isNotBlank(version)) {
-			this.setVersion(version);
-		}
+	public Cmd buildData(String data, Map<String, String> dataAttrs) {
 		if (StringUtils.isNotBlank(data)) {
 			this.setData(data);
 		}
@@ -128,8 +128,8 @@ public class Cmd {
 	}
 
 	/**
-	 * 数据结构：/[root][?……]/[app][?node=[node]&……]/[conf][?env=[env]&……]/[data][?
-	 * group=[group]&version=[version]&……]
+	 * 数据结构：/[root][?……] / [app][?node=[node]&……] /
+	 * [conf][?env=[env]&group=[group]&version=[version]&……] / [data][?……]
 	 * 
 	 * @return
 	 */
@@ -138,7 +138,8 @@ public class Cmd {
 	}
 
 	/**
-	 * 数据结构：/[root][?……]/[app][?node=[node]&……]/[conf][?env=[env]&……]
+	 * 数据结构：/[root][?……] / [app][?node=[node]&……] /
+	 * [conf][?env=[env]&group=[group]&version=[version]&……]
 	 * 
 	 * @return
 	 */
@@ -159,6 +160,8 @@ public class Cmd {
 		Map<String, String> tempConfAttrs = new HashMap<String, String>();
 		tempConfAttrs.putAll(confAttrs);
 		tempConfAttrs.put(ENV_KEY, env);
+		tempConfAttrs.put(GROUP_KEY, group);
+		tempConfAttrs.put(VERSION_KEY, version);
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("/").append(root).append(buildAttributes(rootAttrs));
@@ -169,7 +172,7 @@ public class Cmd {
 	}
 
 	/**
-	 * 数据结构：/[data][?group=[group]&version=[version]&……]
+	 * 数据结构：/[data][?……]
 	 * 
 	 * @return
 	 */
@@ -180,8 +183,6 @@ public class Cmd {
 
 		Map<String, String> tempDataAttrs = new HashMap<String, String>();
 		tempDataAttrs.putAll(dataAttrs);
-		tempDataAttrs.put(GROUP_KEY, group);
-		tempDataAttrs.put(VERSION_KEY, version);
 
 		StringBuffer sb = new StringBuffer();
 		sb.append("/").append(data).append(buildAttributes(tempDataAttrs));
@@ -277,22 +278,6 @@ public class Cmd {
 		this.env = env;
 	}
 
-	public String getConf() {
-		return conf;
-	}
-
-	public void setConf(String conf) {
-		this.conf = conf;
-	}
-
-	public Map<String, String> getConfAttrs() {
-		return confAttrs;
-	}
-
-	public void setConfAttrs(Map<String, String> confAttrs) {
-		this.confAttrs = confAttrs;
-	}
-
 	public String getGroup() {
 		return group;
 	}
@@ -307,6 +292,22 @@ public class Cmd {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getConf() {
+		return conf;
+	}
+
+	public void setConf(String conf) {
+		this.conf = conf;
+	}
+
+	public Map<String, String> getConfAttrs() {
+		return confAttrs;
+	}
+
+	public void setConfAttrs(Map<String, String> confAttrs) {
+		this.confAttrs = confAttrs;
 	}
 
 	public String getData() {

@@ -80,10 +80,10 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void addConf(Cmd cmd, T data) {
+	public void addConf(Cmd cmd, Object obj) {
 		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
 		String field = cmd.buildSuffixKey();
-		String json = this.obj2Json(data);
+		String json = this.obj2Json(obj);
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -119,8 +119,8 @@ public class RedisMconf extends AbstractMconf {
 	}
 
 	@Override
-	public <T> void upConf(Cmd cmd, T data) {
-		this.addConf(cmd, data);
+	public void upConf(Cmd cmd, Object obj) {
+		this.addConf(cmd, obj);
 	}
 
 	@Override
@@ -224,17 +224,6 @@ public class RedisMconf extends AbstractMconf {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public <T> void unpush(Cmd cmd, Notify<T> notify) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
-		Set<Notify> notifies = pushNotifyMap.get(key);
-		notifies.remove(notify);
-		if (pushNotifyMap.get(key) == null) {
-			pushValueMap.remove(key);
-		}
-	}
-
 	//$NON-NLS-The Node Governor$
 	@Override
 	public List<DataConf> getApps() {
@@ -244,7 +233,7 @@ public class RedisMconf extends AbstractMconf {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
@@ -260,7 +249,6 @@ public class RedisMconf extends AbstractMconf {
 					dataConf.setAppAttrs(tempAppURL.getParameters());
 					// build others
 					dataConf.setSubNum(jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*").size());
-					
 					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], dataConf);
 				}
 			}
@@ -287,7 +275,7 @@ public class RedisMconf extends AbstractMconf {
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
@@ -303,6 +291,7 @@ public class RedisMconf extends AbstractMconf {
 					dataConf.setAppAttrs(tempAppURL.getParameters());
 					// build conf
 					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
+					dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
 					dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
 					dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
 					dataConf.setConf(tempConfURL.getPath());
@@ -329,19 +318,24 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public List<DataConf> getKVDatas() {
+	public List<DataConf> getDataBodys() {
 		List<DataConf> confConfs = new ArrayList<DataConf>();
 		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
 		
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			Set<String> keySet = jedis.keys("/" + super.ROOT + "/*");
+			Set<String> keySet = jedis.keys("/" + super.ROOT + "*");
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
 					Set<String> fieldSet = jedis.hkeys(key);
 					for (String field:fieldSet) {
+						String[] fieldArray = field.split("/");
+						if(fieldArray.length != 2){
+							continue;
+						}
+						
 						DataConf dataConf = new DataConf();
 						// build root
 						URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
@@ -354,14 +348,13 @@ public class RedisMconf extends AbstractMconf {
 						dataConf.setAppAttrs(tempAppURL.getParameters());
 						// build conf
 						URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
+						dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
 						dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
 						dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
 						dataConf.setConf(tempConfURL.getPath());
 						dataConf.setConfAttrs(tempConfURL.getParameters());
 						// build data
-						URL tempDataURL = URL.valueOf("/" + URL.decode(URL.decode(field)));
-						dataConf.setGroup(tempDataURL.getParameter(Cmd.GROUP_KEY));
-						dataConf.setVersion(tempDataURL.getParameter(Cmd.VERSION_KEY));
+						URL tempDataURL = URL.valueOf("/" + URL.decode(fieldArray[1]));
 						dataConf.setData(tempDataURL.getPath());
 						dataConf.setDataAttrs(tempDataURL.getParameters());
 						// build others
@@ -388,12 +381,6 @@ public class RedisMconf extends AbstractMconf {
 		return confConfs;
 	}
 	
-	@Override
-	public Map<String, Map<String, Map<String, Map<String, Map<String, Set<String>>>>>> structures() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	/**
 	 * 定时拉取数据
 	 */

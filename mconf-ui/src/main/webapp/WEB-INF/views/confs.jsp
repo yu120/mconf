@@ -48,7 +48,7 @@
 	                               	</tr>
 	                        	</thead>
 	                            <tbody>
-	                            	<c:forEach items="${conf.attributes}" var="attr">
+	                            	<c:forEach items="${conf.confAttrs}" var="attr">
 	                            		<tr>
 	                                    	<td><i class="fa fa-circle text-navy"> ${attr.key}</i></td>
 	                                    	<td><i class="fa text-navy"> ${attr.value}</i></td>
