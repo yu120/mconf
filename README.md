@@ -33,23 +33,53 @@
 为了解决以上问题,开发了基于Zookeeper的配置中心(微服务配置中心:mconf),用于解决以上问题。同时新引入了微服务配置中心也为架构带来了运维成本和故障风险。因此建议不要强制依赖mconf,即没有mconf也能正常使用,当然有了mconf更好,可以为我们解决很多繁琐的事情。mconf依赖的Zookeeper可以靠集群来实现高可用,但mconf本身的问题也是可能存在的,所以使用请慎重。
 
 ## 2 配置接口
-+ void connection(ZkConnMsg zkConnMsg):连接配置中心
-+ boolean isAvailable():查看配置中心是否存活
-+ <T> void addConf(MetaData<T> metaData):添加一条配置信息
-+ <T> void deleteConf(MetaData<T> metaData):删除一条配置信息
-+ <T> void setConf(MetaData<T> metaData):设置一条配置信息
-+ <T> T getConf(MetaData<T> metaData, Class<T> clazz):获取一条配置信息
-+ <T> Map<String, T> getConfs(MetaData<T> metaData, Class<T> clazz):获取指定配置的所有配置信息
-+ <T> void subscribeConf(MetaData<T> metaData, Class<T> clazz, MconfListener<T> mconfListener):订阅一条配置信息
-+ <T> void unsubscribeConf(MetaData<T> metaData):取消订阅配置
+### 2.1 基本接口
++ void connect(URL url)：Connect configuration center
++ boolean available()：Configuration center status
+
+### 2.2 操作接口
++ void addConf(Cmd cmd, Object obj)：The Add Configuration Data.
++ void delConf(Cmd cmd)：The Delete Configuration Data.
++ void upConf(Cmd cmd, Object obj)：The Update Configuration Data.
++ <T> T pull(Cmd cmd, Class<T> cls)：The Pull Configuration Data.
++ <T> List<T> pulls(Cmd cmd, Class<T> cls)：The Pulls Configuration Data.
++ <T> void push(Cmd cmd, Class<T> cls, Notify<T> notify)：The Push Configuration Data.
++ void unpush(Cmd cmd)：The UnPush Configuration Data.
+
+### 2.3 统计接口
++ List<DataConf> getApps()：The Get Apps.
++ List<DataConf> getConfs()：The Get Confs.
++ List<DataConf> getDataBodys()：The Get Data Body.
 
 ## 3 数据结构
-格式：/[配置中心根节点]/[应用ID节点]/[配置文件名称节点]/[配置信息ID]{配置数据}
+### 3.1 连接URL
 
-如：/mconf/gateway/routeRule/10001{测试数据},其中第四级的节点名称为“10001”,第四级节点数据为“测试数据”,且“测试数据”为序列化后的JSON字符串。
+连接配置中心的URL格式：
 
-+ 数据结构：支持Object、Map、List等数据结构
-+ 使用原则：第四级节点和节点数据必须同时共存,即要不都存在,要不都不存在,不能出现节点名称存在而节点数据不存在的情况。
+> [zookeeper/redis]://127.0.0.1:2181/mconf?node=[node]&app=[app]&env=[env]&conf=[conf]&category=[category]&version=[version]&data=[data]&……
+
+### 3.2 数据存储结构
+#### 3.2.1 Zookeeper
+使用PATH节点来表示配置所属的相关信息，使用最后一层PATH的DATA区来存储JSON结构的配置数据。
+
+ + 第一层PATH：/mconf?……
+ + 第二层PATH：/[app]?node=[node]&……
+ + 第三层PATH：/[conf]?env=[env]&group=[group]&version=[version]&……
+ + 第四层PATH：/[data]?……
+ + 第四层DATA：{JSON Data String}
+
+完整PATH格式：
+
+> /mconf?……/[app]?node=[node]&……/[conf]?env=[env]&group=[group]&version=[version]&……/[data]?……
+
+#### 3.2.2 Redis
+Redis使用Map结构来存储配置信息。
+
+```
++ Key：/mconf?……/[app]?node=[node]&……/[conf]?env=[env]&group=[group]&version=[version]&……
++ Field：[data]?……
++ Value：{JSON Data String}
+```
 
 ## 4 可视化管理界面
 
