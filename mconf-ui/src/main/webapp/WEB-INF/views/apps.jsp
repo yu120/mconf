@@ -36,7 +36,7 @@
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
 	                        <h5><i class="fa fa-paper-plane"></i> ${app.app} <small>${app.root}</small></h5>
-	                        <div class="ibox-tools">${app.node}</div>
+	                        <div class="ibox-tools"><span class="badge badge-blue">${app.node}</span></div>
 	                    </div>
 	                    <div class="ibox-content">
 	                        <h5><i class="fa fa-file-word-o"></i> <a href="#" style="color: gray">查看配置文件(<i class="fa text-navy">${app.subNum}</i>)</a></h5>

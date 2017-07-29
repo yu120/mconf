@@ -81,10 +81,10 @@
 			                                    <td>${data.data}</td>
 			                                    <td>${data.conf}</td>
 			                                    <td><span class="badge badge-warning"><i class="fa fa-vimeo"></i> ${data.version}</span></td>
-			                                    <td><span class="badge badge-blue">${data.group}</span></td>
+			                                    <td><span class="badge badge-info">${data.group}</span></td>
 			                                    <td><span class="badge badge-green">${data.env}</span></td>
 			                                    <td>${data.app}</td>
-			                                    <td><span class="badge badge-info">${data.node}</span></td>
+			                                    <td><span class="badge badge-blue">${data.node}</span></td>
 			                                    <td>
 			                                    	<ul>
 			                                    		<c:forEach items="${data.body}" var="kv">

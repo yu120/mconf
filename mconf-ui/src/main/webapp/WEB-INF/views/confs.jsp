@@ -36,7 +36,7 @@
 	                <div class="ibox float-e-margins">
 	                    <div class="ibox-title">
 	                        <h5><i class="fa fa-sliders"></i> ${conf.conf} <small>${conf.app}</small></h5>
-	                        <div class="ibox-tools">${conf.node}</div>
+	                        <div class="ibox-tools"><span class="badge badge-blue">${conf.node}</span></div>
 	                    </div>
 	                    <div class="ibox-content">
 	                        <h5><i class="fa fa-list-ol"></i> <a href="#" style="color: gray">查看配置数据(<i class="fa text-navy">${conf.subNum}</i>)</a></h5>
