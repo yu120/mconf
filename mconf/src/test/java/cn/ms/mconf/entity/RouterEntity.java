@@ -1,6 +1,5 @@
 package cn.ms.mconf.entity;
 
-import cn.ms.mconf.annotation.MconfEntity;
 import cn.ms.mconf.entity.support.BaseEntity;
 
 /**
@@ -8,7 +7,6 @@ import cn.ms.mconf.entity.support.BaseEntity;
  * 
  * @author lry
  */
-@MconfEntity("router")
 public class RouterEntity extends BaseEntity {
 
 	private static final long serialVersionUID = 1L;

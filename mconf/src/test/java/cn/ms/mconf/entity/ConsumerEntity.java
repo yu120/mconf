@@ -2,7 +2,6 @@ package cn.ms.mconf.entity;
 
 import java.util.Map;
 
-import cn.ms.mconf.annotation.MconfEntity;
 import cn.ms.mconf.entity.support.BaseEntity;
 
 /**
@@ -10,7 +9,6 @@ import cn.ms.mconf.entity.support.BaseEntity;
  * 
  * @author lry
  */
-@MconfEntity("consumer")
 public class ConsumerEntity extends BaseEntity {
 
 	private static final long serialVersionUID = 1L;
