@@ -470,7 +470,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public List<DataConf> getDataBodys() {
+	public List<DataConf> getBodys() {
 		List<DataConf> dataConfs = new ArrayList<DataConf>();
 		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
 		

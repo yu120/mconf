@@ -133,6 +133,6 @@ public interface Mconf {
 	 * 
 	 * @return
 	 */
-	List<DataConf> getDataBodys();
+	List<DataConf> getBodys();
 
 }

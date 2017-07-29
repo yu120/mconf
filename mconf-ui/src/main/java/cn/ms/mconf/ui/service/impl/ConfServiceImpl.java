@@ -35,7 +35,7 @@ public class ConfServiceImpl implements ConfService {
 
 	@Override
 	public List<DataConf> getDatas() {
-		return mconf.getDataBodys();
+		return mconf.getBodys();
 	}
 	
 	@Override

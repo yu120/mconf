@@ -12,9 +12,6 @@ public abstract class AbstractMconf implements Mconf {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMconf.class);
 
-	public static final String ID_KEY = "id";
-	public static final String DEFAULT_KEY = "default_";
-
 	protected String ROOT;
 
 	@Override
