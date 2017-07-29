@@ -34,22 +34,31 @@
 
 ## 2 配置接口
 ### 2.1 基本接口
-+ void connect(URL url)：Connect configuration center
-+ boolean available()：Configuration center status
+
+```java
+void connect(URL url);//Connect configuration center
+boolean available();//Configuration center status
+```
 
 ### 2.2 操作接口
-+ void addConf(Cmd cmd, Object obj)：The Add Configuration Data.
-+ void delConf(Cmd cmd)：The Delete Configuration Data.
-+ void upConf(Cmd cmd, Object obj)：The Update Configuration Data.
-+ <T> T pull(Cmd cmd, Class<T> cls)：The Pull Configuration Data.
-+ <T> List<T> pulls(Cmd cmd, Class<T> cls)：The Pulls Configuration Data.
-+ <T> void push(Cmd cmd, Class<T> cls, Notify<T> notify)：The Push Configuration Data.
-+ void unpush(Cmd cmd)：The UnPush Configuration Data.
+
+```java
+void addConf(Cmd cmd, Object obj);//The Add Configuration Data.
+void delConf(Cmd cmd);//The Delete Configuration Data.
+void upConf(Cmd cmd, Object obj);//The Update Configuration Data.
+<T> T pull(Cmd cmd, Class<T> cls);//The Pull Configuration Data.
+<T> List<T> pulls(Cmd cmd, Class<T> cls);//The Pulls Configuration Data.
+<T> void push(Cmd cmd, Class<T> cls, Notify<T> notify);//The Push Configuration Data.
+void unpush(Cmd cmd);//The UnPush Configuration Data.
+```
 
 ### 2.3 统计接口
-+ List<DataConf> getApps()：The Get Apps.
-+ List<DataConf> getConfs()：The Get Confs.
-+ List<DataConf> getDataBodys()：The Get Data Body.
+
+```java
+List<DataConf> getApps();//The Get Apps.
+List<DataConf> getConfs();//The Get Confs.
+List<DataConf> getDataBodys();//The Get Data Body.
+```
 
 ## 3 数据结构
 ### 3.1 连接URL
@@ -62,11 +71,13 @@
 #### 3.2.1 Zookeeper
 使用PATH节点来表示配置所属的相关信息，使用最后一层PATH的DATA区来存储JSON结构的配置数据。
 
- + 第一层PATH：/mconf?……
- + 第二层PATH：/[app]?node=[node]&……
- + 第三层PATH：/[conf]?env=[env]&group=[group]&version=[version]&……
- + 第四层PATH：/[data]?……
- + 第四层DATA：{JSON Data String}
+```
+第1层PATH：/mconf?……
+第2层PATH：/[app]?node=[node]&……
+第3层PATH：/[conf]?env=[env]&group=[group]&version=[version]&……
+第4层PATH：/[data]?……
+第4层DATA：{JSON Data String}
+```
 
 完整PATH格式：
 
@@ -76,9 +87,9 @@
 Redis使用Map结构来存储配置信息。
 
 ```
-+ Key：/mconf?……/[app]?node=[node]&……/[conf]?env=[env]&group=[group]&version=[version]&……
-+ Field：[data]?……
-+ Value：{JSON Data String}
+Key：/mconf?……/[app]?node=[node]&……/[conf]?env=[env]&group=[group]&version=[version]&……
+Field：[data]?……
+Value：{JSON Data String}
 ```
 
 ## 4 可视化管理界面
