@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import cn.ms.micro.common.URL;
+
 public class Cmd {
 
 	public static final String ROOT_KEY = "root";
@@ -40,15 +42,13 @@ public class Cmd {
 	Map<String, String> dataAttrs = new HashMap<String, String>();
 
 	// build root
-	public Cmd buildRoot(String root) {
-		return this.buildRoot(root, null);
-	}
-
-	public Cmd buildRoot(String root, Map<String, String> rootAttrs) {
+	public Cmd buildRoot(URL url) {
+		String root = url.getPath();
 		if (StringUtils.isNotBlank(root)) {
 			this.setRoot(root);
 		}
 
+		Map<String, String> rootAttrs = url.getMethodParameters(ROOT_KEY);
 		if (rootAttrs != null) {
 			if (!rootAttrs.isEmpty()) {
 				this.rootAttrs.putAll(rootAttrs);
@@ -59,8 +59,8 @@ public class Cmd {
 	}
 
 	// build app
-	public Cmd buildApp(String node, String app) {
-		return this.buildApp(node, app, null);
+	public Cmd buildApp(String node, String app, String... pairs) {
+		return this.buildApp(node, app, URL.toStringMap(pairs));
 	}
 
 	public Cmd buildApp(String node, String app, Map<String, String> appAttrs) {
@@ -82,8 +82,8 @@ public class Cmd {
 	}
 
 	// build conf
-	public Cmd buildConf(String env, String group, String version, String conf) {
-		return this.buildConf(env, group, version, conf, null);
+	public Cmd buildConf(String env, String group, String version, String conf, String... pairs) {
+		return this.buildConf(env, group, version, conf, URL.toStringMap(pairs));
 	}
 
 	public Cmd buildConf(String env, String group, String version, String conf,
@@ -110,8 +110,8 @@ public class Cmd {
 	}
 
 	// build data
-	public Cmd buildData(String data) {
-		return this.buildData(data, null);
+	public Cmd buildData(String data, String... pairs) {
+		return this.buildData(data, URL.toStringMap(pairs));
 	}
 
 	public Cmd buildData(String data, Map<String, String> dataAttrs) {
@@ -133,8 +133,8 @@ public class Cmd {
 	 * 
 	 * @return
 	 */
-	public String buildKey() {
-		return this.buildPrefixKey() + this.buildSuffixKey();
+	public String getKey() {
+		return this.getPrefixKey() + this.getSuffixKey();
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class Cmd {
 	 * 
 	 * @return
 	 */
-	public String buildPrefixKey() {
+	public String getPrefixKey() {
 		if (StringUtils.isBlank(root)) {// check root
 			throw new RuntimeException("The must set 'root'.");
 		}
@@ -176,7 +176,7 @@ public class Cmd {
 	 * 
 	 * @return
 	 */
-	public String buildSuffixKey() {
+	public String getSuffixKey() {
 		if (StringUtils.isBlank(data)) {// check data
 			throw new RuntimeException("The must set 'data'.");
 		}

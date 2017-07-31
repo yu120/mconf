@@ -12,10 +12,12 @@ public abstract class AbstractMconf implements Mconf {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractMconf.class);
 
+	protected URL url;
 	protected String ROOT;
 
 	@Override
 	public void connect(URL url) {
+		this.url = url;
 		this.ROOT = url.getPath();
 	}
 

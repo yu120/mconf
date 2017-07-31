@@ -81,8 +81,8 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void addConf(Cmd cmd, Object obj) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
-		String field = cmd.buildSuffixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
+		String field = cmd.getSuffixKey();
 		String json = this.obj2Json(obj);
 		Jedis jedis = null;
 		try {
@@ -99,11 +99,11 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void delConf(Cmd cmd) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
-			String field = cmd.buildSuffixKey();
+			String field = cmd.getSuffixKey();
 			if (StringUtils.isNotBlank(field)) {
 				jedis.hdel(key, field);
 			} else {
@@ -125,8 +125,8 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> T pull(Cmd cmd, Class<T> cls) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
-		String field = cmd.buildSuffixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
+		String field = cmd.getSuffixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -144,7 +144,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -174,7 +174,7 @@ public class RedisMconf extends AbstractMconf {
 			isSubscribe = false;
 		}
 		
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -212,7 +212,7 @@ public class RedisMconf extends AbstractMconf {
 
 	@Override
 	public void unpush(Cmd cmd) {
-		String key = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String key = cmd.buildRoot(super.url).getPrefixKey();
 		if (pushClassMap.containsKey(key)) {
 			pushClassMap.remove(key);
 		}

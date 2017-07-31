@@ -106,7 +106,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public void addConf(Cmd cmd, Object obj) {
-		String path = cmd.buildRoot(super.ROOT).buildKey();
+		String path = cmd.buildRoot(super.url).getKey();
 		
 		byte[] dataByte = null;
 		try {
@@ -131,10 +131,10 @@ public class ZookeeperMconf extends AbstractMconf {
 		try {
 			String path;
 			if (StringUtils.isNotBlank(cmd.getData())) {
-				path = cmd.buildRoot(super.ROOT).buildKey();
+				path = cmd.buildRoot(super.url).getKey();
 				logger.debug("The PATH[{}] delete conf data.", path);
 			} else {
-				path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+				path = cmd.buildRoot(super.url).getPrefixKey();
 				logger.debug("The PATH[{}] and SubPATH delete conf datas.", path);
 			}
 			
@@ -147,7 +147,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public void upConf(Cmd cmd, Object obj) {
-		String path = cmd.buildRoot(super.ROOT).buildKey();
+		String path = cmd.buildRoot(super.url).getKey();
 		
 		byte[] dataByte = null;
 		try {
@@ -170,7 +170,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T pull(Cmd cmd, Class<T> cls) {
-		String path = cmd.buildRoot(super.ROOT).buildKey();
+		String path = cmd.buildRoot(super.url).getKey();
 		logger.debug("The PATH[{}] pull conf data.", path);
 		
 		byte[] dataByte = null;
@@ -201,7 +201,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public <T> List<T> pulls(Cmd cmd, Class<T> cls) {
-		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String path = cmd.buildRoot(super.url).getPrefixKey();
 		logger.debug("The PATH[{}] pulls conf data.", path);
 		
 		// Query all dataId lists
@@ -257,7 +257,7 @@ public class ZookeeperMconf extends AbstractMconf {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public <T> void push(final Cmd cmd, final Class<T> cls, final Notify<T> notify) {
-		final String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		final String path = cmd.buildRoot(super.url).getPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
@@ -327,7 +327,7 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	@Override
 	public void unpush(Cmd cmd) {
-		String path = cmd.buildRoot(super.ROOT).buildPrefixKey();
+		String path = cmd.buildRoot(super.url).getPrefixKey();
 		if (StringUtils.isBlank(path)) {
 			throw new RuntimeException("The PATH cannot be empty, path==" + path);
 		}
