@@ -425,11 +425,13 @@ public class RedisMconf extends AbstractMconf {
 						} catch (Exception e) {
 							logger.error("The push conf exception.", e);
 						} finally {
-							jedis.close();
+							if (jedis != null) {
+								jedis.close();
+							}
 						}
 					}
-				} catch (Throwable t) { // 防御性容错
-					logger.error("Unexpected error occur at failed retry, cause: " + t.getMessage(), t);
+				} catch (Exception e) { // 防御性容错
+					logger.error("Unexpected error occur at failed retry, cause: " + e.getMessage(), e);
 				}
 			}
 		}, retryPeriod, retryPeriod, TimeUnit.MILLISECONDS);

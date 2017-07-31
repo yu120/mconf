@@ -145,13 +145,13 @@ public class Cmd {
 	 */
 	public String getPrefixKey() {
 		if (StringUtils.isBlank(root)) {// check root
-			throw new RuntimeException("The must set 'root'.");
+			throw new IllegalArgumentException("The must set 'root'.");
 		}
 		if (StringUtils.isBlank(app)) {// check app
-			throw new RuntimeException("The must set 'app'.");
+			throw new IllegalArgumentException("The must set 'app'.");
 		}
 		if (StringUtils.isBlank(conf)) {// check conf
-			throw new RuntimeException("The must set 'conf'.");
+			throw new IllegalArgumentException("The must set 'conf'.");
 		}
 
 		Map<String, String> tempAppAttrs = new HashMap<String, String>();
@@ -178,7 +178,7 @@ public class Cmd {
 	 */
 	public String getSuffixKey() {
 		if (StringUtils.isBlank(data)) {// check data
-			throw new RuntimeException("The must set 'data'.");
+			throw new IllegalArgumentException("The must set 'data'.");
 		}
 
 		Map<String, String> tempDataAttrs = new HashMap<String, String>();
