@@ -2,7 +2,7 @@ package cn.ms.mconf.support;
 
 import java.util.Map;
 
-public class DataConf extends Cmd {
+public class MetaData extends Cmd {
 
 	private int subNum;
 

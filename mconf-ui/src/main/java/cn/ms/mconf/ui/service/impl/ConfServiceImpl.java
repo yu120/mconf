@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import cn.ms.mconf.Conf;
 import cn.ms.mconf.Mconf;
 import cn.ms.mconf.MconfFactory;
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.ui.service.ConfService;
 import cn.ms.micro.common.URL;
 
@@ -28,22 +28,22 @@ public class ConfServiceImpl implements ConfService {
 	}
 
 	@Override
-	public List<DataConf> getApps() {
+	public List<MetaData> getApps() {
 		return mconf.getApps();
 	}
 
 	@Override
-	public List<DataConf> getConfs() {
+	public List<MetaData> getConfs() {
 		return mconf.getConfs();
 	}
 
 	@Override
-	public List<DataConf> getDatas() {
+	public List<MetaData> getDatas() {
 		return mconf.getBodys();
 	}
 	
 	@Override
-	public List<DataConf> getDataids() {
+	public List<MetaData> getDataids() {
 		// TODO Auto-generated method stub
 		return null;
 	}

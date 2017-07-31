@@ -3,7 +3,7 @@ package cn.ms.mconf;
 import java.util.List;
 
 import cn.ms.mconf.support.Cmd;
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.URL;
 import cn.ms.micro.extension.Scope;
@@ -115,24 +115,24 @@ public interface Mconf {
 
 	//$NON-NLS-The Node Governor$
 	/**
-	 * The Get Apps.
+	 * Get the MetaData of App.
 	 * 
 	 * @return
 	 */
-	List<DataConf> getApps();
+	List<MetaData> getApps();
 
 	/**
-	 * The Get Confs.
+	 * Get the MetaData of Conf.
 	 * 
 	 * @return
 	 */
-	List<DataConf> getConfs();
+	List<MetaData> getConfs();
 
 	/**
-	 * The Get Data Body.
+	 * Get the MetaData of Body.
 	 * 
 	 * @return
 	 */
-	List<DataConf> getBodys();
+	List<MetaData> getBodys();
 
 }

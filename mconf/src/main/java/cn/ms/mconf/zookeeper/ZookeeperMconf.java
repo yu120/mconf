@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.Cmd;
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -352,9 +352,9 @@ public class ZookeeperMconf extends AbstractMconf {
 
 	//$NON-NLS-The Node Governor$
 	@Override
-	public List<DataConf> getApps() {
-		List<DataConf> dataConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> appConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getApps() {
+		List<MetaData> metaDatas = new ArrayList<MetaData>();
+		Map<String, MetaData> appConfMap = new HashMap<String, MetaData>();
 		
 		try {
 			String rootPath = null;
@@ -366,25 +366,25 @@ public class ZookeeperMconf extends AbstractMconf {
 				}
 			}
 			if(StringUtils.isBlank(rootPath)){
-				return dataConfs;
+				return metaDatas;
 			}
 			
 			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
 			for (String appPath:appPathList) {
-				DataConf dataConf = new DataConf();
+				MetaData metaData = new MetaData();
 				// build root
 				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
-				dataConf.setRoot(tempRootURL.getPath());
-				dataConf.setRootAttrs(tempRootURL.getParameters());
+				metaData.setRoot(tempRootURL.getPath());
+				metaData.setRootAttrs(tempRootURL.getParameters());
 				// build app
 				URL tempAppURL = URL.valueOf("/" + URL.decode(rootPath) + "/" + URL.decode(appPath));
-				dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
-				dataConf.setApp(tempAppURL.getPath());
-				dataConf.setAppAttrs(tempAppURL.getParameters());
+				metaData.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+				metaData.setApp(tempAppURL.getPath());
+				metaData.setAppAttrs(tempAppURL.getParameters());
 				// build others
 				String tempPath = "/" + rootPath + "/" + appPath;
-				dataConf.setSubNum(client.getChildren().forPath(tempPath).size());
-				appConfMap.put(tempPath, dataConf);
+				metaData.setSubNum(client.getChildren().forPath(tempPath).size());
+				appConfMap.put(tempPath, metaData);
 			}
 		} catch (NoNodeException e) {
 		} catch (Exception e) {
@@ -392,15 +392,15 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 		
 		if(!appConfMap.isEmpty()){
-			dataConfs.addAll(appConfMap.values());
+			metaDatas.addAll(appConfMap.values());
 		}
-		return dataConfs;
+		return metaDatas;
 	}
 	
 	@Override
-	public List<DataConf> getConfs() {
-		List<DataConf> dataConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getConfs() {
+		List<MetaData> metaDatas = new ArrayList<MetaData>();
+		Map<String, MetaData> confConfMap = new HashMap<String, MetaData>();
 		
 		try {
 			String rootPath = null;
@@ -412,12 +412,12 @@ public class ZookeeperMconf extends AbstractMconf {
 				}
 			}
 			if(StringUtils.isBlank(rootPath)){
-				return dataConfs;
+				return metaDatas;
 			}
 			
 			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
 			for (String appPath:appPathList) {
-				DataConf tempDataConf = new DataConf();
+				MetaData tempDataConf = new MetaData();
 				// build root
 				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
 				tempDataConf.setRoot(tempRootURL.getPath());
@@ -430,19 +430,19 @@ public class ZookeeperMconf extends AbstractMconf {
 				// build conf
 				List<String> confPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath);
 				for (String confPath:confPathList) {
-					DataConf dataConf = new DataConf();
-					BeanUtils.copyProperties(dataConf, tempDataConf);
+					MetaData metaData = new MetaData();
+					BeanUtils.copyProperties(metaData, tempDataConf);
 					
 					URL tempConfURL = URL.valueOf("/" + URL.decode(confPath));
-					dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
-					dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
-					dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
-					dataConf.setConf(tempConfURL.getPath());
-					dataConf.setConfAttrs(tempConfURL.getParameters());
+					metaData.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
+					metaData.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+					metaData.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+					metaData.setConf(tempConfURL.getPath());
+					metaData.setConfAttrs(tempConfURL.getParameters());
 					// build others
 					String tempPath = "/" + rootPath + "/" + appPath + "/" + confPath;
-					dataConf.setSubNum(client.getChildren().forPath(tempPath).size());
-					confConfMap.put(tempPath, dataConf);
+					metaData.setSubNum(client.getChildren().forPath(tempPath).size());
+					confConfMap.put(tempPath, metaData);
 				}
 			}
 		} catch (NoNodeException e) {
@@ -451,16 +451,16 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 			
 		if(!confConfMap.isEmpty()){
-			dataConfs.addAll(confConfMap.values());
+			metaDatas.addAll(confConfMap.values());
 		}
 
-		return dataConfs;
+		return metaDatas;
 	}
 	
 	@Override
-	public List<DataConf> getBodys() {
-		List<DataConf> dataConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getBodys() {
+		List<MetaData> metaDatas = new ArrayList<MetaData>();
+		Map<String, MetaData> confConfMap = new HashMap<String, MetaData>();
 		
 		try {
 			String rootPath = null;
@@ -472,12 +472,12 @@ public class ZookeeperMconf extends AbstractMconf {
 				}
 			}
 			if(StringUtils.isBlank(rootPath)){
-				return dataConfs;
+				return metaDatas;
 			}
 			
 			List<String> appPathList = client.getChildren().forPath("/" + rootPath);
 			for (String appPath:appPathList) {
-				DataConf appDataConf = new DataConf();
+				MetaData appDataConf = new MetaData();
 				// build root
 				URL tempRootURL = URL.valueOf("/" + URL.decode(rootPath));
 				appDataConf.setRoot(tempRootURL.getPath());
@@ -490,7 +490,7 @@ public class ZookeeperMconf extends AbstractMconf {
 				// build conf
 				List<String> confPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath);
 				for (String confPath:confPathList) {
-					DataConf confDataConf = new DataConf();
+					MetaData confDataConf = new MetaData();
 					BeanUtils.copyProperties(confDataConf, appDataConf);
 					
 					URL tempConfURL = URL.valueOf("/" + URL.decode(confPath));
@@ -503,19 +503,19 @@ public class ZookeeperMconf extends AbstractMconf {
 					// build data
 					List<String> dataPathList = client.getChildren().forPath("/" + rootPath + "/" + appPath + "/" + confPath);
 					for (String dataPath:dataPathList) {
-						DataConf dataConf = new DataConf();
-						BeanUtils.copyProperties(dataConf, confDataConf);
+						MetaData metaData = new MetaData();
+						BeanUtils.copyProperties(metaData, confDataConf);
 						URL tempDataURL = URL.valueOf("/" + URL.decode(dataPath));
-						dataConf.setData(tempDataURL.getPath());
-						dataConf.setDataAttrs(tempDataURL.getParameters());
+						metaData.setData(tempDataURL.getPath());
+						metaData.setDataAttrs(tempDataURL.getParameters());
 						
 						// build others
-						dataConf.setSubNum(0);
+						metaData.setSubNum(0);
 						String tempPath = "/" + rootPath + "/" + appPath + "/" + confPath + "/" + dataPath;
 						byte[] dataByte = client.getData().forPath(tempPath);
-						dataConf.setJson(new String(dataByte, Charset.forName("UTF-8")));
-						dataConf.setBody(JSON.parseObject(dataConf.getJson(), Map.class));
-						confConfMap.put(tempPath, dataConf);
+						metaData.setJson(new String(dataByte, Charset.forName("UTF-8")));
+						metaData.setBody(JSON.parseObject(metaData.getJson(), Map.class));
+						confConfMap.put(tempPath, metaData);
 					}
 				}
 			}
@@ -525,10 +525,10 @@ public class ZookeeperMconf extends AbstractMconf {
 		}
 			
 		if(!confConfMap.isEmpty()){
-			dataConfs.addAll(confConfMap.values());
+			metaDatas.addAll(confConfMap.values());
 		}
 
-		return dataConfs;
+		return metaDatas;
 	}
 	
 }

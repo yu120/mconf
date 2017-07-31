@@ -22,7 +22,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import cn.ms.mconf.support.AbstractMconf;
 import cn.ms.mconf.support.Cmd;
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.support.Notify;
 import cn.ms.micro.common.ConcurrentHashSet;
 import cn.ms.micro.common.URL;
@@ -226,9 +226,9 @@ public class RedisMconf extends AbstractMconf {
 
 	//$NON-NLS-The Node Governor$
 	@Override
-	public List<DataConf> getApps() {
-		List<DataConf> appConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> appConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getApps() {
+		List<MetaData> appConfs = new ArrayList<MetaData>();
+		Map<String, MetaData> appConfMap = new HashMap<String, MetaData>();
 		
 		Jedis jedis = null;
 		try {
@@ -237,19 +237,19 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					DataConf dataConf = new DataConf();
+					MetaData metaData = new MetaData();
 					// build root
 					URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
-					dataConf.setRoot(tempRootURL.getPath());
-					dataConf.setRootAttrs(tempRootURL.getParameters());
+					metaData.setRoot(tempRootURL.getPath());
+					metaData.setRootAttrs(tempRootURL.getParameters());
 					// build app
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-					dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
-					dataConf.setApp(tempAppURL.getPath());
-					dataConf.setAppAttrs(tempAppURL.getParameters());
+					metaData.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+					metaData.setApp(tempAppURL.getPath());
+					metaData.setAppAttrs(tempAppURL.getParameters());
 					// build others
-					dataConf.setSubNum(jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*").size());
-					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], dataConf);
+					metaData.setSubNum(jedis.keys("/" + keyArray[1] + "/" + keyArray[2] + "/*").size());
+					appConfMap.put("/" + keyArray[1] + "/" + keyArray[2], metaData);
 				}
 			}
 			
@@ -268,9 +268,9 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public List<DataConf> getConfs() {
-		List<DataConf> confConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getConfs() {
+		List<MetaData> confConfs = new ArrayList<MetaData>();
+		Map<String, MetaData> confConfMap = new HashMap<String, MetaData>();
 		
 		Jedis jedis = null;
 		try {
@@ -279,27 +279,27 @@ public class RedisMconf extends AbstractMconf {
 			for (String key:keySet) {
 				String[] keyArray = key.split("/");
 				if(keyArray.length == 4){
-					DataConf dataConf = new DataConf();
+					MetaData metaData = new MetaData();
 					// build root
 					URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
-					dataConf.setRoot(tempRootURL.getPath());
-					dataConf.setRootAttrs(tempRootURL.getParameters());
+					metaData.setRoot(tempRootURL.getPath());
+					metaData.setRootAttrs(tempRootURL.getParameters());
 					// build app
 					URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-					dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
-					dataConf.setApp(tempAppURL.getPath());
-					dataConf.setAppAttrs(tempAppURL.getParameters());
+					metaData.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+					metaData.setApp(tempAppURL.getPath());
+					metaData.setAppAttrs(tempAppURL.getParameters());
 					// build conf
 					URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
-					dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
-					dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
-					dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
-					dataConf.setConf(tempConfURL.getPath());
-					dataConf.setConfAttrs(tempConfURL.getParameters());
+					metaData.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
+					metaData.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+					metaData.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+					metaData.setConf(tempConfURL.getPath());
+					metaData.setConfAttrs(tempConfURL.getParameters());
 					// build others
-					dataConf.setSubNum(jedis.hkeys(key).size());
+					metaData.setSubNum(jedis.hkeys(key).size());
 					
-					confConfMap.put(key, dataConf);
+					confConfMap.put(key, metaData);
 				}
 			}
 			
@@ -318,9 +318,9 @@ public class RedisMconf extends AbstractMconf {
 	}
 	
 	@Override
-	public List<DataConf> getBodys() {
-		List<DataConf> confConfs = new ArrayList<DataConf>();
-		Map<String, DataConf> confConfMap = new HashMap<String, DataConf>();
+	public List<MetaData> getBodys() {
+		List<MetaData> confConfs = new ArrayList<MetaData>();
+		Map<String, MetaData> confConfMap = new HashMap<String, MetaData>();
 		
 		Jedis jedis = null;
 		try {
@@ -336,33 +336,33 @@ public class RedisMconf extends AbstractMconf {
 							continue;
 						}
 						
-						DataConf dataConf = new DataConf();
+						MetaData metaData = new MetaData();
 						// build root
 						URL tempRootURL = URL.valueOf("/" + URL.decode(keyArray[1]));
-						dataConf.setRoot(tempRootURL.getPath());
-						dataConf.setRootAttrs(tempRootURL.getParameters());
+						metaData.setRoot(tempRootURL.getPath());
+						metaData.setRootAttrs(tempRootURL.getParameters());
 						// build app
 						URL tempAppURL = URL.valueOf("/" + URL.decode(keyArray[2]));
-						dataConf.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
-						dataConf.setApp(tempAppURL.getPath());
-						dataConf.setAppAttrs(tempAppURL.getParameters());
+						metaData.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
+						metaData.setApp(tempAppURL.getPath());
+						metaData.setAppAttrs(tempAppURL.getParameters());
 						// build conf
 						URL tempConfURL = URL.valueOf("/" + URL.decode(keyArray[3]));
-						dataConf.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
-						dataConf.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
-						dataConf.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
-						dataConf.setConf(tempConfURL.getPath());
-						dataConf.setConfAttrs(tempConfURL.getParameters());
+						metaData.setEnv(tempConfURL.getParameter(Cmd.ENV_KEY));
+						metaData.setGroup(tempConfURL.getParameter(Cmd.GROUP_KEY));
+						metaData.setVersion(tempConfURL.getParameter(Cmd.VERSION_KEY));
+						metaData.setConf(tempConfURL.getPath());
+						metaData.setConfAttrs(tempConfURL.getParameters());
 						// build data
 						URL tempDataURL = URL.valueOf("/" + URL.decode(fieldArray[1]));
-						dataConf.setData(tempDataURL.getPath());
-						dataConf.setDataAttrs(tempDataURL.getParameters());
+						metaData.setData(tempDataURL.getPath());
+						metaData.setDataAttrs(tempDataURL.getParameters());
 						// build others
-						dataConf.setSubNum(0);
-						dataConf.setJson(jedis.hget(key, field));
-						dataConf.setBody(JSON.parseObject(dataConf.getJson(), Map.class));
+						metaData.setSubNum(0);
+						metaData.setJson(jedis.hget(key, field));
+						metaData.setBody(JSON.parseObject(metaData.getJson(), Map.class));
 						
-						confConfMap.put(key + field, dataConf);
+						confConfMap.put(key + field, metaData);
 					}
 				}
 			}

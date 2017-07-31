@@ -2,16 +2,16 @@ package cn.ms.mconf.ui.service;
 
 import java.util.List;
 
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 
 public interface ConfService {
 
-	List<DataConf> getApps();
+	List<MetaData> getApps();
 
-	List<DataConf> getConfs();
+	List<MetaData> getConfs();
 
-	List<DataConf> getDatas();
+	List<MetaData> getDatas();
 	
-	List<DataConf> getDataids();
+	List<MetaData> getDataids();
 
 }

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import cn.ms.mconf.support.DataConf;
+import cn.ms.mconf.support.MetaData;
 import cn.ms.mconf.ui.service.ConfService;
 
 @Controller
@@ -36,14 +36,14 @@ public class WebCtrl {
 	@RequestMapping(value = "main")
 	public String main(HttpServletRequest request) {
 		Set<String> nodeSet = new HashSet<String>();
-		List<DataConf> appList = confService.getApps();
-		for (DataConf dc:appList) {
+		List<MetaData> appList = confService.getApps();
+		for (MetaData dc:appList) {
 			nodeSet.add(dc.getNode());
 		}
 		
 		Set<String> confSet = new HashSet<String>();
-		List<DataConf> confList = confService.getConfs();
-		for (DataConf dc:confList) {
+		List<MetaData> confList = confService.getConfs();
+		for (MetaData dc:confList) {
 			confSet.add(dc.getEnv());
 		}
 		
@@ -63,7 +63,7 @@ public class WebCtrl {
 	 */
 	@RequestMapping(value = "apps")
 	public String apps(HttpServletRequest request) {
-		List<DataConf> appList = confService.getApps();
+		List<MetaData> appList = confService.getApps();
 		request.setAttribute("apps", appList);
 		return "apps";
 	}
@@ -76,7 +76,7 @@ public class WebCtrl {
 	 */
 	@RequestMapping(value = "confs")
 	public String confs(HttpServletRequest request) {
-		List<DataConf> confList = confService.getConfs();
+		List<MetaData> confList = confService.getConfs();
 		request.setAttribute("confs", confList);
 		return "confs";
 	}
@@ -89,10 +89,10 @@ public class WebCtrl {
 	 */
 	@RequestMapping(value = "datas")
 	public String datas(String keywords, HttpServletRequest request) {
-		List<DataConf> dataList = new ArrayList<DataConf>();
-		List<DataConf> tempDataList = confService.getDatas();
+		List<MetaData> dataList = new ArrayList<MetaData>();
+		List<MetaData> tempDataList = confService.getDatas();
 		if(StringUtils.isNotBlank(keywords)){
-			for (DataConf data:tempDataList) {
+			for (MetaData data:tempDataList) {
 				if(data.toString().contains(keywords)){
 					dataList.add(data);
 				}
