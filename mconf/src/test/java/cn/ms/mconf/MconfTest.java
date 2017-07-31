@@ -16,18 +16,14 @@ import cn.ms.mconf.entity.SysconfEntity;
 import cn.ms.mconf.entity.support.ApiParamType;
 import cn.ms.mconf.entity.support.BaseEntity;
 import cn.ms.mconf.support.Cmd;
-import cn.ms.micro.common.URL;
 
 public class MconfTest {
 
-//	URL mconfURL = URL.valueOf("zookeeper://127.0.0.1:2181/mconf?timeout=15000&session=60000&app=node&conf=env&data=group,version");
-	URL mconfURL = URL.valueOf("redis://127.0.0.1:6379/mconf?app=node&conf=env&data=group,version");
-	
 	Mconf mconf;
 	Integer id = 1;
 
 	public MconfTest() {
-		MconfFactory.MCONF.start(mconfURL);
+		MconfFactory.MCONF.start(TestBase.mconfURL);
 		mconf = MconfFactory.MCONF.getMconf();
 	}
 	
