@@ -3,7 +3,11 @@ package cn.ms.mconf.support;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -82,8 +86,10 @@ public class Cmd {
 	}
 
 	// build conf
-	public Cmd buildConf(String env, String group, String version, String conf, String... pairs) {
-		return this.buildConf(env, group, version, conf, URL.toStringMap(pairs));
+	public Cmd buildConf(String env, String group, String version, String conf,
+			String... pairs) {
+		return this
+				.buildConf(env, group, version, conf, URL.toStringMap(pairs));
 	}
 
 	public Cmd buildConf(String env, String group, String version, String conf,
@@ -190,26 +196,46 @@ public class Cmd {
 		return sb.toString();
 	}
 
+	/**
+	 * 
+	 * 对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序），并且生成url参数串<br>
+	 * 
+	 * @param paraMap
+	 * @return
+	 */
 	public static String buildAttributes(Map<String, String> attributes) {
-		if (attributes == null || attributes.size() == 0) {
+		if(attributes == null || attributes.isEmpty()){
 			return "";
 		}
+		
+		String buff;
+		StringBuilder buf = new StringBuilder("?");
+		Map<String, String> tmpMap = attributes;
+		try {
+			List<Map.Entry<String, String>> infoIds = new ArrayList<Map.Entry<String, String>>(tmpMap.entrySet());
+			// 对所有传入参数按照字段名的 ASCII 码从小到大排序（字典序）
+			Collections.sort(infoIds, new Comparator<Map.Entry<String, String>>() {
+				@Override
+				public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
+					return (o1.getKey()).toString().compareTo(o2.getKey());
+				}
+			});
+			// 构造URL 键值对的格式
+			for (Map.Entry<String, String> item : infoIds) {
+				if (StringUtils.isNotBlank(item.getKey())) {
+					buf.append(item.getKey() + "=" + item.getValue()).append("&");
+				}
 
-		StringBuffer sb = new StringBuffer("?");
-		for (Map.Entry<String, String> entry : attributes.entrySet()) {
-			if (entry.getValue() != null) {
-				String key = encode(entry.getKey());
-				String value = encode(String.valueOf(entry.getValue()));
-				sb.append(key).append("=").append(value).append("&");
 			}
+			buff = buf.toString();
+			if (buff.isEmpty() == false) {
+				buff = buff.substring(0, buff.length() - 1);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-
-		String keyAllPath = sb.toString();
-		if (keyAllPath.endsWith("&")) {
-			return keyAllPath.substring(0, keyAllPath.length() - 1);
-		} else {
-			return keyAllPath;
-		}
+		
+		return buff;
 	}
 
 	// encode、decode
