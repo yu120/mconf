@@ -377,7 +377,7 @@ public class ZookeeperMconf extends AbstractMconf {
 				metaData.setRoot(tempRootURL.getPath());
 				metaData.setRootAttrs(tempRootURL.getParameters());
 				// build app
-				URL tempAppURL = URL.valueOf("/" + URL.decode(rootPath) + "/" + URL.decode(appPath));
+				URL tempAppURL = URL.valueOf("/" + URL.decode(appPath));
 				metaData.setNode(tempAppURL.getParameter(Cmd.NODE_KEY));
 				metaData.setApp(tempAppURL.getPath());
 				metaData.setAppAttrs(tempAppURL.getParameters());
